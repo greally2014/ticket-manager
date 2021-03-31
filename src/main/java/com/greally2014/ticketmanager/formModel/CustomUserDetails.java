@@ -1,4 +1,4 @@
-package com.greally2014.ticketmanager.model;
+package com.greally2014.ticketmanager.formModel;
 
 import com.greally2014.ticketmanager.entity.Role;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,13 +27,21 @@ public class CustomUserDetails implements UserDetails {
     }
 
     @Override
+    public String getUsername() {
+        return user.getUserName();
+    }
+
+    @Override
     public String getPassword() {
         return user.getPassword();
     }
 
-    @Override
-    public String getUsername() {
-        return user.getUserName();
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override
@@ -55,4 +63,5 @@ public class CustomUserDetails implements UserDetails {
     public boolean isEnabled() {
         return user.isEnabled();
     }
+
 }

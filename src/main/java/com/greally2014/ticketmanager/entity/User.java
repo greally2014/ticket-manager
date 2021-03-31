@@ -33,7 +33,7 @@ public class User {
     private boolean enabled;
 
     @ManyToMany(
-            fetch = FetchType.EAGER,
+            fetch = FetchType.LAZY,
             cascade = CascadeType.PERSIST
     )
     @JoinTable(

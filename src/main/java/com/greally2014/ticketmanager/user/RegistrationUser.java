@@ -1,6 +1,7 @@
 package com.greally2014.ticketmanager.user;
 
 import com.greally2014.ticketmanager.validation.FieldMatch;
+import com.greally2014.ticketmanager.validation.UniqueEmail;
 import com.greally2014.ticketmanager.validation.ValidEmail;
 
 import javax.validation.constraints.NotNull;
@@ -32,7 +33,7 @@ public class RegistrationUser {
     private String lastName;
 
     @ValidEmail
-    @NotNull(message = "Email is required")
+    @UniqueEmail
     @Size(min = 1, max = 50, message = "Email is required")
     private String email;
 

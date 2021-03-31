@@ -1,6 +1,6 @@
 package com.greally2014.ticketmanager.config;
 
-import com.greally2014.ticketmanager.model.CustomUserDetails;
+import com.greally2014.ticketmanager.formModel.CustomUserDetails;
 import com.greally2014.ticketmanager.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
