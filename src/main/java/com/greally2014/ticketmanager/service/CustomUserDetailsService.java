@@ -2,8 +2,7 @@ package com.greally2014.ticketmanager.service;
 
 import com.greally2014.ticketmanager.dao.RoleRepository;
 import com.greally2014.ticketmanager.dao.UserRepository;
-import com.greally2014.ticketmanager.entity.Role;
-import com.greally2014.ticketmanager.entity.User;
+import com.greally2014.ticketmanager.entity.*;
 import com.greally2014.ticketmanager.model.CustomUserDetails;
 import com.greally2014.ticketmanager.user.RegistrationUser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +38,24 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     public void save(RegistrationUser registrationUser) {
-        User user = new User();
+        User user;
+
+        switch (registrationUser.getFormRole()) {
+            case "ROLE_GENERAL_MANAGER":
+                user = new GeneralManager();
+                break;
+            case "ROLE_PROJECT_MANAGER":
+                user = new ProjectManager();
+                break;
+            case "ROLE_SUBMITTER":
+                user = new Submitter();
+                break;
+            case "ROLE_DEVELOPER":
+                user = new Developer();
+                break;
+            default:
+                throw new InputMismatchException("Formrole not recognised");
+        }
 
         user.setUserName(registrationUser.getUserName());
         user.setPassword(bCryptPasswordEncoder.encode(registrationUser.getPassword()));
