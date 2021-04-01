@@ -1,4 +1,4 @@
-package com.greally2014.ticketmanager.formModel;
+package com.greally2014.ticketmanager.userDetails;
 
 import com.greally2014.ticketmanager.entity.Role;
 import org.springframework.security.core.GrantedAuthority;

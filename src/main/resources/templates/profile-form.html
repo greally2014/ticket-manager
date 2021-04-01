@@ -1,0 +1,78 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+	<head>
+		<!-- Required meta tags -->
+    	<meta charset="utf-8">
+    	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    	
+    	<!-- Bootstrap CSS -->
+        <link rel="stylesheet"
+              href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		
+		<title>Save Employee</title>
+	</head>
+	
+	<body>
+	
+		<div class="container">
+		
+			<h3>User Profile</h3>
+			<hr>
+			
+			<p class="h4 mb-4">Update Profile</p>
+			
+			<form action="#" th:action="@{/profile/saveProfile}"
+							th:object="${profileUser}" method="post">
+
+                <!-- Add hidden form field to handle the update -->
+                <input type="hidden" th:field="*{id}" />
+
+                <input type="text" th:field="*{userName}"
+                    class="form-control mb-4 col-4" placeholder="username (*)">
+                <div th:if="${#fields.hasErrors('userName')}"
+                     style="margin-bottom: 25px; color: red">
+                    <ul>
+                        <li th:each="err : ${#fields.errors('userName')}" th:text="${err}"/>
+                    </ul>
+                </div>
+
+				<input type="text" th:field="*{firstName}"
+					class="form-control mb-4 col-4" placeholder="First name">
+                <div th:if="${#fields.hasErrors('firstName')}"
+                     style="margin-bottom: 25px; color: red">
+                    <ul>
+                        <li th:each="err : ${#fields.errors('firstName')}" th:text="${err}" />
+                    </ul>
+                </div>
+					
+				<input type="text" th:field="*{lastName}"
+					class="form-control mb-4 col-4" placeholder="Last name">
+                <div th:if="${#fields.hasErrors('lastName')}"
+                     style="margin-bottom: 25px; color: red">
+                    <ul>
+                        <li th:each="err : ${#fields.errors('lastName')}" th:text="${err}"/>
+                    </ul>
+                </div>
+					
+				<input type="text" th:field="*{email}"
+					class="form-control mb-4 col-4" placeholder="Email">
+                <div th:if="${#fields.hasErrors('email')}"
+                     style="margin-bottom: 25px; color: red">
+                    <ul>
+                        <li th:each="err : ${#fields.errors('email')}" th:text="${err}" />
+                    </ul>
+                </div>
+					
+				<button type="submit" class="btn btn-info col-2">Save</button>
+				
+			</form>
+			
+			<hr>
+            <a th:href="@{/}">Back to Index</a>
+		
+		</div>
+	
+	</body>
+
+</html>

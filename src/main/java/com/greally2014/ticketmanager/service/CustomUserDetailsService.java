@@ -4,8 +4,9 @@ import com.greally2014.ticketmanager.dao.RoleRepository;
 import com.greally2014.ticketmanager.dao.UserRepository;
 import com.greally2014.ticketmanager.entity.*;
 import com.greally2014.ticketmanager.exception.EmailNotFoundException;
-import com.greally2014.ticketmanager.formModel.CustomUserDetails;
-import com.greally2014.ticketmanager.user.RegistrationUser;
+import com.greally2014.ticketmanager.formModel.ProfileUser;
+import com.greally2014.ticketmanager.formModel.RegistrationUser;
+import com.greally2014.ticketmanager.userDetails.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -28,8 +29,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
 
-    public CustomUserDetailsService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public CustomUserDetailsService() {
     }
 
     @Override
@@ -72,5 +72,11 @@ public class CustomUserDetailsService implements UserDetailsService {
     public Set<Role> getRegisteredUserRoles(String formRole) {
         List<String> roles = new ArrayList<>(Arrays.asList("ROLE_EMPLOYEE", formRole));
         return new HashSet<>(roleRepository.findByNameIn(roles));
+    }
+
+    @Transactional
+    public void updateProfileDetails(ProfileUser profileUser, String principalUsername) {
+        userRepository.updateProfileDetails(profileUser.getUserName(), profileUser.getFirstName(),
+                profileUser.getLastName(), profileUser.getEmail(), principalUsername);
     }
 }

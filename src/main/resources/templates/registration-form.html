@@ -2,18 +2,19 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-	
-	<title>Register New User Form</title>
-	
+    <!-- Required meta tags -->
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	
+
 	<!-- Reference Bootstrap files -->
 	<link rel="stylesheet"
 		 href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-	
-		<style>
-		.error {color:red}
+
+    <title>Register New User Form</title>
+
+    <style>
+		.error {color: #ff0000
+        }
 	</style>
 
 </head>
@@ -36,8 +37,8 @@
 					<!-- Registration Form -->
 					<!--/*@thymesVar id="user" type=""*/-->
 					<form th:action="@{/register/processRegistration}"
-						  	   th:object="${registrationUser}" method="POST"
-						  	   class="form-horizontal">
+                          th:object="${registrationUser}" method="POST"
+                          class="form-horizontal">
 
 					    <!-- Place for messages: error, alert etc ... -->
 					    <div class="form-group">
@@ -56,13 +57,13 @@
 						<!-- User name -->
 						<div style="margin-bottom: 25px" class="input-group">
 							<span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span> 
-							<input type="text" th:field="*{userName}" placeholder="username (*)" class="form-control" />
+							<input type="text" th:field="*{userName}" placeholder="username (*)" class="form-control"/>
 						</div>
 
 						<div th:if="${#fields.hasErrors('userName')}"
 							style="margin-bottom: 25px" class="text-danger">
 							<ul>
-							  <li th:each="err : ${#fields.errors('userName')}" th:text="${err}" />
+							  <li th:each="err : ${#fields.errors('userName')}" th:text="${err}"/>
 							</ul>						
 						</div>
 						
@@ -70,24 +71,24 @@
 						<!-- Password -->
 						<div style="margin-bottom: 25px" class="input-group">
 							<span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span> 
-							<input type="password" th:field="*{password}" placeholder="password (*)" class="form-control" th:errorclass="fieldError" />
+							<input type="password" th:field="*{password}" placeholder="password (*)" class="form-control" th:errorclass="fieldError"/>
 						</div>
 						<div th:if="${#fields.hasErrors('password')}"
 							style="margin-bottom: 25px" class="text-danger">
 							<ul>
-							  <li th:each="err : ${#fields.errors('password')}" th:text="${err}" />
+							  <li th:each="err : ${#fields.errors('password')}" th:text="${err}"/>
 							</ul>						
 						</div>
 						
 						<!-- Confirm Password -->
 						<div style="margin-bottom: 25px" class="input-group">
 							<span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span> 
-							<input type="password" th:field="*{matchingPassword}" placeholder="confirm password (*)" class="form-control" th:errorclass="fieldError" />
+							<input type="password" th:field="*{matchingPassword}" placeholder="confirm password (*)" class="form-control" th:errorclass="fieldError"/>
 						</div>
 						<div th:if="${#fields.hasErrors('matchingPassword')}"
 							style="margin-bottom: 25px" class="text-danger">
 							<ul>
-							  <li th:each="err : ${#fields.errors('matchingPassword')}" th:text="${err}" />
+							  <li th:each="err : ${#fields.errors('matchingPassword')}" th:text="${err}"/>
 							</ul>						
 						</div>
 
@@ -107,19 +108,19 @@
 						<!-- First name -->
 						<div style="margin-bottom: 25px" class="input-group">
 							<span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span> 
-							<input type="text" th:field="*{firstName}" placeholder="first name (*)" class="form-control" th:errorclass="fieldError" />
+							<input type="text" th:field="*{firstName}" placeholder="first name (*)" class="form-control" th:errorclass="fieldError"/>
 						</div>
 						<div th:if="${#fields.hasErrors('firstName')}"
 							style="margin-bottom: 25px" class="text-danger">
 							<ul>
-							  <li th:each="err : ${#fields.errors('firstName')}" th:text="${err}" />
+							  <li th:each="err : ${#fields.errors('firstName')}" th:text="${err}"/>
 							</ul>						
 						</div>
 						
 						<!-- Last name -->
 						<div style="margin-bottom: 25px" class="input-group">
 							<span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span> 
-							<input type="text" th:field="*{lastName}" placeholder="last name (*)" class="form-control" th:errorclass="fieldError" />
+							<input type="text" th:field="*{lastName}" placeholder="last name (*)" class="form-control" th:errorclass="fieldError"/>
 						</div>
 						<div th:if="${#fields.hasErrors('lastName')}"
 							style="margin-bottom: 25px" class="text-danger">
@@ -131,7 +132,7 @@
 						<!-- Email -->
 						<div style="margin-bottom: 25px" class="input-group">
 							<span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span> 
-							<input type="text" th:field="*{email}" placeholder="email (*)" class="form-control" th:errorclass="fieldError" />
+							<input type="text" th:field="*{email}" placeholder="email (*)" class="form-control" th:errorclass="fieldError"/>
 						</div>
 						<div th:if="${#fields.hasErrors('email')}"
 							style="margin-bottom: 25px" class="text-danger">

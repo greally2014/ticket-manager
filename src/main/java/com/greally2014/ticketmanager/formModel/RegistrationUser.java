@@ -1,4 +1,4 @@
-package com.greally2014.ticketmanager.user;
+package com.greally2014.ticketmanager.formModel;
 
 import com.greally2014.ticketmanager.validation.FieldMatch;
 import com.greally2014.ticketmanager.validation.UniqueEmail;
@@ -42,7 +42,6 @@ public class RegistrationUser {
     private String formRole;
 
     public RegistrationUser() {
-
     }
 
     public String getUserName() {

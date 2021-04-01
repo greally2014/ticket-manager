@@ -1,6 +1,6 @@
 package com.greally2014.ticketmanager.config;
 
-import com.greally2014.ticketmanager.formModel.CustomUserDetails;
+import com.greally2014.ticketmanager.userDetails.CustomUserDetails;
 import com.greally2014.ticketmanager.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -23,9 +23,9 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
 
-        CustomUserDetails user = (CustomUserDetails) userDetailsService.loadUserByUsername(authentication.getName());
+        CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(authentication.getName());
         HttpSession session = request.getSession();
-        session.setAttribute("user", user);
+        session.setAttribute("userDetails", userDetails);
 
         response.sendRedirect(request.getContextPath() + "/");
     }

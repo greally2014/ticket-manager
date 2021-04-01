@@ -1,7 +1,7 @@
 package com.greally2014.ticketmanager.controller;
 
+import com.greally2014.ticketmanager.formModel.RegistrationUser;
 import com.greally2014.ticketmanager.service.CustomUserDetailsService;
-import com.greally2014.ticketmanager.user.RegistrationUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -54,8 +54,7 @@ public class RegistrationController {
 
         try {
             UserDetails existingUser = userDetailsService.loadUserByUsername(registrationUser.getUserName());
-            logger.info("=====> Username taken: " + registrationUser.getUserName() +
-                    " == " + existingUser.getUsername());
+            logger.info("=====> Username taken: " + registrationUser.getUserName());
 
             model.addAttribute("registrationUser", new RegistrationUser());
             model.addAttribute("roles", roles);
@@ -71,7 +70,7 @@ public class RegistrationController {
     }
 
     @PostConstruct
-    public void loadRoles() {
+    public void setRoles() {
         roles = new LinkedHashMap<>();
         roles.put("ROLE_GENERAL_MANAGER", "General Manager");
         roles.put("ROLE_PROJECT_MANAGER", "Project Manager");
