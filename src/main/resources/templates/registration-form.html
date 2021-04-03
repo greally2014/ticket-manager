@@ -37,7 +37,7 @@
 					<!-- Registration Form -->
 					<!--/*@thymesVar id="user" type=""*/-->
 					<form th:action="@{/register/processRegistration}"
-                          th:object="${registrationUser}" method="POST"
+                          th:object="${registrationFormUser}" method="POST"
                           class="form-horizontal">
 
 					    <!-- Place for messages: error, alert etc ... -->
@@ -94,7 +94,7 @@
 
                         <!-- Roles -->
                         <div style="margin-bottom: 25px" class="input-group" th:object="${roles}">
-                            <select class="form-control" th:field="${registrationUser.formRole}">
+                            <select class="form-control" th:field="${registrationFormUser.formRole}">
                                 <option value="">Select Role</option>
                                 <option th:each="role : ${roles}"
                                         th:value="${role.getKey()}"

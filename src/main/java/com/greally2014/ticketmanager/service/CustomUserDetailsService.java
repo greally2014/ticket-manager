@@ -4,8 +4,8 @@ import com.greally2014.ticketmanager.dao.RoleRepository;
 import com.greally2014.ticketmanager.dao.UserRepository;
 import com.greally2014.ticketmanager.entity.*;
 import com.greally2014.ticketmanager.exception.EmailNotFoundException;
-import com.greally2014.ticketmanager.formModel.ProfileUser;
-import com.greally2014.ticketmanager.formModel.RegistrationUser;
+import com.greally2014.ticketmanager.formModel.ProfileFormUser;
+import com.greally2014.ticketmanager.formModel.RegistrationFormUser;
 import com.greally2014.ticketmanager.userDetails.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -33,16 +33,16 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     @Transactional
     public CustomUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> user = userRepository.findByUsername(username);
-        user.orElseThrow(() -> new UsernameNotFoundException("Not found: " + username));
-        return user.map(CustomUserDetails::new).get();
+        Optional<User> userOptional = userRepository.findByUsername(username);
+        userOptional.orElseThrow(() -> new UsernameNotFoundException("Not found: " + username));
+        return userOptional.map(CustomUserDetails::new).get();
     }
 
     @Transactional
     public CustomUserDetails loadUserByEmail(String email) throws EmailNotFoundException {
-        Optional<User> user = userRepository.findByEmail(email);
-        user.orElseThrow(() -> new EmailNotFoundException("Not found: " + email));
-        return user.map(CustomUserDetails::new).get();
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        userOptional.orElseThrow(() -> new EmailNotFoundException("Not found: " + email));
+        return userOptional.map(CustomUserDetails::new).get();
     }
 
     @Transactional
@@ -51,8 +51,8 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Transactional
-    public void save(RegistrationUser registrationUser) throws InputMismatchException {
-        User user = switch (registrationUser.getFormRole()) {
+    public void save(RegistrationFormUser registrationFormUser) throws InputMismatchException {
+        User user = switch (registrationFormUser.getFormRole()) {
             case "ROLE_GENERAL_MANAGER" -> new GeneralManager();
             case "ROLE_PROJECT_MANAGER" -> new ProjectManager();
             case "ROLE_SUBMITTER" -> new Submitter();
@@ -60,21 +60,21 @@ public class CustomUserDetailsService implements UserDetailsService {
             default -> throw new InputMismatchException("Formrole not recognised");
         };
 
-        user.setUsername(registrationUser.getUsername());
-        user.setPassword(bCryptPasswordEncoder.encode(registrationUser.getPassword()));
-        user.setFirstName(registrationUser.getFirstName());
-        user.setLastName(registrationUser.getLastName());
-        user.setEmail(registrationUser.getEmail());
-        user.setRoles(getRegistrationUserRoles(registrationUser.getFormRole()));
+        user.setUsername(registrationFormUser.getUsername());
+        user.setPassword(bCryptPasswordEncoder.encode(registrationFormUser.getPassword()));
+        user.setFirstName(registrationFormUser.getFirstName());
+        user.setLastName(registrationFormUser.getLastName());
+        user.setEmail(registrationFormUser.getEmail());
+        user.setRoles(getRegistrationUserRoles(registrationFormUser.getFormRole()));
         user.setEnabled(true);
 
         userRepository.save(user);
     }
 
     @Transactional
-    public void updateProfileDetails(ProfileUser profileUser, String principalUsername) {
-        userRepository.updateProfileDetails(profileUser.getUsername(), profileUser.getFirstName(),
-                profileUser.getLastName(), profileUser.getEmail(), principalUsername);
+    public void updateProfileDetails(ProfileFormUser profileFormUser, String principalUsername) {
+        userRepository.updateProfileDetails(profileFormUser.getUsername(), profileFormUser.getFirstName(),
+                profileFormUser.getLastName(), profileFormUser.getEmail(), principalUsername);
     }
 
     @Transactional

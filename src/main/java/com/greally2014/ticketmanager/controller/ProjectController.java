@@ -1,6 +1,7 @@
 package com.greally2014.ticketmanager.controller;
 
 import com.greally2014.ticketmanager.entity.Project;
+import com.greally2014.ticketmanager.exception.ProjectNotFoundException;
 import com.greally2014.ticketmanager.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,4 +34,18 @@ public class ProjectController {
         return "redirect:/projects/listProjects";
     }
 
+
+
+    @GetMapping("/showFormForUpdate")
+    public String updateProject(@RequestParam("projectId") Long projectId, Model model) {
+        try {
+            Project project = projectService.findById(projectId);
+            model.addAttribute("project", project);
+            return "project-form";
+
+        } catch (ProjectNotFoundException exception) {
+            exception.printStackTrace();
+        }
+        return "redirect:/projects/listProjects";
+    }
 }

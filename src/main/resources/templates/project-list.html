@@ -48,6 +48,7 @@
         <tr>
             <th>Title</th>
             <th>Description</th>
+            <th>Date</th>
             <th sec:authorize="hasRole('GENERAL_MANAGER')">Action</th>
         </tr>
         </thead>
@@ -57,6 +58,7 @@
 
             <td th:text="${tempProject.title}"></td>
             <td th:text="${tempProject.description}"></td>
+            <td th:text="${tempProject.dateCreated}"></td>
             <td sec:authorize="hasRole('GENERAL_MANAGER')">
                 <!-- Add "update" button/link -->
                 <a th:href="@{/projects/showFormForUpdate(projectId=${tempProject.id})}"

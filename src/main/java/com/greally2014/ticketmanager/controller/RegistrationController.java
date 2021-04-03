@@ -1,6 +1,6 @@
 package com.greally2014.ticketmanager.controller;
 
-import com.greally2014.ticketmanager.formModel.RegistrationUser;
+import com.greally2014.ticketmanager.formModel.RegistrationFormUser;
 import com.greally2014.ticketmanager.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
@@ -38,13 +38,13 @@ public class RegistrationController {
 
     @GetMapping("/showRegistrationForm")
     public String showRegistrationForm(Model model) {
-        model.addAttribute("registrationUser", new RegistrationUser());
+        model.addAttribute("registrationFormUser", new RegistrationFormUser());
         model.addAttribute("roles", roles);
         return "registration-form";
     }
 
     @PostMapping("/processRegistration")
-    public String processRegistration(@Valid @ModelAttribute("registrationUser") RegistrationUser registrationUser,
+    public String processRegistration(@Valid @ModelAttribute("registrationFormUser") RegistrationFormUser registrationFormUser,
                                       BindingResult bindingResult, Model model) {
 
         if (bindingResult.hasErrors()) {
@@ -56,18 +56,18 @@ public class RegistrationController {
             return "registration-form";
         }
 
-        if (customUserDetailsService.isUsernameTaken(registrationUser.getUsername())) {
-            logger.info("=====> Username taken: " + registrationUser.getUsername());
+        if (customUserDetailsService.isUsernameTaken(registrationFormUser.getUsername())) {
+            logger.info("=====> Username taken: " + registrationFormUser.getUsername());
 
-            model.addAttribute("registrationUser", new RegistrationUser());
+            model.addAttribute("registrationFormUser", new RegistrationFormUser());
             model.addAttribute("roles", roles);
             model.addAttribute("registrationError", "Username already exists.");
             return "registration-form";
 
         } else {
-            logger.info("=====> Saving user: " + registrationUser.getUsername());
+            logger.info("=====> Saving user: " + registrationFormUser.getUsername());
 
-            customUserDetailsService.save(registrationUser);
+            customUserDetailsService.save(registrationFormUser);
             return "registration-confirmation";
         }
     }
