@@ -21,17 +21,21 @@ public class ProjectService {
     @Autowired
     private ProjectRepository projectRepository;
 
-    public List<Project> findAll(String username) {
+    public List<Project> findAllByUserAndUserRole(String username) {
 
         User user = customUserDetailsService.loadUserByUsername(username).getUser();
         Set<String> roleNames = user.getRoles().stream().map(Role::getName).collect(Collectors.toSet());
         List<Project> projects = new ArrayList<>();
 
         if (roleNames.contains("ROLE_PROJECT_MANAGER")) {
-            projects = projectRepository.findByProjectManagersId(user.getId());
+            projects = projectRepository.findAllByProjectManagersId(user.getId());
         } else {
             projects = projectRepository.findAll();
         }
         return projects;
+    }
+
+    public void deleteById(Long projectId) {
+        projectRepository.deleteById(projectId);
     }
 }
