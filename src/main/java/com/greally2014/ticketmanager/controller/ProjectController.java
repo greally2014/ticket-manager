@@ -7,9 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
@@ -31,7 +29,7 @@ public class ProjectController {
 
     @GetMapping("/delete")
     @PreAuthorize("hasRole('GENERAL_MANAGER')")
-    public String deleteProject(@RequestParam("projectId") Long projectId) {
+    public String deleteProject(@ModelAttribute("projectId") Long projectId) {
         projectService.deleteById(projectId);
         return "redirect:/projects/listProjects";
     }
