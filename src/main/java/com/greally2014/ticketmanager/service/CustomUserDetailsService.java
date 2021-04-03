@@ -19,7 +19,6 @@ import java.util.*;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
-
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -35,7 +34,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> user = userRepository.findByUserName(username);
+        Optional<User> user = userRepository.findByUsername(username);
         user.orElseThrow(() -> new UsernameNotFoundException("Not found: " + username));
         return user.map(CustomUserDetails::new).get();
     }
@@ -48,6 +47,11 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Transactional
+    public boolean isUsernameTaken(String username) {
+        return userRepository.existsUserByUsername(username);
+    }
+
+    @Transactional
     public void save(RegistrationUser registrationUser) throws InputMismatchException {
         User user = switch (registrationUser.getFormRole()) {
             case "ROLE_GENERAL_MANAGER" -> new GeneralManager();
@@ -57,26 +61,26 @@ public class CustomUserDetailsService implements UserDetailsService {
             default -> throw new InputMismatchException("Formrole not recognised");
         };
 
-        user.setUserName(registrationUser.getUserName());
+        user.setUsername(registrationUser.getUsername());
         user.setPassword(bCryptPasswordEncoder.encode(registrationUser.getPassword()));
         user.setFirstName(registrationUser.getFirstName());
         user.setLastName(registrationUser.getLastName());
         user.setEmail(registrationUser.getEmail());
-        user.setRoles(getRegisteredUserRoles(registrationUser.getFormRole()));
+        user.setRoles(getRegistrationUserRoles(registrationUser.getFormRole()));
         user.setEnabled(true);
 
         userRepository.save(user);
     }
 
     @Transactional
-    public Set<Role> getRegisteredUserRoles(String formRole) {
-        List<String> roles = new ArrayList<>(Arrays.asList("ROLE_EMPLOYEE", formRole));
-        return new HashSet<>(roleRepository.findByNameIn(roles));
+    public void updateProfileDetails(ProfileUser profileUser, String principalUsername) {
+        userRepository.updateProfileDetails(profileUser.getUsername(), profileUser.getFirstName(),
+                profileUser.getLastName(), profileUser.getEmail(), principalUsername);
     }
 
     @Transactional
-    public void updateProfileDetails(ProfileUser profileUser, String principalUsername) {
-        userRepository.updateProfileDetails(profileUser.getUserName(), profileUser.getFirstName(),
-                profileUser.getLastName(), profileUser.getEmail(), principalUsername);
+    public Set<Role> getRegistrationUserRoles(String formRole) {
+        List<String> roles = new ArrayList<>(Arrays.asList("ROLE_EMPLOYEE", formRole));
+        return new HashSet<>(roleRepository.findByNameIn(roles));
     }
 }

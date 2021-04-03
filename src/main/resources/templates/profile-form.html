@@ -25,15 +25,26 @@
 			<form action="#" th:action="@{/profile/saveProfile}"
 							th:object="${profileUser}" method="post">
 
-                <!-- Add hidden form field to handle the update -->
-                <input type="hidden" th:field="*{id}" />
+                <!-- Place for messages: error, alert etc ... -->
+                <div class="form-group">
+                    <div class="col-xs-15">
+                        <div>
 
-                <input type="text" th:field="*{userName}"
+                            <!-- Check for registration error -->
+                            <div th:if="${registrationError}" class="alert alert-danger col-xs-offset-1 col-xs-10">
+                                <span th:text="${registrationError}"></span>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <input type="text" th:field="*{username}"
                     class="form-control mb-4 col-4" placeholder="username (*)">
-                <div th:if="${#fields.hasErrors('userName')}"
+                <div th:if="${#fields.hasErrors('username')}"
                      style="margin-bottom: 25px; color: red">
                     <ul>
-                        <li th:each="err : ${#fields.errors('userName')}" th:text="${err}"/>
+                        <li th:each="err : ${#fields.errors('username')}" th:text="${err}"/>
                     </ul>
                 </div>
 

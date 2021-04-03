@@ -8,11 +8,9 @@ import javax.validation.constraints.Size;
 
 public class ProfileUser {
 
-    private Long id;
-
     @NotNull(message = "Username is required")
     @Size(min = 1, max = 50, message = "Username is required")
-    private String userName;
+    private String username;
 
     @NotNull(message = "First name is required")
     @Size(min = 1, max = 50, message = "First name is required")
@@ -27,23 +25,31 @@ public class ProfileUser {
     @Size(min = 1, max = 50, message = "Email is required")
     private String email;
 
+    public ProfileUser(@NotNull(message = "Username is required")
+                       @Size(min = 1, max = 50, message = "Username is required")
+                               String username,
+                       @NotNull(message = "First name is required")
+                       @Size(min = 1, max = 50, message = "First name is required")
+                               String firstName, @NotNull(message = "Last name is required")
+                       @Size(min = 1, max = 50, message = "Last name is required")
+                               String lastName,
+                       @Size(min = 1, max = 50, message = "Email is required")
+                               String email) {
+        this.username = username;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+    }
+
     public ProfileUser() {
     }
 
-    public Long getId() {
-        return id;
+    public String getUsername() {
+        return username;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getFirstName() {
@@ -73,7 +79,7 @@ public class ProfileUser {
     @Override
     public String toString() {
         return "ProfileUser{" +
-                "userName='" + userName + '\'' +
+                "userName='" + username + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +

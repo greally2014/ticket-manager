@@ -53,11 +53,4 @@ public class Developer extends User {
         this.tickets = tickets;
     }
 
-    @Override
-    public String toString() {
-        return super.toString() + "\n" +
-                "Developer{" +
-                "projects=" + projects +
-                '}';
-    }
 }

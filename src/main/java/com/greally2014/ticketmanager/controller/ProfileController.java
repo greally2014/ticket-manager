@@ -2,14 +2,12 @@ package com.greally2014.ticketmanager.controller;
 
 import com.greally2014.ticketmanager.entity.User;
 import com.greally2014.ticketmanager.formModel.ProfileUser;
-import com.greally2014.ticketmanager.formModel.RegistrationUser;
 import com.greally2014.ticketmanager.service.CustomUserDetailsService;
 import com.greally2014.ticketmanager.userDetails.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,7 +16,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/profile")
@@ -27,7 +27,7 @@ public class ProfileController {
     private Logger logger = Logger.getLogger(getClass().getName());
 
     @Autowired
-    private CustomUserDetailsService userDetailsService;
+    private CustomUserDetailsService customUserDetailsService;
 
     @InitBinder
     public void initBinder(WebDataBinder webDataBinder) {
@@ -45,46 +45,39 @@ public class ProfileController {
     public String saveProfile(@Valid @ModelAttribute("profileUser") ProfileUser profileUser,
                               BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
-            logger.info("=====> Form error(s)");
+            List<String> errors = bindingResult.getAllErrors().stream()
+                    .map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.toList());
+            logger.info("=====> Form error(s): " + errors);
+
             return "profile-form";
         }
 
-        try {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(profileUser.getUserName());
-            Principal principal = SecurityContextHolder.getContext().getAuthentication();
-            if (!profileUser.getUserName().equals(principal.getName())) {
-                logger.info("=====> Username taken: " + profileUser.getUserName());
-                model.addAttribute("profileUser", createProfileUser());
-                model.addAttribute("registrationError", "Username already exists.");
-            } else {
-                logger.info("=====> Updating profile details: " + profileUser.getUserName());
-                userDetailsService.updateProfileDetails(profileUser, principal.getName());
-                logger.info("=====> Profile updated successfully");
-                model.addAttribute("formUser", profileUser);
-            }
+        Principal principal = SecurityContextHolder.getContext().getAuthentication();
+
+        if (customUserDetailsService.isUsernameTaken(profileUser.getUsername()) &&
+                !profileUser.getUsername().equals(principal.getName())) {
+            logger.info("=====> Username taken: " + profileUser.getUsername());
+
+            model.addAttribute("profileUser", createProfileUser());
+            model.addAttribute("registrationError", "Username already exists.");
             return "profile-form";
 
-        } catch (UsernameNotFoundException exception) {
-            logger.info("=====> Updating profile details: " + profileUser.getUserName());
-            Principal principal = SecurityContextHolder.getContext().getAuthentication();
-            userDetailsService.updateProfileDetails(profileUser, principal.getName());
-            logger.info("=====> Profile updated successfully");
-            model.addAttribute("formUser", profileUser);
-            return "profile-form";
+        } else {
+            logger.info("=====> Updating profile details: " + profileUser.getUsername());
+
+            customUserDetailsService.updateProfileDetails(profileUser, principal.getName());
+            return "index";
         }
     }
 
     public ProfileUser createProfileUser() {
         Principal principal = SecurityContextHolder.getContext().getAuthentication();
-        User user = ((CustomUserDetails) userDetailsService.loadUserByUsername(principal.getName())).getUser();
-        ProfileUser profileUser = new ProfileUser();
-
-        profileUser.setId(user.getId());
-        profileUser.setUserName(user.getUserName());
-        profileUser.setFirstName(user.getFirstName());
-        profileUser.setLastName(user.getLastName());
-        profileUser.setEmail(user.getEmail());
-
-        return profileUser;
+        User user = ((CustomUserDetails) customUserDetailsService.loadUserByUsername(principal.getName())).getUser();
+        return new ProfileUser(
+                user.getUsername(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail()
+        );
     }
 }

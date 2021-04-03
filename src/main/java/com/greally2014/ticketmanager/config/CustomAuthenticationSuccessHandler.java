@@ -17,15 +17,15 @@ import java.io.IOException;
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     @Autowired
-    private CustomUserDetailsService userDetailsService;
+    private CustomUserDetailsService customUserDetailsService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
 
-        CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(authentication.getName());
+        CustomUserDetails customUserDetails = (CustomUserDetails) customUserDetailsService.loadUserByUsername(authentication.getName());
         HttpSession session = request.getSession();
-        session.setAttribute("userDetails", userDetails);
+        session.setAttribute("userDetails", customUserDetails);
 
         response.sendRedirect(request.getContextPath() + "/");
     }

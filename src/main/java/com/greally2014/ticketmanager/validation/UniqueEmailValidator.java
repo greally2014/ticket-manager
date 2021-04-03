@@ -1,6 +1,5 @@
 package com.greally2014.ticketmanager.validation;
 
-import com.greally2014.ticketmanager.entity.User;
 import com.greally2014.ticketmanager.exception.EmailNotFoundException;
 import com.greally2014.ticketmanager.userDetails.CustomUserDetails;
 import com.greally2014.ticketmanager.service.CustomUserDetailsService;
@@ -14,27 +13,22 @@ import java.security.Principal;
 public class UniqueEmailValidator implements ConstraintValidator<UniqueEmail, String > {
 
     @Autowired
-    private CustomUserDetailsService userDetailsService;
+    private CustomUserDetailsService customUserDetailsService;
 
     @Override
     public boolean isValid(String email, ConstraintValidatorContext context) {
-        boolean valid = true;
+        boolean valid;
         try {
-            CustomUserDetails customUserdetails = (CustomUserDetails) userDetailsService.loadUserByEmail(email);
+            CustomUserDetails customUserdetails = (CustomUserDetails) customUserDetailsService.loadUserByEmail(email);
             try {
                 Principal principal = SecurityContextHolder.getContext().getAuthentication();
-                if (principal == null) {
-                    throw new NullPointerException();
-                } else {
-                    if (!customUserdetails.getUsername().equals(principal.getName())) {
-                        valid = false;
-                    }
-                }
+                valid = customUserdetails.getUsername().equals(principal.getName());
+
             } catch (NullPointerException exception) {
                 valid = false;
             }
         } catch (EmailNotFoundException exception) {
-            // nothing
+            valid = true;
         }
         return valid;
     }

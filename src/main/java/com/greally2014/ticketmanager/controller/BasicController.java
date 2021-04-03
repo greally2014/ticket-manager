@@ -18,10 +18,6 @@ public class BasicController {
 
     @GetMapping("/")
     public String showMainPage(Model model) {
-        Principal principal = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails customUserDetails = (CustomUserDetails) customUserDetailsService.loadUserByUsername(principal.getName());
-        Long userId = customUserDetails.getUser().getId();
-        model.addAttribute("user_id", userId);
         return "index";
     }
 

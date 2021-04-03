@@ -154,19 +154,4 @@ public class Ticket {
         this.developers = developers;
     }
 
-    @Override
-    public String toString() {
-        return "Ticket{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", type='" + type + '\'' +
-                ", description='" + description + '\'' +
-                ", status='" + status + '\'' +
-                ", priority='" + priority + '\'' +
-                ", date_created=" + date_created +
-                ", project=" + project +
-                ", submitter=" + submitter +
-                ", developers=" + developers +
-                '}';
-    }
 }

@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,7 +18,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    private CustomUserDetailsService userDetailsService;
+    private CustomUserDetailsService customUserDetailsService;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -42,6 +41,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .permitAll()
             .and()
             .logout()
+                .logoutSuccessUrl("/login")
                 .permitAll()
             .and()
             .exceptionHandling()
@@ -62,7 +62,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider auth = new DaoAuthenticationProvider();
-        auth.setUserDetailsService(userDetailsService); //set the custom user details service
+        auth.setUserDetailsService(customUserDetailsService); //set the custom user details service
         auth.setPasswordEncoder(passwordEncoder()); //set the password encoder - bcrypt
         return auth;
     }

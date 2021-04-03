@@ -14,9 +14,4 @@ public class GeneralManager extends User {
     public GeneralManager() {
     }
 
-    @Override
-    public String toString() {
-        return super.toString() + "\n" +
-                "GeneralManager{}";
-    }
 }

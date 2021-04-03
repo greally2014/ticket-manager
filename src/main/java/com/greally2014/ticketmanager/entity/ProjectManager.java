@@ -33,11 +33,4 @@ public class ProjectManager extends User {
         this.projects = projects;
     }
 
-    @Override
-    public String toString() {
-        return super.toString() + "\n" +
-                "ProjectManager{" +
-                "projects=" + projects +
-                '}';
-    }
 }

@@ -4,8 +4,7 @@ import com.greally2014.ticketmanager.formModel.RegistrationUser;
 import com.greally2014.ticketmanager.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -15,8 +14,10 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.PostConstruct;
 import javax.validation.Valid;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/register")
@@ -27,7 +28,7 @@ public class RegistrationController {
     private Map<String, String> roles;
 
     @Autowired
-    private CustomUserDetailsService userDetailsService;
+    private CustomUserDetailsService customUserDetailsService;
 
     @InitBinder
     public void initBinder(WebDataBinder webDataBinder) {
@@ -47,24 +48,26 @@ public class RegistrationController {
                                       BindingResult bindingResult, Model model) {
 
         if (bindingResult.hasErrors()) {
-            logger.info("=====> Form error(s)");
+            List<String> errors = bindingResult.getAllErrors().stream()
+                    .map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.toList());
+            logger.info("=====> Form error(s): " + errors);
+
             model.addAttribute("roles", roles);
             return "registration-form";
         }
 
-        try {
-            UserDetails existingUser = userDetailsService.loadUserByUsername(registrationUser.getUserName());
-            logger.info("=====> Username taken: " + registrationUser.getUserName());
+        if (customUserDetailsService.isUsernameTaken(registrationUser.getUsername())) {
+            logger.info("=====> Username taken: " + registrationUser.getUsername());
 
             model.addAttribute("registrationUser", new RegistrationUser());
             model.addAttribute("roles", roles);
             model.addAttribute("registrationError", "Username already exists.");
             return "registration-form";
 
-        } catch (UsernameNotFoundException exception) {
-            logger.info("=====> Saving user: " + registrationUser.getUserName());
-            userDetailsService.save(registrationUser);
-            logger.info("=====> User saved successfully");
+        } else {
+            logger.info("=====> Saving user: " + registrationUser.getUsername());
+
+            customUserDetailsService.save(registrationUser);
             return "registration-confirmation";
         }
     }

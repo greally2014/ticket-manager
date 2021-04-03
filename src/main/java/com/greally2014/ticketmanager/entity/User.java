@@ -15,7 +15,7 @@ public class User {
     private Long id;
 
     @Column(name = "username")
-    private String userName;
+    private String username;
 
     @Column(name = "password")
     private String password;
@@ -33,7 +33,7 @@ public class User {
     private boolean enabled;
 
     @ManyToMany(
-            fetch = FetchType.LAZY,
+            fetch = FetchType.EAGER,
             cascade = CascadeType.PERSIST
     )
     @JoinTable(
@@ -43,8 +43,8 @@ public class User {
     )
     private Set<Role> roles = new HashSet<>();
 
-    public User(String userName, String password, String firstName, String lastName, String email) {
-        this.userName = userName;
+    public User(String username, String password, String firstName, String lastName, String email) {
+        this.username = username;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -63,12 +63,12 @@ public class User {
         this.id = id;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUsername(String userName) {
+        this.username = userName;
     }
 
     public String getPassword() {
@@ -119,17 +119,4 @@ public class User {
         this.enabled = enabled;
     }
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", userName='" + userName + '\'' +
-                ", password='" + password + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", email='" + email + '\'' +
-                ", enabled=" + enabled +
-                ", roles=" + roles +
-                '}';
-    }
 }

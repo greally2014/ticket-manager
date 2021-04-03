@@ -6,11 +6,14 @@
 </head>
 <body>
 
-    <
-    welcome home
-
     <hr>
     <a th:href="@{/profile/showFormForUpdate}">Edit profile</a>
+    <form th:action="@{/logout}"
+          th:method="POST">
+
+        <input type="submit" value="Logout" />
+
+    </form>
 
 </body>
 </html>

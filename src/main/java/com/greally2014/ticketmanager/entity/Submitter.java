@@ -50,11 +50,4 @@ public class Submitter extends User {
         this.tickets = tickets;
     }
 
-    @Override
-    public String toString() {
-        return super.toString() + "\n" +
-                "Submitter{" +
-                "projects=" + projects +
-                '}';
-    }
 }

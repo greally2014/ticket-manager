@@ -138,17 +138,4 @@ public class Project {
         this.tickets = tickets;
     }
 
-    @Override
-    public String toString() {
-        return "Project{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", description='" + description + '\'' +
-                ", dateCreated=" + dateCreated +
-                ", projectManagers=" + projectManagers +
-                ", submitters=" + submitters +
-                ", developers=" + developers +
-                ", tickets=" + tickets +
-                '}';
-    }
 }
