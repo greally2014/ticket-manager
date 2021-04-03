@@ -28,9 +28,9 @@ public class ProjectController {
     }
 
     @GetMapping("/delete")
-    @PreAuthorize("hasRole('GENERAL_MANAGER')")
     public String deleteProject(@ModelAttribute("projectId") Long projectId) {
         projectService.deleteById(projectId);
         return "redirect:/projects/listProjects";
     }
+
 }
