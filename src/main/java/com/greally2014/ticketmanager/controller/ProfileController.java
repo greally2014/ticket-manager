@@ -72,7 +72,7 @@ public class ProfileController {
 
     public ProfileUser createProfileUser() {
         Principal principal = SecurityContextHolder.getContext().getAuthentication();
-        User user = ((CustomUserDetails) customUserDetailsService.loadUserByUsername(principal.getName())).getUser();
+        User user = customUserDetailsService.loadUserByUsername(principal.getName()).getUser();
         return new ProfileUser(
                 user.getUsername(),
                 user.getFirstName(),

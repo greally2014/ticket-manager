@@ -19,7 +19,7 @@ public class UniqueEmailValidator implements ConstraintValidator<UniqueEmail, St
     public boolean isValid(String email, ConstraintValidatorContext context) {
         boolean valid;
         try {
-            CustomUserDetails customUserdetails = (CustomUserDetails) customUserDetailsService.loadUserByEmail(email);
+            CustomUserDetails customUserdetails = customUserDetailsService.loadUserByEmail(email);
             try {
                 Principal principal = SecurityContextHolder.getContext().getAuthentication();
                 valid = customUserdetails.getUsername().equals(principal.getName());

@@ -1,13 +1,25 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+                xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Home</title>
 </head>
 <body>
 
+    <h2>Home</h2>
     <hr>
-    <a th:href="@{/profile/showFormForUpdate}">Edit profile</a>
+    <br>
+    <div>
+        <a th:href="@{/profile/showFormForUpdate}">Edit profile</a>
+    </div>
+    <br>
+    <hr>
+    <br>
+    <div sec:authorize="hasAnyRole('PROJECT_MANAGER', 'GENERAL_MANAGER')">
+        <a th:href="@{/projects/listProjects}">Projects</a>
+    </div>
+    <br>
     <form th:action="@{/logout}"
           th:method="POST">
 

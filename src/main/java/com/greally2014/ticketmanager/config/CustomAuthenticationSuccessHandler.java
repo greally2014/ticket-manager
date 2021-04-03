@@ -23,7 +23,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
 
-        CustomUserDetails customUserDetails = (CustomUserDetails) customUserDetailsService.loadUserByUsername(authentication.getName());
+        CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(authentication.getName());
         HttpSession session = request.getSession();
         session.setAttribute("userDetails", customUserDetails);
 

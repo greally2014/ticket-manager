@@ -8,7 +8,6 @@ import com.greally2014.ticketmanager.formModel.ProfileUser;
 import com.greally2014.ticketmanager.formModel.RegistrationUser;
 import com.greally2014.ticketmanager.userDetails.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -33,14 +32,14 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     @Transactional
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public CustomUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> user = userRepository.findByUsername(username);
         user.orElseThrow(() -> new UsernameNotFoundException("Not found: " + username));
         return user.map(CustomUserDetails::new).get();
     }
 
     @Transactional
-    public UserDetails loadUserByEmail(String email) throws EmailNotFoundException {
+    public CustomUserDetails loadUserByEmail(String email) throws EmailNotFoundException {
         Optional<User> user = userRepository.findByEmail(email);
         user.orElseThrow(() -> new EmailNotFoundException("Not found: " + email));
         return user.map(CustomUserDetails::new).get();
