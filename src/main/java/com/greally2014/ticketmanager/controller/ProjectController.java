@@ -5,9 +5,8 @@ import com.greally2014.ticketmanager.entity.ProjectManager;
 import com.greally2014.ticketmanager.exception.ProjectNotFoundException;
 import com.greally2014.ticketmanager.formModel.FormProject;
 import com.greally2014.ticketmanager.service.CustomUserDetailsService;
-import com.greally2014.ticketmanager.service.ProjectManagerService;
 import com.greally2014.ticketmanager.service.ProjectService;
-import com.greally2014.ticketmanager.userDetails.CustomUserDetails;
+import org.apache.tomcat.jni.Local;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,14 +34,11 @@ public class ProjectController {
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
 
-    @Autowired
-    private ProjectManagerService projectManagerService;
-
     @GetMapping("/listProjects")
     public String listProjects(Model model) {
         Principal principal = SecurityContextHolder.getContext().getAuthentication();
         List<Project> projects = projectService.findAllByUserAndUserRole(principal.getName());
-        model.addAttribute("formProjects", projects);
+        model.addAttribute("projects", projects);
         return "project-list";
     }
 
@@ -50,9 +46,7 @@ public class ProjectController {
     public String showFormForAdd(Model model) {
         FormProject formProject = new FormProject();
         formProject.setDateCreated(LocalDate.now());
-        List<ProjectManager> projectManagers = projectManagerService.findAllOrderByUsername();
         model.addAttribute("formProject", formProject);
-        model.addAttribute("projectManagers", projectManagers);
         return "project-form";
     }
 
@@ -99,5 +93,17 @@ public class ProjectController {
         );
         formProject.setDateCreated(project.getDateCreated());
         return formProject;
+    }
+
+    @GetMapping("/search")
+    public String search(@RequestParam("title") String title,
+                         Model model) {
+        if (title.trim().isEmpty()) {
+            return "redirect:/projects/listProjects";
+        } else {
+            List<Project> projects = projectService.searchBy(title);
+            model.addAttribute("projects", projects);
+            return "project-list";
+        }
     }
 }
