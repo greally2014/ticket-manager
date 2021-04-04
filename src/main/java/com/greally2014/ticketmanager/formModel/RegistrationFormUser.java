@@ -13,23 +13,23 @@ import javax.validation.constraints.Size;
 public class RegistrationFormUser {
 
     @NotNull(message = "Username is required")
-    @Size(min = 1, max = 50, message = "Username is required")
+    @Size(min = 1, max = 50, message = "Invalid format")
     private String username;
 
     @NotNull(message = "Password is required")
-    @Size(min = 1, message = "Password is required")
+    @Size(min = 1, message = "Invalid format")
     private String password;
 
     @NotNull(message = "Confirmation password is required")
-    @Size(min = 1, message = "Confirmation password is required")
+    @Size(min = 1, message = "Invalid format")
     private String matchingPassword;
 
     @NotNull(message = "First name is required")
-    @Size(min = 1, max = 50, message = "First name is required")
+    @Size(min = 1, max = 50, message = "Invalid format")
     private String firstName;
 
     @NotNull(message = "Last name is required")
-    @Size(min = 1, max = 50, message = "Last name is required")
+    @Size(min = 1, max = 50, message = "Invalid format")
     private String lastName;
 
     @ValidEmail
@@ -37,8 +37,8 @@ public class RegistrationFormUser {
     @Size(min = 1, max = 50, message = "Email is required")
     private String email;
 
-    @NotNull(message = "Please select a role")
-    @Size(min = 1, message = "Please select a role")
+    @NotNull(message = "Role must be selected")
+    @Size(min = 1, message = "Role must be selected")
     private String formRole;
 
     public RegistrationFormUser() {

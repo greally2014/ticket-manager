@@ -27,8 +27,8 @@ public class Submitter extends User {
     )
     private List<Ticket> tickets;
 
-    public Submitter(String userName, String password, String firstName, String lastName, String email) {
-        super(userName, password, firstName, lastName, email);
+    public Submitter(String username, String password, String firstName, String lastName, String email) {
+        super(username, password, firstName, lastName, email);
     }
 
     public Submitter() {

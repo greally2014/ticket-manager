@@ -23,11 +23,17 @@ public class ProjectService {
     @Autowired
     private ProjectRepository projectRepository;
 
+    public Project findById(Long projectId) throws ProjectNotFoundException {
+        Optional<Project> projectOptional = projectRepository.findById(projectId);
+        projectOptional.orElseThrow(() -> new ProjectNotFoundException("Not found (id): " + projectId));
+        return projectOptional.get();
+    }
+
     public List<Project> findAllByUserAndUserRole(String username) {
 
         User user = customUserDetailsService.loadUserByUsername(username).getUser();
         Set<String> roleNames = user.getRoles().stream().map(Role::getName).collect(Collectors.toSet());
-        List<Project> projects = new ArrayList<>();
+        List<Project> projects;
 
         if (roleNames.contains("ROLE_PROJECT_MANAGER")) {
             projects = projectRepository.findAllByProjectManagersId(user.getId());
@@ -37,13 +43,11 @@ public class ProjectService {
         return projects;
     }
 
-    public void deleteById(Long projectId) {
-        projectRepository.deleteById(projectId);
+    public void save(Project project) {
+        projectRepository.save(project);
     }
 
-    public Project findById(Long projectId) throws ProjectNotFoundException {
-        Optional<Project> projectOptional = projectRepository.findById(projectId);
-        projectOptional.orElseThrow(() -> new ProjectNotFoundException("Not found (id): " + projectId));
-        return projectOptional.get();
+    public void deleteById(Long projectId) {
+        projectRepository.deleteById(projectId);
     }
 }

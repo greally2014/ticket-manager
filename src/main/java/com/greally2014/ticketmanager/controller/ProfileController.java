@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -69,7 +70,7 @@ public class ProfileController {
         }
     }
 
-    public ProfileFormUser principalProfileFormUser() {
+    public ProfileFormUser principalProfileFormUser() throws UsernameNotFoundException {
         Principal principal = SecurityContextHolder.getContext().getAuthentication();
         User user = customUserDetailsService.loadUserByUsername(principal.getName()).getUser();
         return new ProfileFormUser(

@@ -1,6 +1,8 @@
 package com.greally2014.ticketmanager.entity;
 
+import javax.naming.ldap.LdapContext;
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -28,8 +30,7 @@ public class Ticket {
     private String priority;
 
     @Column(name = "date_created")
-    @Temporal(TemporalType.DATE)
-    private Date date_created;
+    private LocalDate date_created;
 
     @ManyToOne(
             fetch = FetchType.EAGER,
@@ -60,7 +61,7 @@ public class Ticket {
     private List<Developer> developers;
 
     public Ticket(String title, String type, String description, String status, String priority,
-                  Date date_created, Project project, Submitter submitter) {
+                  LocalDate date_created, Project project, Submitter submitter) {
         this.title = title;
         this.type = type;
         this.description = description;
@@ -122,11 +123,11 @@ public class Ticket {
         this.priority = priority;
     }
 
-    public Date getDate_created() {
+    public LocalDate getDate_created() {
         return date_created;
     }
 
-    public void setDate_created(Date date_created) {
+    public void setDate_created(LocalDate date_created) {
         this.date_created = date_created;
     }
 

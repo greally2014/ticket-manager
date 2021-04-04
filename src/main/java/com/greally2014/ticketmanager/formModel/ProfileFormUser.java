@@ -9,15 +9,15 @@ import javax.validation.constraints.Size;
 public class ProfileFormUser {
 
     @NotNull(message = "Username is required")
-    @Size(min = 1, max = 50, message = "Username is required")
+    @Size(min = 1, max = 50, message = "Invalid format")
     private String username;
 
     @NotNull(message = "First name is required")
-    @Size(min = 1, max = 50, message = "First name is required")
+    @Size(min = 1, max = 50, message = "Invalid format")
     private String firstName;
 
     @NotNull(message = "Last name is required")
-    @Size(min = 1, max = 50, message = "Last name is required")
+    @Size(min = 1, max = 50, message = "Invalid format")
     private String lastName;
 
     @ValidEmail
@@ -26,15 +26,16 @@ public class ProfileFormUser {
     private String email;
 
     public ProfileFormUser(@NotNull(message = "Username is required")
-                       @Size(min = 1, max = 50, message = "Username is required")
-                               String username,
+                           @Size(min = 1, max = 50, message = "Invalid format")
+                                   String username,
                            @NotNull(message = "First name is required")
-                       @Size(min = 1, max = 50, message = "First name is required")
-                               String firstName, @NotNull(message = "Last name is required")
-                       @Size(min = 1, max = 50, message = "Last name is required")
-                               String lastName,
+                           @Size(min = 1, max = 50, message = "Invalid format")
+                                   String firstName,
+                           @NotNull(message = "Last name is required")
+                           @Size(min = 1, max = 50, message = "Invalid format")
+                                   String lastName,
                            @Size(min = 1, max = 50, message = "Email is required")
-                               String email) {
+                                   String email) {
         this.username = username;
         this.firstName = firstName;
         this.lastName = lastName;

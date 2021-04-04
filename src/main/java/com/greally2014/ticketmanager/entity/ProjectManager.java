@@ -18,8 +18,8 @@ public class ProjectManager extends User {
     )
     private List<Project> projects;
 
-    public ProjectManager(String userName, String password, String firstName, String lastName, String email) {
-        super(userName, password, firstName, lastName, email);
+    public ProjectManager(String username, String password, String firstName, String lastName, String email) {
+        super(username, password, firstName, lastName, email);
     }
 
     public ProjectManager() {

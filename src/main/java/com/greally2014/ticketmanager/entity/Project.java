@@ -1,6 +1,7 @@
 package com.greally2014.ticketmanager.entity;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -19,8 +20,7 @@ public class Project {
     private String description;
 
     @Column(name = "date_created")
-    @Temporal(TemporalType.DATE)
-    private Date dateCreated;
+    private LocalDate dateCreated;
 
     @ManyToMany(
             fetch = FetchType.LAZY,
@@ -65,7 +65,7 @@ public class Project {
     )
     private List<Ticket> tickets;
 
-    public Project(String title, String description, Date dateCreated) {
+    public Project(String title, String description, LocalDate dateCreated) {
         this.title = title;
         this.description = description;
         this.dateCreated = dateCreated;
@@ -98,11 +98,11 @@ public class Project {
         this.description = description;
     }
 
-    public Date getDateCreated() {
+    public LocalDate getDateCreated() {
         return dateCreated;
     }
 
-    public void setDateCreated(Date dateCreated) {
+    public void setDateCreated(LocalDate dateCreated) {
         this.dateCreated = dateCreated;
     }
 
