@@ -19,6 +19,8 @@ public class FormProject {
 
     private LocalDate dateCreated;
 
+    private boolean active;
+
     public FormProject(Long id, String title, String description) {
         this.id = id;
         this.title = title;
@@ -58,5 +60,13 @@ public class FormProject {
 
     public void setDateCreated(LocalDate dateCreated) {
         this.dateCreated = dateCreated;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

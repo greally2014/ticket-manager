@@ -34,8 +34,8 @@
         </a>
 
         <input type="search"
-               name="title"
-               placeholder="Title"
+               name="searchParameter"
+               placeholder="Search"
                class="form-control-sm ml-5 mr-2 mb-3" />
 
         <button type="submit"
@@ -48,7 +48,7 @@
         <tr>
             <th>Title</th>
             <th>Description</th>
-            <th>Date</th>
+            <th>Date Created</th>
             <th sec:authorize="hasRole('GENERAL_MANAGER')">Action</th>
         </tr>
         </thead>
@@ -59,6 +59,7 @@
             <td th:text="${tempProject.title}"></td>
             <td th:text="${tempProject.description}"></td>
             <td th:text="${tempProject.dateCreated}"></td>
+            <td><input </td>
             <td sec:authorize="hasRole('GENERAL_MANAGER')">
                 <!-- Add "update" button/link -->
                 <a th:href="@{/projects/showFormForUpdate(projectId=${tempProject.id})}"

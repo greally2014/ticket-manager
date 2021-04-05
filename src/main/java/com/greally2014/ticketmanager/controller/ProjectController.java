@@ -1,12 +1,9 @@
 package com.greally2014.ticketmanager.controller;
 
 import com.greally2014.ticketmanager.entity.Project;
-import com.greally2014.ticketmanager.entity.ProjectManager;
 import com.greally2014.ticketmanager.exception.ProjectNotFoundException;
 import com.greally2014.ticketmanager.formModel.FormProject;
-import com.greally2014.ticketmanager.service.CustomUserDetailsService;
 import com.greally2014.ticketmanager.service.ProjectService;
-import org.apache.tomcat.jni.Local;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,13 +28,10 @@ public class ProjectController {
     @Autowired
     private ProjectService projectService;
 
-    @Autowired
-    private CustomUserDetailsService customUserDetailsService;
-
     @GetMapping("/listProjects")
     public String listProjects(Model model) {
         Principal principal = SecurityContextHolder.getContext().getAuthentication();
-        List<Project> projects = projectService.findAllByUserAndUserRole(principal.getName());
+        List<Project> projects = projectService.findAllByUserAndUserRoleOrderByTitle(principal.getName());
         model.addAttribute("projects", projects);
         return "project-list";
     }
@@ -96,12 +90,11 @@ public class ProjectController {
     }
 
     @GetMapping("/search")
-    public String search(@RequestParam("title") String title,
-                         Model model) {
-        if (title.trim().isEmpty()) {
+    public String search(@RequestParam("searchParameter") String searchParameter, Model model) {
+        if (searchParameter.trim().isEmpty()) {
             return "redirect:/projects/listProjects";
         } else {
-            List<Project> projects = projectService.searchBy(title);
+            List<Project> projects = projectService.searchByParameterOrderByTitle(searchParameter);
             model.addAttribute("projects", projects);
             return "project-list";
         }

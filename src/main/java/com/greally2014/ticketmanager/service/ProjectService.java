@@ -8,7 +8,6 @@ import com.greally2014.ticketmanager.exception.ProjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -27,16 +26,16 @@ public class ProjectService {
         return projectOptional.get();
     }
 
-    public List<Project> findAllByUserAndUserRole(String username) {
+    public List<Project> findAllByUserAndUserRoleOrderByTitle(String username) {
 
         User user = customUserDetailsService.loadUserByUsername(username).getUser();
         Set<String> roleNames = user.getRoles().stream().map(Role::getName).collect(Collectors.toSet());
         List<Project> projects;
 
         if (roleNames.contains("ROLE_PROJECT_MANAGER")) {
-            projects = projectRepository.findAllByProjectManagersId(user.getId());
+            projects = projectRepository.findAllByProjectManagersIdOrderByTitle(user.getId());
         } else {
-            projects = projectRepository.findAll();
+            projects = projectRepository.findAllByOrderByTitle();
         }
         return projects;
     }
@@ -49,7 +48,7 @@ public class ProjectService {
         projectRepository.deleteById(projectId);
     }
 
-    public List<Project> searchBy(String title) {
-        return projectRepository.findAllByTitleContainsAllIgnoreCase(title);
+    public List<Project> searchByParameterOrderByTitle(String searchParameter) {
+        return projectRepository.searchByParameterOrderByTitle(searchParameter);
     }
 }
