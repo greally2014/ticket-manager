@@ -23,16 +23,17 @@
     <hr>
 
     <!-- Add a search form -->
-
     <form action="#" th:action="@{/projects/search}"
           method="GET" class="form-inline">
 
-        <!-- Add a button -->
+        <!--  Button to create project  -->
         <a th:href="@{/projects/showFormForAdd}"
+           sec:authorize="hasRole('GENERAL_MANAGER')"
            class="btn btn-primary btn-sm mb-3">
             Create Project
         </a>
 
+        <!-- Add a button -->
         <input type="search"
                name="searchParameter"
                placeholder="Search"
@@ -59,7 +60,6 @@
             <td th:text="${tempProject.title}"></td>
             <td th:text="${tempProject.description}"></td>
             <td th:text="${tempProject.dateCreated}"></td>
-            <td><input </td>
             <td sec:authorize="hasRole('GENERAL_MANAGER')">
                 <!-- Add "update" button/link -->
                 <a th:href="@{/projects/showFormForUpdate(projectId=${tempProject.id})}"
