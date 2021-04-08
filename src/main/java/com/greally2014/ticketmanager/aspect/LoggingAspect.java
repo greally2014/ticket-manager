@@ -6,10 +6,14 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.BindingResult;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Aspect
 @Component
@@ -29,7 +33,10 @@ public class LoggingAspect {
     @Pointcut("forControllerPackage() || forServicePackage() || forDaoPackage()")
     private void forApplication() {};
 
-    @Before("forApplication()")
+    @Pointcut("execution(public String com.greally2014.ticketmanager.controller.*.*(.., BindingResult))")
+    private void forBindingResult() {};
+
+    @Before(value = "forApplication()")
     public void beforeCallingArguments(JoinPoint joinpoint) {
         String method = joinpoint.getSignature().toShortString();
 
@@ -48,6 +55,17 @@ public class LoggingAspect {
         logger.info("=====> Result: " + result);
 
         System.out.println("\n");
+    }
+
+    @Before(value = "forBindingResult()")
+    public void afterReturningBindingError(JoinPoint joinPoint) {
+        Object[] args = joinPoint.getArgs();
+        BindingResult bindingResult = (BindingResult) args[args.length - 1];
+        if (bindingResult.hasErrors()) {
+            List<String> errors = bindingResult.getAllErrors().stream()
+                    .map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.toList());
+            logger.info("=====> Form error(s): " + errors);
+        }
     }
 
 }

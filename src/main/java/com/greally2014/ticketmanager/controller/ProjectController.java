@@ -1,11 +1,11 @@
 package com.greally2014.ticketmanager.controller;
 
+import com.greally2014.ticketmanager.dto.ProjectCreationDto;
 import com.greally2014.ticketmanager.entity.Project;
-import com.greally2014.ticketmanager.exception.ProjectNotFoundException;
 import com.greally2014.ticketmanager.formModel.FormProject;
+import com.greally2014.ticketmanager.service.ProjectManagerService;
 import com.greally2014.ticketmanager.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,89 +14,70 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.Principal;
-import java.time.LocalDate;
 import java.util.List;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/projects")
 public class ProjectController {
 
-    private Logger logger = Logger.getLogger(getClass().getName());
-
     @Autowired
     private ProjectService projectService;
 
-    @GetMapping("/listProjects")
+    @Autowired
+    private ProjectManagerService projectManagerService;
+
+    @GetMapping("/list")
     public String listProjects(Model model) {
         Principal principal = SecurityContextHolder.getContext().getAuthentication();
-        List<Project> projects = projectService.findAllByUserAndUserRoleOrderByTitle(principal.getName());
+        List<Project> projects = projectService.findAllByUserOrderByTitle(principal.getName());
+
         model.addAttribute("projects", projects);
         return "project-list";
     }
 
     @GetMapping("/showFormForAdd")
     public String showFormForAdd(Model model) {
-        FormProject formProject = new FormProject();
-        formProject.setDateCreated(LocalDate.now());
-        model.addAttribute("formProject", formProject);
+        ProjectCreationDto projectCreationDto = new ProjectCreationDto(
+                new FormProject(),
+                projectManagerService.getFormList());
+
+        model.addAttribute("projectCreationDto", projectCreationDto);
         return "project-form";
     }
 
-    @GetMapping("/showFormForUpdate")
-    public String showFormForUpdate(@RequestParam("projectId") Long projectId, Model model) {
-        try {
-            model.addAttribute("formProject", projectFormProject(projectId));
-            return "project-form";
-
-        } catch (ProjectNotFoundException exception) {
-            exception.printStackTrace();
-            return "project-list";
-        }
+    @GetMapping("/showFormForUpdateFields")
+    public String showFormForUpdate(@RequestParam("id") Long id, Model model) {
+        model.addAttribute("formProject", projectService.getFormProject(id));
+        return "project-form-update-fields";
     }
 
-    @PostMapping("/save")
-    public String save(@ModelAttribute("formProject") @Valid Project project,
+    @PostMapping("/create")
+    public String save(@ModelAttribute("projectCreationDto") @Valid ProjectCreationDto projectCreationDto,
                        BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            List<String> errors = bindingResult.getAllErrors().stream()
-                    .map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.toList());
-            logger.info("=====> Form error(s): " + errors);
-
+            projectCreationDto.setFormProjectManagerList(projectManagerService.getFormList());
             return "project-form";
 
         } else {
-            projectService.save(project);
-            return "redirect:/projects/listProjects";
+            projectService.save(projectCreationDto);
+            return "redirect:/projects/list";
+        }
+    }
+
+    @PostMapping("/updateFields")
+    public String updateFields(@ModelAttribute("formProject") @Valid FormProject formProject,
+                               BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return "project-form-update-fields";
+        } else {
+            projectService.updateFields(formProject);
+            return "redirect:/projects/list";
         }
     }
 
     @GetMapping("/delete")
     public String deleteProject(@ModelAttribute("projectId") Long projectId) {
         projectService.deleteById(projectId);
-        return "redirect:/projects/listProjects";
-    }
-
-    public FormProject projectFormProject(Long projectId) throws ProjectNotFoundException {
-        Project project = projectService.findById(projectId);
-        FormProject formProject = new FormProject(
-                project.getId(),
-                project.getTitle(),
-                project.getDescription()
-        );
-        formProject.setDateCreated(project.getDateCreated());
-        return formProject;
-    }
-
-    @GetMapping("/search")
-    public String search(@RequestParam("searchParameter") String searchParameter, Model model) {
-        if (searchParameter.trim().isEmpty()) {
-            return "redirect:/projects/listProjects";
-        } else {
-            List<Project> projects = projectService.searchByParameterOrderByTitle(searchParameter);
-            model.addAttribute("projects", projects);
-            return "project-list";
-        }
+        return "redirect:/projects/list";
     }
 }

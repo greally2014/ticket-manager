@@ -99,16 +99,4 @@ public class RegistrationFormUser {
     public void setFormRole(String formRole) {
         this.formRole = formRole;
     }
-
-    @Override
-    public String toString() {
-        return "RegistrationUser{" +
-                "userName='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", matchingPassword='" + matchingPassword + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", email='" + email + '\'' +
-                '}';
-    }
 }

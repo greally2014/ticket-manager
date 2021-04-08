@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.management.relation.RoleNotFoundException;
 import javax.transaction.Transactional;
 import java.util.*;
 
@@ -26,9 +27,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
-
-    public CustomUserDetailsService() {
-    }
 
     @Override
     @Transactional
@@ -46,18 +44,23 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Transactional
+    public ProfileFormUser getProfileFormUser(String username) {
+        return new ProfileFormUser(userRepository.findByUsername(username).get());
+    }
+
+    @Transactional
     public boolean isUsernameTaken(String username) {
         return userRepository.existsUserByUsername(username);
     }
 
     @Transactional
-    public void save(RegistrationFormUser registrationFormUser) throws InputMismatchException {
+    public void save(RegistrationFormUser registrationFormUser) throws RoleNotFoundException {
         User user = switch (registrationFormUser.getFormRole()) {
             case "ROLE_GENERAL_MANAGER" -> new GeneralManager();
             case "ROLE_PROJECT_MANAGER" -> new ProjectManager();
             case "ROLE_SUBMITTER" -> new Submitter();
             case "ROLE_DEVELOPER" -> new Developer();
-            default -> throw new InputMismatchException("Formrole not recognised");
+            default -> throw new RoleNotFoundException("registrationFormUser.formrole INCORRECT");
         };
 
         user.setUsername(registrationFormUser.getUsername());
@@ -65,21 +68,17 @@ public class CustomUserDetailsService implements UserDetailsService {
         user.setFirstName(registrationFormUser.getFirstName());
         user.setLastName(registrationFormUser.getLastName());
         user.setEmail(registrationFormUser.getEmail());
-        user.setRoles(getRegistrationUserRoles(registrationFormUser.getFormRole()));
+        user.setRoles(new HashSet<>(roleRepository.findByNameIn(
+                Arrays.asList("ROLE_EMPLOYEE", registrationFormUser.getFormRole())
+        )));
         user.setEnabled(true);
 
         userRepository.save(user);
     }
 
     @Transactional
-    public void updateProfileDetails(ProfileFormUser profileFormUser, String principalUsername) {
+    public void updateProfile(ProfileFormUser profileFormUser, String principalUsername) {
         userRepository.updateProfileDetails(profileFormUser.getUsername(), profileFormUser.getFirstName(),
                 profileFormUser.getLastName(), profileFormUser.getEmail(), principalUsername);
-    }
-
-    @Transactional
-    public Set<Role> getRegistrationUserRoles(String formRole) {
-        List<String> roles = new ArrayList<>(Arrays.asList("ROLE_EMPLOYEE", formRole));
-        return new HashSet<>(roleRepository.findByNameIn(roles));
     }
 }

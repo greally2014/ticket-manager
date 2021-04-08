@@ -1,6 +1,7 @@
 package com.greally2014.ticketmanager.formModel;
 
-import javax.annotation.PostConstruct;
+import com.greally2014.ticketmanager.entity.Project;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
@@ -19,15 +20,15 @@ public class FormProject {
 
     private LocalDate dateCreated;
 
-    private boolean active;
-
-    public FormProject(Long id, String title, String description) {
-        this.id = id;
-        this.title = title;
-        this.description = description;
+    public FormProject(Project project) {
+        this.id = project.getId();
+        this.title = project.getTitle();
+        this.description = project.getDescription();
+        this.dateCreated = project.getDateCreated();
     }
 
     public FormProject() {
+        this.dateCreated = LocalDate.now();
     }
 
     public Long getId() {
@@ -60,13 +61,5 @@ public class FormProject {
 
     public void setDateCreated(LocalDate dateCreated) {
         this.dateCreated = dateCreated;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
     }
 }

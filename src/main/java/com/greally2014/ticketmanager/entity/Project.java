@@ -2,8 +2,8 @@ package com.greally2014.ticketmanager.entity;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "projects")
@@ -110,8 +110,8 @@ public class Project {
         return projectManagers;
     }
 
-    public void setProjectManagers(List<ProjectManager> projectManagers) {
-        this.projectManagers = projectManagers;
+    public void setProjectManagers(List<ProjectManager> profileFormUsers) {
+        this.projectManagers = profileFormUsers;
     }
 
     public List<Submitter> getSubmitters() {
@@ -138,4 +138,16 @@ public class Project {
         this.tickets = tickets;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Project project = (Project) o;
+        return Objects.equals(id, project.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

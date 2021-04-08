@@ -1,10 +1,12 @@
 package com.greally2014.ticketmanager.service;
 
 import com.greally2014.ticketmanager.dao.ProjectRepository;
+import com.greally2014.ticketmanager.dto.ProjectCreationDto;
 import com.greally2014.ticketmanager.entity.Project;
 import com.greally2014.ticketmanager.entity.Role;
 import com.greally2014.ticketmanager.entity.User;
-import com.greally2014.ticketmanager.exception.ProjectNotFoundException;
+import com.greally2014.ticketmanager.formModel.FormProject;
+import com.greally2014.ticketmanager.formModel.ProfileFormUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,16 +20,13 @@ public class ProjectService {
     private CustomUserDetailsService customUserDetailsService;
 
     @Autowired
+    private  ProjectManagerService projectManagerService;
+
+    @Autowired
     private ProjectRepository projectRepository;
 
-    public Project findById(Long projectId) throws ProjectNotFoundException {
-        Optional<Project> projectOptional = projectRepository.findById(projectId);
-        projectOptional.orElseThrow(() -> new ProjectNotFoundException("Not found (id): " + projectId));
-        return projectOptional.get();
-    }
 
-    public List<Project> findAllByUserAndUserRoleOrderByTitle(String username) {
-
+    public List<Project> findAllByUserOrderByTitle(String username) {
         User user = customUserDetailsService.loadUserByUsername(username).getUser();
         Set<String> roleNames = user.getRoles().stream().map(Role::getName).collect(Collectors.toSet());
         List<Project> projects;
@@ -40,15 +39,38 @@ public class ProjectService {
         return projects;
     }
 
-    public void save(Project project) {
-        projectRepository.save(project);
-    }
-
     public void deleteById(Long projectId) {
         projectRepository.deleteById(projectId);
     }
 
-    public List<Project> searchByParameterOrderByTitle(String searchParameter) {
-        return projectRepository.searchByParameterOrderByTitle(searchParameter);
+    public void save(ProjectCreationDto projectCreationDto) {
+        FormProject formProject = projectCreationDto.getFormProject();
+        List<ProfileFormUser> projectManagerFormList = projectCreationDto.getFormProjectManagerList();
+
+        Project project = new Project(
+                formProject.getTitle(),
+                formProject.getDescription(),
+                formProject.getDateCreated()
+        );
+
+        List<Long> selectedIds =
+                projectManagerFormList.stream()
+                        .filter(ProfileFormUser::getFlag)
+                        .map(ProfileFormUser::getId)
+                        .collect(Collectors.toList());
+
+        project.setProjectManagers(projectManagerService.findAllById(selectedIds));
+        projectRepository.save(project);
+    }
+
+    public void updateFields(FormProject formProject) {
+        Project project = projectRepository.getOne(formProject.getId());
+        project.setTitle(formProject.getTitle());
+        project.setDescription(formProject.getDescription());
+        projectRepository.save(project);
+    }
+
+    public FormProject getFormProject(Long id) {
+        return new FormProject(projectRepository.getOne(id));
     }
 }

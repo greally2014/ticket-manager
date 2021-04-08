@@ -24,7 +24,7 @@
 			
 			<p class="h4 mb-4">Update Profile</p>
 			
-			<form action="#" th:action="@{/profile/saveProfile}"
+			<form action="#" th:action="@{/profile/save}"
 							th:object="${profileFormUser}" method="post">
 
                 <!-- Place for messages: error, alert etc ... -->
@@ -32,9 +32,9 @@
                     <div class="col-xs-15">
                         <div>
 
-                            <!-- Check for registration error -->
-                            <div th:if="${registrationError}" class="alert alert-danger col-xs-offset-1 col-xs-10">
-                                <span th:text="${registrationError}"></span>
+                            <!-- Check for update error -->
+                            <div th:if="${profileUpdateError}" class="alert alert-danger col-xs-offset-1 col-xs-10">
+                                <span th:text="${profileUpdateError}"></span>
                             </div>
 
                         </div>
@@ -46,7 +46,7 @@
                 <div th:if="${#fields.hasErrors('username')}"
                      style="margin-bottom: 25px; color: red">
                     <ul>
-                        <li th:each="err : ${#fields.errors('username')}" th:text="${err}"/>
+                        <li th:each="err : ${#fields.errors('username')}" th:text="${err}"></li>
                     </ul>
                 </div>
 
@@ -55,7 +55,7 @@
                 <div th:if="${#fields.hasErrors('firstName')}"
                      style="margin-bottom: 25px; color: red">
                     <ul>
-                        <li th:each="err : ${#fields.errors('firstName')}" th:text="${err}" />
+                        <li th:each="err : ${#fields.errors('firstName')}" th:text="${err}" ></li>
                     </ul>
                 </div>
 					
@@ -64,7 +64,7 @@
                 <div th:if="${#fields.hasErrors('lastName')}"
                      style="margin-bottom: 25px; color: red">
                     <ul>
-                        <li th:each="err : ${#fields.errors('lastName')}" th:text="${err}"/>
+                        <li th:each="err : ${#fields.errors('lastName')}" th:text="${err}"></li>
                     </ul>
                 </div>
 					
@@ -73,7 +73,7 @@
                 <div th:if="${#fields.hasErrors('email')}"
                      style="margin-bottom: 25px; color: red">
                     <ul>
-                        <li th:each="err : ${#fields.errors('email')}" th:text="${err}" />
+                        <li th:each="err : ${#fields.errors('email')}" th:text="${err}" ></li>
                     </ul>
                 </div>
 					

@@ -62,7 +62,7 @@
             <td th:text="${tempProject.dateCreated}"></td>
             <td sec:authorize="hasRole('GENERAL_MANAGER')">
                 <!-- Add "update" button/link -->
-                <a th:href="@{/projects/showFormForUpdate(projectId=${tempProject.id})}"
+                <a th:href="@{/projects/showFormForUpdateFields(projectId=${tempProject.id})}"
                    class="btn btn-info btn-sm">
                     Update
                 </a>
