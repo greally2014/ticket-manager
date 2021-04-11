@@ -24,7 +24,7 @@
     <p class="h4 mb-4">Save Project</p>
 
     <form action="#" th:action="@{/projects/updateFields}"
-          th:object="${formProject}" method="POST">
+          th:object="${projectDto}" method="POST">
 
         <!-- Add hidden form field to handle update -->
         <input type="hidden" th:field="*{id}" />

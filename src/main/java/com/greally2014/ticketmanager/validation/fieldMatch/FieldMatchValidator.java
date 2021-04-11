@@ -1,4 +1,4 @@
-package com.greally2014.ticketmanager.validation;
+package com.greally2014.ticketmanager.validation.fieldMatch;
 
 import org.springframework.beans.BeanWrapperImpl;
 
@@ -24,7 +24,8 @@ public class FieldMatchValidator implements ConstraintValidator<FieldMatch, Obje
             Object secondObject = new BeanWrapperImpl(value).getPropertyValue(secondFieldName);
 
             valid = firstObject == null && secondObject == null ||
-                    firstObject != null && firstObject.equals(secondObject);
+                    firstObject.toString().length() < 8 ||
+                    firstObject.equals(secondObject);
 
         } catch (Exception placeholder) {
             // nothing

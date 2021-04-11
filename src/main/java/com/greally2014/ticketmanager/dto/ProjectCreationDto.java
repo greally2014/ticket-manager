@@ -1,8 +1,6 @@
 package com.greally2014.ticketmanager.dto;
 
-import com.greally2014.ticketmanager.formModel.FormProject;
-import com.greally2014.ticketmanager.formModel.ProfileFormUser;
-import com.greally2014.ticketmanager.validation.SelectedProjectManager;
+import com.greally2014.ticketmanager.validation.selected.Selected;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -10,32 +8,32 @@ import java.util.List;
 public class ProjectCreationDto {
 
     @Valid
-    private FormProject formProject;
+    private ProjectDto projectDto;
 
-    @SelectedProjectManager
-    private List<ProfileFormUser> formProjectManagerList;
+    @Selected
+    private List<UserProfileDto> projectManagerDtoList;
 
-    public ProjectCreationDto(FormProject formProject, List<ProfileFormUser> formProjectManagerList) {
-        this.formProject = formProject;
-        this.formProjectManagerList = formProjectManagerList;
+    public ProjectCreationDto(ProjectDto projectDto, List<UserProfileDto> projectManagerDtoList) {
+        this.projectDto = projectDto;
+        this.projectManagerDtoList = projectManagerDtoList;
     }
 
     public ProjectCreationDto() {
     }
 
-    public List<ProfileFormUser> getFormProjectManagerList() {
-        return formProjectManagerList;
+    public ProjectDto getProjectDto() {
+        return projectDto;
     }
 
-    public void setFormProjectManagerList(List<ProfileFormUser> formProjectManagerList) {
-        this.formProjectManagerList = formProjectManagerList;
+    public void setProjectDto(ProjectDto projectDto) {
+        this.projectDto = projectDto;
     }
 
-    public FormProject getFormProject() {
-        return formProject;
+    public List<UserProfileDto> getProjectManagerDtoList() {
+        return projectManagerDtoList;
     }
 
-    public void setFormProject(FormProject formProject) {
-        this.formProject = formProject;
+    public void setProjectManagerDtoList(List<UserProfileDto> projectManagerDtoList) {
+        this.projectManagerDtoList = projectManagerDtoList;
     }
 }

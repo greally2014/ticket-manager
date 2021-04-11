@@ -2,10 +2,17 @@ package com.greally2014.ticketmanager.service;
 
 import com.greally2014.ticketmanager.dao.RoleRepository;
 import com.greally2014.ticketmanager.dao.UserRepository;
-import com.greally2014.ticketmanager.entity.*;
+import com.greally2014.ticketmanager.dto.AddressDto;
+import com.greally2014.ticketmanager.dto.RegistrationDto;
+import com.greally2014.ticketmanager.dto.UserProfileDto;
+import com.greally2014.ticketmanager.entity.user.*;
+import com.greally2014.ticketmanager.entity.user.component.Address;
+import com.greally2014.ticketmanager.entity.user.specialization.Developer;
+import com.greally2014.ticketmanager.entity.user.specialization.GeneralManager;
+import com.greally2014.ticketmanager.entity.user.specialization.ProjectManager;
+import com.greally2014.ticketmanager.entity.user.specialization.Submitter;
 import com.greally2014.ticketmanager.exception.EmailNotFoundException;
-import com.greally2014.ticketmanager.formModel.ProfileFormUser;
-import com.greally2014.ticketmanager.formModel.RegistrationFormUser;
+import com.greally2014.ticketmanager.exception.NumberNotFoundException;
 import com.greally2014.ticketmanager.userDetails.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -44,41 +51,62 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Transactional
-    public ProfileFormUser getProfileFormUser(String username) {
-        return new ProfileFormUser(userRepository.findByUsername(username).get());
+    public CustomUserDetails loadUserByPhoneNumber(String number) throws NumberNotFoundException {
+        Optional<User> userOptional = userRepository.findByPhoneNumber(number);
+        userOptional.orElseThrow(() -> new NumberNotFoundException("Not found: " + number));
+        return userOptional.map(CustomUserDetails::new).get();
     }
 
     @Transactional
-    public boolean isUsernameTaken(String username) {
-        return userRepository.existsUserByUsername(username);
+    public boolean phoneNumberExists(String number) {
+        return userRepository.existsByPhoneNumber(number);
     }
 
+
     @Transactional
-    public void save(RegistrationFormUser registrationFormUser) throws RoleNotFoundException {
-        User user = switch (registrationFormUser.getFormRole()) {
+    public void register(RegistrationDto registrationDto) throws RoleNotFoundException {
+        User user = switch (registrationDto.getFormRole()) {
             case "ROLE_GENERAL_MANAGER" -> new GeneralManager();
             case "ROLE_PROJECT_MANAGER" -> new ProjectManager();
             case "ROLE_SUBMITTER" -> new Submitter();
             case "ROLE_DEVELOPER" -> new Developer();
-            default -> throw new RoleNotFoundException("registrationFormUser.formrole INCORRECT");
+            default -> throw new RoleNotFoundException("registrationDto.formrole INCORRECT");
         };
 
-        user.setUsername(registrationFormUser.getUsername());
-        user.setPassword(bCryptPasswordEncoder.encode(registrationFormUser.getPassword()));
-        user.setFirstName(registrationFormUser.getFirstName());
-        user.setLastName(registrationFormUser.getLastName());
-        user.setEmail(registrationFormUser.getEmail());
+        user.setUsername(registrationDto.getUsername());
+        user.setPassword(bCryptPasswordEncoder.encode(registrationDto.getPassword()));
+        user.setFirstName(registrationDto.getFirstName());
+        user.setLastName(registrationDto.getLastName());
+        user.setEmail(registrationDto.getEmail());
         user.setRoles(new HashSet<>(roleRepository.findByNameIn(
-                Arrays.asList("ROLE_EMPLOYEE", registrationFormUser.getFormRole())
+                Arrays.asList("ROLE_EMPLOYEE", registrationDto.getFormRole())
         )));
         user.setEnabled(true);
-
-        userRepository.save(user);
     }
 
     @Transactional
-    public void updateProfile(ProfileFormUser profileFormUser, String principalUsername) {
-        userRepository.updateProfileDetails(profileFormUser.getUsername(), profileFormUser.getFirstName(),
-                profileFormUser.getLastName(), profileFormUser.getEmail(), principalUsername);
+    public void updateProfile(UserProfileDto userProfileDto, String principalUsername) {
+        User user = loadUserByUsername(principalUsername).getUser();
+        user.setFirstName(userProfileDto.getFirstName());
+        user.setLastName(userProfileDto.getLastName());
+        user.setGender(userProfileDto.getGender());
+        user.setEmail(userProfileDto.getEmail());
+
+        AddressDto addressDto = userProfileDto.getAddress();
+
+        user.setAddress(new Address(
+                addressDto.getLine1(),
+                addressDto.getLine2(),
+                addressDto.getCity(),
+                addressDto.getCounty()
+        ));
+
+        String phoneNumber = userProfileDto.getPhoneNumber();
+        user.setPhoneNumber(userProfileDto.getPhoneNumber());
+    }
+
+    @Transactional
+    public UserProfileDto getProfileDto(String username) throws UsernameNotFoundException {
+        return new UserProfileDto(loadUserByUsername(username).getUser());
     }
 }

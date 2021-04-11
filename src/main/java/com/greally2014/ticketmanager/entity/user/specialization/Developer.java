@@ -1,37 +1,45 @@
-package com.greally2014.ticketmanager.entity;
+package com.greally2014.ticketmanager.entity.user.specialization;
+
+import com.greally2014.ticketmanager.entity.Project;
+import com.greally2014.ticketmanager.entity.Ticket;
+import com.greally2014.ticketmanager.entity.user.User;
 
 import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@DiscriminatorValue(value = "SUBMITTER")
-public class Submitter extends User {
+@DiscriminatorValue("DEVELOPER")
+public class Developer extends User {
 
     @ManyToMany(
             fetch = FetchType.LAZY,
             cascade = {CascadeType.DETACH, CascadeType.MERGE,
                     CascadeType.PERSIST, CascadeType.REFRESH}
     )
-    @JoinTable(
-            name = "users_projects",
+    @JoinTable(name = "users_projects",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "project_id")
     )
     private List<Project> projects;
 
-    @OneToMany(
-            mappedBy = "submitter",
+    @ManyToMany(
             fetch = FetchType.LAZY,
             cascade = {CascadeType.DETACH, CascadeType.MERGE,
-                    CascadeType.PERSIST, CascadeType.REFRESH}
+            CascadeType.PERSIST, CascadeType.REFRESH}
+    )
+    @JoinTable(
+            name = "developers_tickets",
+            joinColumns = @JoinColumn(name = "developer_id"),
+            inverseJoinColumns = @JoinColumn(name = "ticket_id")
     )
     private List<Ticket> tickets;
 
-    public Submitter(String username, String password, String firstName, String lastName, String email) {
-        super(username, password, firstName, lastName, email);
+    public Developer(String username, String password, String firstName, String lastName,
+                     String gender, String email, String phoneNumber) {
+        super(username, password, firstName, lastName, gender, email, phoneNumber);
     }
 
-    public Submitter() {
+    public Developer() {
     }
 
     public List<Project> getProjects() {

@@ -1,6 +1,6 @@
 package com.greally2014.ticketmanager.controller;
 
-import com.greally2014.ticketmanager.formModel.RegistrationFormUser;
+import com.greally2014.ticketmanager.dto.RegistrationDto;
 import com.greally2014.ticketmanager.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
@@ -33,32 +33,28 @@ public class RegistrationController {
 
     @GetMapping("/showRegistrationForm")
     public String showRegistrationForm(Model model) {
-        model.addAttribute("registrationFormUser", new RegistrationFormUser());
+        model.addAttribute("registrationDto", new RegistrationDto());
         model.addAttribute("roles", roles);
-        return "registration-form";
+
+        return "register";
     }
 
     @PostMapping("/processRegistration")
-    public String processRegistration(@Valid @ModelAttribute("registrationFormUser") RegistrationFormUser registrationFormUser,
-                                      Model model, BindingResult bindingResult) {
-
+    public String processRegistration(@Valid @ModelAttribute("registrationDto") RegistrationDto registrationDto,
+                                      BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("roles", roles);
-            return "registration-form";
-        }
 
-        if (customUserDetailsService.isUsernameTaken(registrationFormUser.getUsername())) {
-            model.addAttribute("registrationFormUser", new RegistrationFormUser());
-            model.addAttribute("roles", roles);
-            model.addAttribute("registrationError", "Username already exists.");
-            return "registration-form";
+            return "register";
 
         } else {
             try {
-                customUserDetailsService.save(registrationFormUser);
+                customUserDetailsService.register(registrationDto);
+
             } catch (RoleNotFoundException e) {
                 e.printStackTrace();
             }
+
             return "registration-confirmation";
         }
     }

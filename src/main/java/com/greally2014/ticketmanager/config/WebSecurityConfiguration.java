@@ -20,6 +20,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
 
+    @Autowired
+    private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(authenticationProvider());
@@ -36,26 +39,14 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
             .formLogin()
                 .loginPage("/login")
                 .loginProcessingUrl("/authenticateLogin")
-                .successHandler(authenticationSuccessHandler())
-                .failureHandler(authenticationFailureHandler())
+                .successHandler(customAuthenticationSuccessHandler)
                 .permitAll()
             .and()
             .logout()
-                .logoutSuccessUrl("/login")
                 .permitAll()
             .and()
             .exceptionHandling()
                 .accessDeniedPage("/access-denied");
-    }
-
-    @Bean
-    public AuthenticationSuccessHandler authenticationSuccessHandler() {
-        return new CustomAuthenticationSuccessHandler();
-    }
-
-    @Bean
-    public AuthenticationFailureHandler authenticationFailureHandler() {
-        return new CustomAuthenticationFailureHandler();
     }
 
     //authenticationProvider bean definition

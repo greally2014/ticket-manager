@@ -1,9 +1,10 @@
 package com.greally2014.ticketmanager.entity;
 
-import javax.naming.ldap.LdapContext;
+import com.greally2014.ticketmanager.entity.user.specialization.Developer;
+import com.greally2014.ticketmanager.entity.user.specialization.Submitter;
+
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 @Entity

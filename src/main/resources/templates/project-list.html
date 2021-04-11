@@ -22,27 +22,12 @@
     <h3>Project Directory</h3>
     <hr>
 
-    <!-- Add a search form -->
-    <form action="#" th:action="@{/projects/search}"
-          method="GET" class="form-inline">
-
-        <!--  Button to create project  -->
-        <a th:href="@{/projects/showFormForAdd}"
-           sec:authorize="hasRole('GENERAL_MANAGER')"
-           class="btn btn-primary btn-sm mb-3">
-            Create Project
-        </a>
-
-        <!-- Add a button -->
-        <input type="search"
-               name="searchParameter"
-               placeholder="Search"
-               class="form-control-sm ml-5 mr-2 mb-3" />
-
-        <button type="submit"
-                class="btn btn-success btn-sm mb-3">Search</button>
-
-    </form>
+    <!--  Button to create projectCreationDto  -->
+    <a th:href="@{/projects/showCreateForm}"
+       sec:authorize="hasRole('GENERAL_MANAGER')"
+       class="btn btn-primary btn-sm mb-3">
+        Create Project
+    </a>
 
     <table class="table table-bordered table-striped">
         <thead class="thead-dark">
@@ -62,13 +47,13 @@
             <td th:text="${tempProject.dateCreated}"></td>
             <td sec:authorize="hasRole('GENERAL_MANAGER')">
                 <!-- Add "update" button/link -->
-                <a th:href="@{/projects/showFormForUpdateFields(projectId=${tempProject.id})}"
+                <a th:href="@{/projects/showUpdateFieldsForm(id=${tempProject.id})}"
                    class="btn btn-info btn-sm">
                     Update
                 </a>
 
                 <!-- Add "delete" button/link -->
-                <a th:href="@{/projects/delete(projectId=${tempProject.id})}"
+                <a th:href="@{/projects/delete(id=${tempProject.id})}"
                    class="btn btn-danger btn-sm"
                    onclick="if (!(confirm('Are you sure you want to delete this project?'))) return false">
                     Delete

@@ -1,10 +1,10 @@
 package com.greally2014.ticketmanager.userDetails;
 
-import com.greally2014.ticketmanager.entity.Role;
+import com.greally2014.ticketmanager.entity.user.Role;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import com.greally2014.ticketmanager.entity.User;
+import com.greally2014.ticketmanager.entity.user.User;
 
 import java.util.Collection;
 import java.util.Set;

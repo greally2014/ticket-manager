@@ -1,4 +1,4 @@
-package com.greally2014.ticketmanager.validation;
+package com.greally2014.ticketmanager.validation.fieldMatch;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;

@@ -1,8 +1,7 @@
 package com.greally2014.ticketmanager.controller;
 
 import com.greally2014.ticketmanager.dto.ProjectCreationDto;
-import com.greally2014.ticketmanager.entity.Project;
-import com.greally2014.ticketmanager.formModel.FormProject;
+import com.greally2014.ticketmanager.dto.ProjectDto;
 import com.greally2014.ticketmanager.service.ProjectManagerService;
 import com.greally2014.ticketmanager.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.Principal;
-import java.util.List;
 
 @Controller
 @RequestMapping("/projects")
@@ -27,57 +25,65 @@ public class ProjectController {
     private ProjectManagerService projectManagerService;
 
     @GetMapping("/list")
-    public String listProjects(Model model) {
+    public String list(Model model) {
         Principal principal = SecurityContextHolder.getContext().getAuthentication();
-        List<Project> projects = projectService.findAllByUserOrderByTitle(principal.getName());
+        model.addAttribute("projects",
+                projectService.findAllByUsername(principal.getName()));
 
-        model.addAttribute("projects", projects);
         return "project-list";
     }
 
-    @GetMapping("/showFormForAdd")
-    public String showFormForAdd(Model model) {
-        ProjectCreationDto projectCreationDto = new ProjectCreationDto(
-                new FormProject(),
-                projectManagerService.getFormList());
+    @GetMapping("/showCreateForm")
+    public String showCreateForm(Model model) {
+        model.addAttribute("projectCreationDto",
+                new ProjectCreationDto(
+                        new ProjectDto(),
+                        projectManagerService.getProfileDtoList()
+                )
+        );
 
-        model.addAttribute("projectCreationDto", projectCreationDto);
-        return "project-form";
+        return "project-create";
     }
 
-    @GetMapping("/showFormForUpdateFields")
-    public String showFormForUpdate(@RequestParam("id") Long id, Model model) {
-        model.addAttribute("formProject", projectService.getFormProject(id));
-        return "project-form-update-fields";
+    @GetMapping("/showUpdateFieldsForm")
+    public String showUpdateFieldsForm(@RequestParam("id") Long id, Model model) {
+        model.addAttribute("projectDto", projectService.getDto(id));
+
+        return "project-update-fields";
     }
 
     @PostMapping("/create")
     public String save(@ModelAttribute("projectCreationDto") @Valid ProjectCreationDto projectCreationDto,
                        BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            projectCreationDto.setFormProjectManagerList(projectManagerService.getFormList());
-            return "project-form";
+            projectCreationDto.setProjectManagerDtoList(projectManagerService.getProfileDtoList());
+
+            return "project-create";
 
         } else {
-            projectService.save(projectCreationDto);
+            projectService.create(projectCreationDto);
+
             return "redirect:/projects/list";
         }
     }
 
     @PostMapping("/updateFields")
-    public String updateFields(@ModelAttribute("formProject") @Valid FormProject formProject,
+    public String updateFields(@ModelAttribute("projectDto") @Valid ProjectDto projectDto,
                                BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return "project-form-update-fields";
+            return "project-update-fields";
+
         } else {
-            projectService.updateFields(formProject);
+            projectService.updateFields(projectDto);
+
             return "redirect:/projects/list";
         }
     }
 
     @GetMapping("/delete")
-    public String deleteProject(@ModelAttribute("projectId") Long projectId) {
-        projectService.deleteById(projectId);
+    public String delete(@ModelAttribute("id") Long id) {
+        projectService.delete(id);
+
         return "redirect:/projects/list";
     }
 }

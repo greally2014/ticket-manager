@@ -1,4 +1,4 @@
-package com.greally2014.ticketmanager.validation;
+package com.greally2014.ticketmanager.validation.email.validEmail;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -9,7 +9,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface ValidEmail {
-    String message() default "Invalid email";
+    String message() default "Invalid email format";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

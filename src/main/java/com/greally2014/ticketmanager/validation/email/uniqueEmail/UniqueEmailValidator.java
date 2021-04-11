@@ -1,4 +1,4 @@
-package com.greally2014.ticketmanager.validation;
+package com.greally2014.ticketmanager.validation.email.uniqueEmail;
 
 import com.greally2014.ticketmanager.exception.EmailNotFoundException;
 import com.greally2014.ticketmanager.userDetails.CustomUserDetails;
@@ -17,7 +17,11 @@ public class UniqueEmailValidator implements ConstraintValidator<UniqueEmail, St
 
     @Override
     public boolean isValid(String email, ConstraintValidatorContext context) {
+        if (email == null || email.length() < 1 || email.length() > 50) {
+            return true;
+        }
         boolean valid;
+
         try {
             CustomUserDetails customUserdetails = customUserDetailsService.loadUserByEmail(email);
             try {

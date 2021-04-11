@@ -1,4 +1,4 @@
-package com.greally2014.ticketmanager.formModel;
+package com.greally2014.ticketmanager.dto;
 
 import com.greally2014.ticketmanager.entity.Project;
 
@@ -6,28 +6,28 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
-public class FormProject {
+public class ProjectDto {
 
     private Long id;
 
     @NotNull(message = "Title is required")
-    @Size(min = 1, max = 50, message = "Invalid format")
+    @Size(min = 1, max = 50, message = "Title is required")
     private String title;
 
     @NotNull(message = "Description is required")
-    @Size(min = 1, max = 50, message = "Invalid format")
+    @Size(min = 1, max = 50, message = "Description is required")
     private String description;
 
     private LocalDate dateCreated;
 
-    public FormProject(Project project) {
+    public ProjectDto(Project project) {
         this.id = project.getId();
         this.title = project.getTitle();
         this.description = project.getDescription();
         this.dateCreated = project.getDateCreated();
     }
 
-    public FormProject() {
+    public ProjectDto() {
         this.dateCreated = LocalDate.now();
     }
 

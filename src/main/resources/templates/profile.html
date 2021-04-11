@@ -1,0 +1,179 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+	<head>
+		<!-- Required meta tags -->
+    	<meta charset="utf-8">
+    	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    	
+    	<!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+              integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+              crossorigin="anonymous">
+
+
+        <title>Save Employee</title>
+	</head>
+	
+	<body>
+	
+		<div class="container">
+		
+			<h3>User Profile</h3>
+			<hr>
+			
+			<p class="h4 mb-4">Update Profile</p>
+			
+			<form action="#" th:action="@{/profile/update}"
+							th:object="${userProfileDto}" method="post">
+
+                <!-- Place for messages: error, alert etc ... -->
+<!--                <div class="form-group">-->
+<!--                    <div class="col-xs-15">-->
+<!--                        <div>-->
+
+<!--                            &lt;!&ndash; Check for email error &ndash;&gt;-->
+<!--                            <div th:if="${emailError}" class="alert alert-danger col-xs-offset-1 col-xs-10">-->
+<!--                                <span th:text="${emailError}"></span>-->
+<!--                            </div>-->
+
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+				<input type="text" th:field="*{firstName}" maxlength="50"
+					class="form-control mb-4 col-4" placeholder="First name">
+                <div th:if="${#fields.hasErrors('firstName')}"
+                     style="margin-bottom: 25px; color: red">
+                    <ul>
+                        <li th:each="err : ${#fields.errors('firstName')}" th:text="${err}" ></li>
+                    </ul>
+                </div>
+					
+				<input type="text" th:field="*{lastName}" maxlength="50"
+					class="form-control mb-4 col-4" placeholder="Last name">
+                <div th:if="${#fields.hasErrors('lastName')}"
+                     style="margin-bottom: 25px; color: red">
+                    <ul>
+                        <li th:each="err : ${#fields.errors('lastName')}" th:text="${err}"></li>
+                    </ul>
+                </div>
+
+                <fieldset>
+                    <legend>What's your gender?</legend>
+                    <ul>
+                        <li>
+                            <input id="gender-male" type="radio" name="gender" th:field="*{gender}" th:value="'m'">
+                            <label th:for="gender-male">Male</label>
+                        </li>
+                        <li>
+                            <input id="gender-female" type="radio" name="gender" th:field="*{gender}" th:value="'f'">
+                            <label th:for="gender-female">Female</label>
+                        </li>
+                        <li>
+                            <input id="gender-other" type="radio" name="gender" th:field="*{gender}" th:value="'o'">
+                            <label th:for="gender-other">Other</label>
+                        </li>
+                    </ul>
+                </fieldset>
+
+				<input type="text" th:field="*{email}" maxlength="50"
+					class="form-control mb-4 col-4" placeholder="Email">
+                <div th:if="${#fields.hasErrors('email')}"
+                     style="margin-bottom: 25px; color: red">
+                    <ul>
+                        <li th:each="err : ${#fields.errors('email')}" th:text="${err}" ></li>
+                    </ul>
+                </div>
+
+                <input type="text" th:field="*{address.line1}" maxlength="50"
+                       class="form-control mb-4 col-4" placeholder="Address Line 1">
+                <div th:if="${#fields.hasErrors('address.line1')}"
+                     style="margin-bottom: 25px; color: red">
+                    <ul>
+                        <li th:each="err : ${#fields.errors('address.line1')}" th:text="${err}" ></li>
+                    </ul>
+                </div>
+
+                <input type="text" th:field="*{address.line2}" maxlength="50"
+                       class="form-control mb-4 col-4" placeholder="Address Line 2">
+                <div th:if="${#fields.hasErrors('address.line2')}"
+                     style="margin-bottom: 25px; color: red">
+                    <ul>
+                        <li th:each="err : ${#fields.errors('address.line2')}" th:text="${err}" ></li>
+                    </ul>
+                </div>
+
+                <input type="text" th:field="*{address.city}" maxlength="50"
+                       class="form-control mb-4 col-4" placeholder="City">
+                <div th:if="${#fields.hasErrors('address.city')}"
+                     style="margin-bottom: 25px; color: red">
+                    <ul>
+                        <li th:each="err : ${#fields.errors('address.city')}" th:text="${err}" ></li>
+                    </ul>
+                </div>
+
+                <select th:field="*{address.county}" class="form-control mb-4 col-4">
+                    <option th:value="''" th:text="County"></option>
+                    <option th:value="'Antrim'" th:text="Antrim"></option>
+                    <option th:value="'Armagh'" th:text="Armagh"></option>
+                    <option th:value="'Carlow'" th:text="Carlow"></option>
+                    <option th:value="'Cavan'" th:text="Cavan"></option>
+                    <option th:value="'Clare'" th:text="Clare"></option>
+                    <option th:value="'Cork'" th:text="Cork"></option>
+                    <option th:value="'Derry'" th:text="Derry"></option>
+                    <option th:value="'Donegal'" th:text="Donegal"></option>
+                    <option th:value="'Down'" th:text="Down"></option>
+                    <option th:value="'Dublin'" th:text="Dublin"></option>
+                    <option th:value="'Fermanagh'" th:text="Fermanagh"></option>
+                    <option th:value="'Galway'" th:text="Galway"></option>
+                    <option th:value="'Kerry'" th:text="Kerry"></option>
+                    <option th:value="'Kildare'" th:text="Kildare"></option>
+                    <option th:value="'Kilkenny'" th:text="Kilkenny"></option>
+                    <option th:value="'Laois'" th:text="Laois"></option>
+                    <option th:value="'Leitrim'" th:text="Leitrim"></option>
+                    <option th:value="'Limerick'" th:text="Limerick"></option>
+                    <option th:value="'Longford'" th:text="Longford"></option>
+                    <option th:value="'Louth'" th:text="Louth"></option>
+                    <option th:value="'Mayo'" th:text="Mayo"></option>
+                    <option th:value="'Meath'" th:text="Meath"></option>
+                    <option th:value="'Monaghan'" th:text="Monaghan"></option>
+                    <option th:value="'Offaly'" th:text="Offaly"></option>
+                    <option th:value="'Roscomon'" th:text="Roscomon"></option>
+                    <option th:value="'Sligo'" th:text="Sligo"></option>
+                    <option th:value="'Tipperary'" th:text="Tipperary"></option>
+                    <option th:value="'Tyrone'" th:text="Tyrone"></option>
+                    <option th:value="'Waterford'" th:text="Waterford"></option>
+                    <option th:value="'Westmeath'" th:text="Westmeath"></option>
+                    <option th:value="'Wexford'" th:text="Wexford"></option>
+                    <option th:value="'Wicklow'" th:text="Wicklow"></option>
+                </select>
+
+                <div th:if="${#fields.hasErrors('address.county')}"
+                     style="margin-bottom: 25px; color: #ff0000">
+                    <ul>-
+                        <li th:each="err : ${#fields.errors('address.county')}" th:text="${err}" ></li>
+                    </ul>
+                </div>
+
+                <input type="text" th:field="*{phoneNumber}" maxlength="20"
+                       class="form-control mb-4 col-4" placeholder="Phone Number">
+                <div th:if="${#fields.hasErrors('phoneNumber')}"
+                     style="margin-bottom: 25px; color: red">
+                    <ul>
+                        <li th:each="err : ${#fields.errors('phoneNumber')}" th:text="${err}" ></li>
+                    </ul>
+                </div>
+
+                <button type="submit" class="btn btn-info col-2">Save</button>
+				
+			</form>
+			
+			<hr>
+            <a th:href="@{/}">Back to Index</a>
+		
+		</div>
+	
+	</body>
+
+</html>

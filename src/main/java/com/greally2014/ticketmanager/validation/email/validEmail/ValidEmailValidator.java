@@ -1,4 +1,4 @@
-package com.greally2014.ticketmanager.validation;
+package com.greally2014.ticketmanager.validation.email.validEmail;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -11,8 +11,8 @@ public class ValidEmailValidator implements ConstraintValidator<ValidEmail, Stri
 
     @Override
     public boolean isValid(String email, ConstraintValidatorContext context) {
-        if (email == null) {
-            return false;
+        if (email == null || email.length() < 1 || email.length() > 50) {
+            return true;
         }
         return Pattern.matches(EMAIL_PATTERN, email);
     }

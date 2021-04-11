@@ -1,6 +1,6 @@
 package com.greally2014.ticketmanager.controller;
 
-import com.greally2014.ticketmanager.formModel.ProfileFormUser;
+import com.greally2014.ticketmanager.dto.UserProfileDto;
 import com.greally2014.ticketmanager.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
@@ -27,33 +27,27 @@ public class ProfileController {
         webDataBinder.registerCustomEditor(String.class, stringTrimmerEditor);
     }
 
-    @GetMapping("/showFormForUpdate")
-    public String showFormForUpdate(Model model) {
+    @GetMapping("/showUpdateForm")
+    public String showUpdateForm(Model model) {
         Principal principal = SecurityContextHolder.getContext().getAuthentication();
-        model.addAttribute("profileFormUser",
-                customUserDetailsService.getProfileFormUser(principal.getName()));
-        return "profile-form";
+        model.addAttribute(
+                "userProfileDto",
+                customUserDetailsService.getProfileDto(principal.getName())
+        );
+
+        return "profile";
     }
 
-    @PostMapping("/save")
-    public String saveProfile(@Valid @ModelAttribute("profileFormUser") ProfileFormUser profileFormUser,
-                              Model model, BindingResult bindingResult) {
+    @PostMapping("/update")
+    public String update(@Valid @ModelAttribute("userProfileDto") UserProfileDto userProfileDto,
+                         BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return "profile-form";
+            return "profile";
         }
 
         Principal principal = SecurityContextHolder.getContext().getAuthentication();
+        customUserDetailsService.updateProfile(userProfileDto, principal.getName());
 
-        if (customUserDetailsService.isUsernameTaken(profileFormUser.getUsername()) &&
-                !profileFormUser.getUsername().equals(principal.getName())) {
-            model.addAttribute("profileFormUser",
-                    customUserDetailsService.getProfileFormUser(principal.getName()));
-            model.addAttribute("profileUpdateError", "Username already exists.");
-            return "profile-form";
-
-        } else {
-            customUserDetailsService.updateProfile(profileFormUser, principal.getName());
-            return "index";
-        }
+        return "index";
     }
 }

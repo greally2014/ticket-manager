@@ -1,4 +1,7 @@
-package com.greally2014.ticketmanager.entity;
+package com.greally2014.ticketmanager.entity.user.specialization;
+
+import com.greally2014.ticketmanager.entity.Project;
+import com.greally2014.ticketmanager.entity.user.User;
 
 import javax.persistence.*;
 import java.util.List;
@@ -18,8 +21,9 @@ public class ProjectManager extends User {
     )
     private List<Project> projects;
 
-    public ProjectManager(String username, String password, String firstName, String lastName, String email) {
-        super(username, password, firstName, lastName, email);
+    public ProjectManager(String username, String password, String firstName, String lastName,
+                          String  gender, String email, String phoneNumber) {
+        super(username, password, firstName, lastName, gender, email, phoneNumber);
     }
 
     public ProjectManager() {

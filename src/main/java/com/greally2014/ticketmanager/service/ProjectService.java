@@ -2,14 +2,15 @@ package com.greally2014.ticketmanager.service;
 
 import com.greally2014.ticketmanager.dao.ProjectRepository;
 import com.greally2014.ticketmanager.dto.ProjectCreationDto;
+import com.greally2014.ticketmanager.dto.ProjectDto;
+import com.greally2014.ticketmanager.dto.UserProfileDto;
 import com.greally2014.ticketmanager.entity.Project;
-import com.greally2014.ticketmanager.entity.Role;
-import com.greally2014.ticketmanager.entity.User;
-import com.greally2014.ticketmanager.formModel.FormProject;
-import com.greally2014.ticketmanager.formModel.ProfileFormUser;
+import com.greally2014.ticketmanager.entity.user.Role;
+import com.greally2014.ticketmanager.entity.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,51 +27,55 @@ public class ProjectService {
     private ProjectRepository projectRepository;
 
 
-    public List<Project> findAllByUserOrderByTitle(String username) {
+    @Transactional
+    public List<Project> findAllByUsername(String username) {
         User user = customUserDetailsService.loadUserByUsername(username).getUser();
         Set<String> roleNames = user.getRoles().stream().map(Role::getName).collect(Collectors.toSet());
         List<Project> projects;
 
         if (roleNames.contains("ROLE_PROJECT_MANAGER")) {
-            projects = projectRepository.findAllByProjectManagersIdOrderByTitle(user.getId());
+            projects = projectManagerService.getProjects(username);
         } else {
             projects = projectRepository.findAllByOrderByTitle();
         }
+
         return projects;
     }
 
-    public void deleteById(Long projectId) {
-        projectRepository.deleteById(projectId);
-    }
-
-    public void save(ProjectCreationDto projectCreationDto) {
-        FormProject formProject = projectCreationDto.getFormProject();
-        List<ProfileFormUser> projectManagerFormList = projectCreationDto.getFormProjectManagerList();
+    @Transactional
+    public void create(ProjectCreationDto projectCreationDto) {
+        ProjectDto projectDto = projectCreationDto.getProjectDto();
+        List<UserProfileDto> projectManagerDtoList = projectCreationDto.getProjectManagerDtoList();
 
         Project project = new Project(
-                formProject.getTitle(),
-                formProject.getDescription(),
-                formProject.getDateCreated()
+                projectDto.getTitle(),
+                projectDto.getDescription(),
+                projectDto.getDateCreated()
         );
 
         List<Long> selectedIds =
-                projectManagerFormList.stream()
-                        .filter(ProfileFormUser::getFlag)
-                        .map(ProfileFormUser::getId)
+                projectManagerDtoList.stream()
+                        .filter(UserProfileDto::getFlag)
+                        .map(UserProfileDto::getId)
                         .collect(Collectors.toList());
 
         project.setProjectManagers(projectManagerService.findAllById(selectedIds));
-        projectRepository.save(project);
     }
 
-    public void updateFields(FormProject formProject) {
-        Project project = projectRepository.getOne(formProject.getId());
-        project.setTitle(formProject.getTitle());
-        project.setDescription(formProject.getDescription());
-        projectRepository.save(project);
+    @Transactional
+    public void delete(Long projectId) {
+        projectRepository.deleteById(projectId);
     }
 
-    public FormProject getFormProject(Long id) {
-        return new FormProject(projectRepository.getOne(id));
+    @Transactional
+    public void updateFields(ProjectDto projectDto) {
+        Project project = projectRepository.getOne(projectDto.getId());
+        project.setTitle(projectDto.getTitle());
+        project.setDescription(projectDto.getDescription());
+    }
+
+    @Transactional
+    public ProjectDto getDto(Long id) {
+        return new ProjectDto(projectRepository.getOne(id));
     }
 }

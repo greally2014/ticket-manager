@@ -11,19 +11,19 @@
     <hr>
     <br>
     <div>
-        <a th:href="@{/profile/showFormForUpdate}">Edit profile</a>
+        <a th:href="@{/profile/showUpdateForm}">Edit profile</a>
     </div>
     <br>
     <hr>
     <br>
     <div sec:authorize="hasAnyRole('PROJECT_MANAGER', 'GENERAL_MANAGER')">
-        <a th:href="@{/projects/listProjects}">Projects</a>
+        <a th:href="@{/projects/list}">Projects</a>
     </div>
     <br>
     <form th:action="@{/logout}"
           th:method="POST">
 
-        <input type="submit" value="Logout" />
+        <input type="submit" value="logout" />
 
     </form>
 

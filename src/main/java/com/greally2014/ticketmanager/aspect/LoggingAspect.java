@@ -2,16 +2,15 @@ package com.greally2014.ticketmanager.aspect;
 
 import org.aopalliance.intercept.Joinpoint;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.AfterReturning;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
-import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.annotation.*;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -19,7 +18,7 @@ import java.util.stream.Collectors;
 @Component
 public class LoggingAspect {
 
-    private Logger logger = Logger.getLogger(getClass().getName());
+    private final Logger logger = Logger.getLogger(getClass().getName());
 
     @Pointcut("execution(* com.greally2014.ticketmanager.controller.*.*(..))")
     private void forControllerPackage() {};
@@ -32,9 +31,6 @@ public class LoggingAspect {
 
     @Pointcut("forControllerPackage() || forServicePackage() || forDaoPackage()")
     private void forApplication() {};
-
-    @Pointcut("execution(public String com.greally2014.ticketmanager.controller.*.*(.., BindingResult))")
-    private void forBindingResult() {};
 
     @Before(value = "forApplication()")
     public void beforeCallingArguments(JoinPoint joinpoint) {
@@ -57,15 +53,19 @@ public class LoggingAspect {
         System.out.println("\n");
     }
 
-    @Before(value = "forBindingResult()")
+    @Before(value = "forControllerPackage()")
     public void afterReturningBindingError(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
-        BindingResult bindingResult = (BindingResult) args[args.length - 1];
-        if (bindingResult.hasErrors()) {
+        Optional<BindingResult> optionalBindingResult = Arrays.stream(args)
+                .filter(o -> o instanceof BindingResult)
+                .findAny()
+                .map(o -> (BindingResult) o);
+        if (optionalBindingResult.isPresent()) {
+            BindingResult bindingResult = optionalBindingResult.get();
             List<String> errors = bindingResult.getAllErrors().stream()
                     .map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.toList());
             logger.info("=====> Form error(s): " + errors);
+            System.out.println();
         }
     }
-
 }

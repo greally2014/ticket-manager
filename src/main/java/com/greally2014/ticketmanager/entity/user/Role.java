@@ -1,4 +1,4 @@
-package com.greally2014.ticketmanager.entity;
+package com.greally2014.ticketmanager.entity.user;
 
 import javax.persistence.*;
 
