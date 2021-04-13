@@ -2,8 +2,8 @@ package com.greally2014.ticketmanager.controller;
 
 import com.greally2014.ticketmanager.dto.UserProfileDto;
 import com.greally2014.ticketmanager.service.CustomUserDetailsService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,15 +16,19 @@ import java.security.Principal;
 
 @Controller
 @RequestMapping("/profile")
+@PreAuthorize("hasRole('ROLE_EMPLOYEE')")
 public class ProfileController {
-
-    @Autowired
-    private CustomUserDetailsService customUserDetailsService;
 
     @InitBinder
     public void initBinder(WebDataBinder webDataBinder) {
         StringTrimmerEditor stringTrimmerEditor = new StringTrimmerEditor(true);
         webDataBinder.registerCustomEditor(String.class, stringTrimmerEditor);
+    }
+
+    private final CustomUserDetailsService customUserDetailsService;
+
+    public ProfileController(CustomUserDetailsService customUserDetailsService) {
+        this.customUserDetailsService = customUserDetailsService;
     }
 
     @GetMapping("/showUpdateForm")

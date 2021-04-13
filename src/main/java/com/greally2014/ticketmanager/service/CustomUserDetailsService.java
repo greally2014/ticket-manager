@@ -7,9 +7,7 @@ import com.greally2014.ticketmanager.dto.RegistrationDto;
 import com.greally2014.ticketmanager.dto.UserProfileDto;
 import com.greally2014.ticketmanager.entity.*;
 import com.greally2014.ticketmanager.exception.EmailNotFoundException;
-import com.greally2014.ticketmanager.exception.NumberNotFoundException;
 import com.greally2014.ticketmanager.userDetails.CustomUserDetails;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -21,14 +19,20 @@ import java.util.*;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    @Autowired
-    private RoleRepository roleRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final RoleRepository roleRepository;
+
+    private final UserRepository userRepository;
+
+    public CustomUserDetailsService(BCryptPasswordEncoder bCryptPasswordEncoder,
+                                    RoleRepository roleRepository,
+                                    UserRepository userRepository) {
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.roleRepository = roleRepository;
+        this.userRepository = userRepository;
+    }
 
     @Override
     @Transactional
@@ -44,19 +48,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         userOptional.orElseThrow(() -> new EmailNotFoundException("Not found: " + email));
         return userOptional.map(CustomUserDetails::new).get();
     }
-
-    @Transactional
-    public CustomUserDetails loadUserByPhoneNumber(String number) throws NumberNotFoundException {
-        Optional<User> userOptional = userRepository.findByPhoneNumber(number);
-        userOptional.orElseThrow(() -> new NumberNotFoundException("Not found: " + number));
-        return userOptional.map(CustomUserDetails::new).get();
-    }
-
-    @Transactional
-    public boolean phoneNumberExists(String number) {
-        return userRepository.existsByPhoneNumber(number);
-    }
-
 
     @Transactional
     public void register(RegistrationDto registrationDto) throws RoleNotFoundException {
@@ -96,7 +87,6 @@ public class CustomUserDetailsService implements UserDetailsService {
                 addressDto.getCounty()
         ));
 
-        String phoneNumber = userProfileDto.getPhoneNumber();
         user.setPhoneNumber(userProfileDto.getPhoneNumber());
     }
 

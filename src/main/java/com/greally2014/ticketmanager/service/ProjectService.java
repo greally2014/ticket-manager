@@ -18,15 +18,19 @@ import java.util.stream.Collectors;
 @Service
 public class ProjectService {
 
-    @Autowired
-    private CustomUserDetailsService customUserDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
 
-    @Autowired
-    private  ProjectManagerService projectManagerService;
+    private  final ProjectManagerService projectManagerService;
 
-    @Autowired
-    private ProjectRepository projectRepository;
+    private final ProjectRepository projectRepository;
 
+    public ProjectService(CustomUserDetailsService customUserDetailsService,
+                          ProjectManagerService projectManagerService,
+                          ProjectRepository projectRepository) {
+        this.customUserDetailsService = customUserDetailsService;
+        this.projectManagerService = projectManagerService;
+        this.projectRepository = projectRepository;
+    }
 
     @Transactional
     public List<Project> findAllByUsername(String username) {

@@ -6,8 +6,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.List;
 
-public class SelectedValidator implements ConstraintValidator<Selected,
-        List<UserProfileDto>> {
+public class SelectedValidator implements ConstraintValidator<Selected, List<UserProfileDto>> {
     @Override
     public boolean isValid(List<UserProfileDto> userProfileDtos, ConstraintValidatorContext context) {
         for (UserProfileDto userProfileDto : userProfileDtos) {

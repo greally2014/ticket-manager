@@ -22,8 +22,11 @@ public class RegistrationController {
 
     private Map<String, String> roles;
 
-    @Autowired
-    private CustomUserDetailsService customUserDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
+
+    public RegistrationController(CustomUserDetailsService customUserDetailsService) {
+        this.customUserDetailsService = customUserDetailsService;
+    }
 
     @InitBinder
     public void initBinder(WebDataBinder webDataBinder) {

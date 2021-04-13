@@ -12,8 +12,11 @@ import java.security.Principal;
 
 public class UniqueEmailValidator implements ConstraintValidator<UniqueEmail, String > {
 
-    @Autowired
-    private CustomUserDetailsService customUserDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
+
+    public UniqueEmailValidator(CustomUserDetailsService customUserDetailsService) {
+        this.customUserDetailsService = customUserDetailsService;
+    }
 
     @Override
     public boolean isValid(String email, ConstraintValidatorContext context) {

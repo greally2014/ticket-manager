@@ -151,7 +151,7 @@
 
                 <div th:if="${#fields.hasErrors('address.county')}"
                      style="margin-bottom: 25px; color: #ff0000">
-                    <ul>-
+                    <ul>
                         <li th:each="err : ${#fields.errors('address.county')}" th:text="${err}" ></li>
                     </ul>
                 </div>

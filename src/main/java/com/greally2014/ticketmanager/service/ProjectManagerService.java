@@ -15,8 +15,11 @@ import java.util.stream.Collectors;
 @Service
 public class ProjectManagerService {
 
-    @Autowired
-    private ProjectManagerRepository projectManagerRepository;
+    private final ProjectManagerRepository projectManagerRepository;
+
+    public ProjectManagerService(ProjectManagerRepository projectManagerRepository) {
+        this.projectManagerRepository = projectManagerRepository;
+    }
 
     @Transactional
     public List<ProjectManager> findAllById(List<Long> idList) {
