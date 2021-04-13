@@ -1,9 +1,5 @@
 package com.greally2014.ticketmanager.entity;
 
-import com.greally2014.ticketmanager.entity.user.specialization.Developer;
-import com.greally2014.ticketmanager.entity.user.specialization.ProjectManager;
-import com.greally2014.ticketmanager.entity.user.specialization.Submitter;
-
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
@@ -26,41 +22,8 @@ public class Project {
     @Column(name = "date_created")
     private LocalDate dateCreated;
 
-    @ManyToMany(
-            fetch = FetchType.LAZY,
-            cascade = {CascadeType.DETACH, CascadeType.MERGE,
-                    CascadeType.PERSIST, CascadeType.REFRESH}
-    )
-    @JoinTable(
-            name = "users_projects",
-            joinColumns = @JoinColumn(name = "project_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private List<ProjectManager> projectManagers;
-
-    @ManyToMany(
-            fetch = FetchType.LAZY,
-            cascade = {CascadeType.DETACH, CascadeType.MERGE,
-                    CascadeType.PERSIST, CascadeType.REFRESH}
-    )
-    @JoinTable(
-            name = "users_projects",
-            joinColumns = @JoinColumn(name = "project_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private List<Submitter> submitters;
-
-    @ManyToMany(
-            fetch = FetchType.LAZY,
-            cascade = {CascadeType.DETACH, CascadeType.MERGE,
-                    CascadeType.PERSIST, CascadeType.REFRESH}
-    )
-    @JoinTable(
-            name = "users_projects",
-            joinColumns = @JoinColumn(name = "project_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private List<Developer> developers;
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    private List<UsersProjects> usersProjects;
 
     @OneToMany(
             mappedBy = "project",
@@ -69,13 +32,21 @@ public class Project {
     )
     private List<Ticket> tickets;
 
-    public Project(String title, String description, LocalDate dateCreated) {
+    @ManyToOne(fetch = FetchType.EAGER,
+                cascade = {CascadeType.DETACH, CascadeType.MERGE,
+                    CascadeType.PERSIST, CascadeType.REFRESH}
+    )
+    @JoinColumn(name = "creator_id")
+    private GeneralManager generalManager;
+
+    public Project(String title, String description) {
         this.title = title;
         this.description = description;
-        this.dateCreated = dateCreated;
+        this.dateCreated = LocalDate.now();
     }
 
     public Project() {
+        this.dateCreated = LocalDate.now();
     }
 
     public Long getId() {
@@ -110,28 +81,12 @@ public class Project {
         this.dateCreated = dateCreated;
     }
 
-    public List<ProjectManager> getProjectManagers() {
-        return projectManagers;
+    public List<UsersProjects> getUsersProjects() {
+        return usersProjects;
     }
 
-    public void setProjectManagers(List<ProjectManager> profileFormUsers) {
-        this.projectManagers = profileFormUsers;
-    }
-
-    public List<Submitter> getSubmitters() {
-        return submitters;
-    }
-
-    public void setSubmitters(List<Submitter> submitters) {
-        this.submitters = submitters;
-    }
-
-    public List<Developer> getDevelopers() {
-        return developers;
-    }
-
-    public void setDevelopers(List<Developer> developers) {
-        this.developers = developers;
+    public void setUsersProjects(List<UsersProjects> usersProjects) {
+        this.usersProjects = usersProjects;
     }
 
     public List<Ticket> getTickets() {

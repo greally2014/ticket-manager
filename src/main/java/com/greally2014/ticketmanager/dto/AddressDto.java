@@ -1,6 +1,6 @@
 package com.greally2014.ticketmanager.dto;
 
-import com.greally2014.ticketmanager.entity.user.component.Address;
+import com.greally2014.ticketmanager.entity.Address;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;

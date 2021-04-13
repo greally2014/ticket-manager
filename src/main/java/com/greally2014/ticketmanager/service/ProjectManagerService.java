@@ -3,7 +3,8 @@ package com.greally2014.ticketmanager.service;
 import com.greally2014.ticketmanager.dao.ProjectManagerRepository;
 import com.greally2014.ticketmanager.dto.UserProfileDto;
 import com.greally2014.ticketmanager.entity.Project;
-import com.greally2014.ticketmanager.entity.user.specialization.ProjectManager;
+import com.greally2014.ticketmanager.entity.ProjectManager;
+import com.greally2014.ticketmanager.entity.UsersProjects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +32,8 @@ public class ProjectManagerService {
 
     @Transactional
     public List<Project> getProjects(String username) {
-        return projectManagerRepository.findByUsername(username).getProjects();
+        return projectManagerRepository.findByUsername(username).getUsersProjects().stream()
+                .map(UsersProjects::getProject).collect(Collectors.toList());
     }
 
 }

@@ -1,6 +1,4 @@
-package com.greally2014.ticketmanager.entity.user;
-
-import com.greally2014.ticketmanager.entity.user.component.Address;
+package com.greally2014.ticketmanager.entity;
 
 import javax.persistence.*;
 import java.util.HashSet;

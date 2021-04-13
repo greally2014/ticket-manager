@@ -11,5 +11,4 @@ import java.util.List;
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {
     List<Project> findAllByOrderByTitle();
-    List<Project> findAllByProjectManagersIdOrderByTitle(Long id);
 }

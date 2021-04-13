@@ -1,4 +1,4 @@
-package com.greally2014.ticketmanager.entity.user.component;
+package com.greally2014.ticketmanager.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;

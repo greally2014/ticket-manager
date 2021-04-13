@@ -1,6 +1,6 @@
 package com.greally2014.ticketmanager.dto;
 
-import com.greally2014.ticketmanager.entity.user.User;
+import com.greally2014.ticketmanager.entity.User;
 import com.greally2014.ticketmanager.validation.email.uniqueEmail.UniqueEmail;
 import com.greally2014.ticketmanager.validation.email.validEmail.ValidEmail;
 import com.greally2014.ticketmanager.validation.phoneNumber.ValidPhoneNumber;

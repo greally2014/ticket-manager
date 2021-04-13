@@ -1,8 +1,5 @@
 package com.greally2014.ticketmanager.entity;
 
-import com.greally2014.ticketmanager.entity.user.specialization.Developer;
-import com.greally2014.ticketmanager.entity.user.specialization.Submitter;
-
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
@@ -18,11 +15,11 @@ public class Ticket {
     @Column(name = "title")
     private String title;
 
-    @Column(name = "type")
-    private String type;
-
     @Column(name = "description")
     private String description;
+
+    @Column(name = "type")
+    private String type;
 
     @Column(name = "status")
     private String status;
@@ -49,26 +46,16 @@ public class Ticket {
     @JoinColumn(name = "submitter_id")
     private Submitter submitter;
 
-    @ManyToMany(
-            fetch = FetchType.LAZY,
-            cascade = {CascadeType.DETACH, CascadeType.MERGE,
-                    CascadeType.PERSIST, CascadeType.REFRESH}
-    )
-    @JoinTable(
-            name = "developers_tickets",
-            joinColumns = @JoinColumn(name = "ticket_id"),
-            inverseJoinColumns = @JoinColumn(name = "developer_id")
-    )
-    private List<Developer> developers;
+    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL)
+    private List<DevelopersTickets> developersTickets;
 
-    public Ticket(String title, String type, String description, String status, String priority,
-                  LocalDate date_created, Project project, Submitter submitter) {
+    public Ticket(String title, String description,
+                  String type, String priority,
+                  Project project, Submitter submitter) {
         this.title = title;
-        this.type = type;
         this.description = description;
-        this.status = status;
+        this.type = type;
         this.priority = priority;
-        this.date_created = date_created;
         this.project = project;
         this.submitter = submitter;
     }
@@ -92,20 +79,20 @@ public class Ticket {
         this.title = title;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
     public String getDescription() {
         return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getStatus() {
@@ -148,12 +135,11 @@ public class Ticket {
         this.submitter = submitter;
     }
 
-    public List<Developer> getDevelopers() {
-        return developers;
+    public List<DevelopersTickets> getDevelopersTickets() {
+        return developersTickets;
     }
 
-    public void setDevelopers(List<Developer> developers) {
-        this.developers = developers;
+    public void setDevelopersTickets(List<DevelopersTickets> developersTickets) {
+        this.developersTickets = developersTickets;
     }
-
 }

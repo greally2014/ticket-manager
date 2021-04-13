@@ -5,8 +5,9 @@ import com.greally2014.ticketmanager.dto.ProjectCreationDto;
 import com.greally2014.ticketmanager.dto.ProjectDto;
 import com.greally2014.ticketmanager.dto.UserProfileDto;
 import com.greally2014.ticketmanager.entity.Project;
-import com.greally2014.ticketmanager.entity.user.Role;
-import com.greally2014.ticketmanager.entity.user.User;
+import com.greally2014.ticketmanager.entity.Role;
+import com.greally2014.ticketmanager.entity.User;
+import com.greally2014.ticketmanager.entity.UsersProjects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -45,13 +46,9 @@ public class ProjectService {
     @Transactional
     public void create(ProjectCreationDto projectCreationDto) {
         ProjectDto projectDto = projectCreationDto.getProjectDto();
-        List<UserProfileDto> projectManagerDtoList = projectCreationDto.getProjectManagerDtoList();
+        Project project = new Project(projectDto.getTitle(), projectDto.getDescription());
 
-        Project project = new Project(
-                projectDto.getTitle(),
-                projectDto.getDescription(),
-                projectDto.getDateCreated()
-        );
+        List<UserProfileDto> projectManagerDtoList = projectCreationDto.getProjectManagerDtoList();
 
         List<Long> selectedIds =
                 projectManagerDtoList.stream()
@@ -59,7 +56,12 @@ public class ProjectService {
                         .map(UserProfileDto::getId)
                         .collect(Collectors.toList());
 
-        project.setProjectManagers(projectManagerService.findAllById(selectedIds));
+        List<UsersProjects> usersProjects = projectManagerService.findAllById(selectedIds).stream()
+                .map(o -> (new UsersProjects(o, project)))
+                .collect(Collectors.toList());
+
+        project.setUsersProjects(usersProjects);
+        projectRepository.save(project);
     }
 
     @Transactional

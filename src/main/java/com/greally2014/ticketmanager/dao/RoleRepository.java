@@ -1,6 +1,6 @@
 package com.greally2014.ticketmanager.dao;
 
-import com.greally2014.ticketmanager.entity.user.Role;
+import com.greally2014.ticketmanager.entity.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
