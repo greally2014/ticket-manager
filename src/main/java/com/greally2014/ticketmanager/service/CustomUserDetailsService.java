@@ -8,30 +8,36 @@ import com.greally2014.ticketmanager.dto.UserProfileDto;
 import com.greally2014.ticketmanager.entity.*;
 import com.greally2014.ticketmanager.exception.EmailNotFoundException;
 import com.greally2014.ticketmanager.userDetails.CustomUserDetails;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.management.relation.RoleNotFoundException;
 import javax.transaction.Transactional;
+import java.security.Principal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    private final ProjectManagerService projectManagerService;
+
     private final RoleRepository roleRepository;
 
     private final UserRepository userRepository;
 
-    public CustomUserDetailsService(BCryptPasswordEncoder bCryptPasswordEncoder,
+    public CustomUserDetailsService(@Lazy BCryptPasswordEncoder bCryptPasswordEncoder,
                                     RoleRepository roleRepository,
-                                    UserRepository userRepository) {
+                                    UserRepository userRepository,
+                                    ProjectManagerService projectManagerService) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
+        this.projectManagerService = projectManagerService;
     }
 
     @Override
@@ -50,13 +56,12 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Transactional
-    public void register(RegistrationDto registrationDto) throws RoleNotFoundException {
+    public void register(RegistrationDto registrationDto) {
         User user = switch (registrationDto.getFormRole()) {
             case "ROLE_GENERAL_MANAGER" -> new GeneralManager();
             case "ROLE_PROJECT_MANAGER" -> new ProjectManager();
             case "ROLE_SUBMITTER" -> new Submitter();
-            case "ROLE_DEVELOPER" -> new Developer();
-            default -> throw new RoleNotFoundException("registrationDto.formrole INCORRECT");
+            default -> new Developer();
         };
 
         user.setUsername(registrationDto.getUsername());
@@ -64,9 +69,11 @@ public class CustomUserDetailsService implements UserDetailsService {
         user.setFirstName(registrationDto.getFirstName());
         user.setLastName(registrationDto.getLastName());
         user.setEmail(registrationDto.getEmail());
-        user.setRoles(new HashSet<>(roleRepository.findByNameIn(
-                Arrays.asList("ROLE_EMPLOYEE", registrationDto.getFormRole())
-        )));
+        user.setRoles(
+                new HashSet<>(
+                        roleRepository.findByNameIn(Arrays.asList("ROLE_EMPLOYEE", registrationDto.getFormRole()))
+                )
+        );
         user.setEnabled(true);
     }
 
@@ -77,21 +84,31 @@ public class CustomUserDetailsService implements UserDetailsService {
         user.setLastName(userProfileDto.getLastName());
         user.setGender(userProfileDto.getGender());
         user.setEmail(userProfileDto.getEmail());
+        user.setPhoneNumber(userProfileDto.getPhoneNumber());
 
         AddressDto addressDto = userProfileDto.getAddress();
-
         user.setAddress(new Address(
                 addressDto.getLine1(),
                 addressDto.getLine2(),
                 addressDto.getCity(),
                 addressDto.getCounty()
         ));
-
-        user.setPhoneNumber(userProfileDto.getPhoneNumber());
     }
 
     @Transactional
-    public UserProfileDto getProfileDto(String username) throws UsernameNotFoundException {
+    public UserProfileDto findProfileDto(String username) {
         return new UserProfileDto(loadUserByUsername(username).getUser());
+    }
+
+    public Object findAllEmployeesByPrincipalRole(Principal principal) {
+        List<String> principalRoles = loadUserByUsername(principal.getName()).getUser().getRoles().stream()
+                .map(Role::getName)
+                .collect(Collectors.toList());
+
+        if (principalRoles.contains("ROLE_PROJECT_MANAGER")) {
+            return projectManagerService.findAllEmployees(principal.getName());
+        } else {
+            return userRepository.findAll();
+        }
     }
 }

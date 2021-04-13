@@ -3,7 +3,6 @@ package com.greally2014.ticketmanager.validation.email.uniqueEmail;
 import com.greally2014.ticketmanager.exception.EmailNotFoundException;
 import com.greally2014.ticketmanager.userDetails.CustomUserDetails;
 import com.greally2014.ticketmanager.service.CustomUserDetailsService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.validation.ConstraintValidator;

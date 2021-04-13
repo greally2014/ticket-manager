@@ -31,20 +31,20 @@ public class ProfileController {
         this.customUserDetailsService = customUserDetailsService;
     }
 
-    @GetMapping("/showUpdateForm")
-    public String showUpdateForm(Model model) {
+    @GetMapping("/showFormForUpdate")
+    public String showUpdateProfileForm(Model model) {
         Principal principal = SecurityContextHolder.getContext().getAuthentication();
         model.addAttribute(
                 "userProfileDto",
-                customUserDetailsService.getProfileDto(principal.getName())
+                customUserDetailsService.findProfileDto(principal.getName())
         );
 
         return "profile";
     }
 
     @PostMapping("/update")
-    public String update(@Valid @ModelAttribute("userProfileDto") UserProfileDto userProfileDto,
-                         BindingResult bindingResult) {
+    public String updateProfile(@Valid @ModelAttribute("userProfileDto") UserProfileDto userProfileDto,
+                                BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return "profile";
         }

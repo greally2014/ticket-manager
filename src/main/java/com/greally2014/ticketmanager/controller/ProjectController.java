@@ -2,6 +2,7 @@ package com.greally2014.ticketmanager.controller;
 
 import com.greally2014.ticketmanager.dto.ProjectCreationDto;
 import com.greally2014.ticketmanager.dto.ProjectDto;
+import com.greally2014.ticketmanager.exception.ProjectNotFoundException;
 import com.greally2014.ticketmanager.service.ProjectManagerService;
 import com.greally2014.ticketmanager.service.ProjectService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,7 +17,7 @@ import java.security.Principal;
 
 @Controller
 @RequestMapping("/projects")
-@PreAuthorize("hasAnyRole('ROLE_GENERAL_MANAGER', 'ROLE_PROJECT_MANAGER')")
+@PreAuthorize("hasAnyRole('GENERAL_MANAGER', 'PROJECT_MANAGER')")
 public class ProjectController {
 
     private final ProjectService projectService;
@@ -28,71 +29,105 @@ public class ProjectController {
         this.projectManagerService = projectManagerService;
     }
 
-    @GetMapping("/list")
-    public String list(Model model) {
+    @GetMapping("/listAll")
+    public String listAllProjects(Model model) {
         Principal principal = SecurityContextHolder.getContext().getAuthentication();
         model.addAttribute("projects",
-                projectService.findAllByUsername(principal.getName()));
+                projectService.findAllByUsername(principal.getName())
+        );
 
         return "project-list";
+
     }
 
-    @GetMapping("/showCreateForm")
-    @PreAuthorize("hasRole('ROLE_GENERAL_MANAGER')")
-    public String showCreateForm(Model model) {
+    @GetMapping("/showFormForAdd")
+    @PreAuthorize("hasRole('GENERAL_MANAGER')")
+    public String showAddProjectForm(Model model) {
         model.addAttribute("projectCreationDto",
                 new ProjectCreationDto(
                         new ProjectDto(),
-                        projectManagerService.getProfileDtoList()
+                        projectManagerService.findProfileDtoList()
                 )
         );
 
         return "project-create";
     }
 
-    @GetMapping("/showUpdateFieldsForm")
-    @PreAuthorize("hasRole('ROLE_GENERAL_MANAGER')")
-    public String showUpdateFieldsForm(@RequestParam("id") Long id, Model model) {
-        model.addAttribute("projectDto", projectService.getDto(id));
+    @GetMapping("/showFormForUpdate")
+    @PreAuthorize("hasRole('GENERAL_MANAGER')")
+    public String showUpdateProjectFieldsForm(@RequestParam("id") Long id, Model model) {
 
-        return "project-update-fields";
+        try {
+            model.addAttribute("projectDto", projectService.getDto(id));
+
+            return "project-update-fields";
+
+        } catch (ProjectNotFoundException e) {
+            e.printStackTrace();
+
+            return "redirect:/projects/listAll";
+        }
     }
 
     @PostMapping("/create")
-    @PreAuthorize("hasRole('ROLE_GENERAL_MANAGER')")
-    public String save(@ModelAttribute("projectCreationDto") @Valid ProjectCreationDto projectCreationDto,
-                       BindingResult bindingResult) {
+    @PreAuthorize("hasRole('GENERAL_MANAGER')")
+    public String createProject(@ModelAttribute("projectCreationDto") @Valid ProjectCreationDto projectCreationDto,
+                                BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            projectCreationDto.setProjectManagerDtoList(projectManagerService.getProfileDtoList());
+            projectCreationDto.setProjectManagerDtoList(projectManagerService.findProfileDtoList());
 
             return "project-create";
 
         } else {
             projectService.create(projectCreationDto);
 
-            return "redirect:/projects/list";
+            return "redirect:/projects/listAll";
         }
     }
 
     @PostMapping("/updateFields")
-    @PreAuthorize("hasRole('ROLE_GENERAL_MANAGER')")
-    public String updateFields(@ModelAttribute("projectDto") @Valid ProjectDto projectDto,
-                               BindingResult bindingResult) {
+    @PreAuthorize("hasRole('GENERAL_MANAGER')")
+    public String updateProjectFields(@ModelAttribute("projectDto") @Valid ProjectDto projectDto,
+                                      BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return "project-update-fields";
 
         } else {
-            projectService.updateFields(projectDto);
+            try {
+                projectService.updateFields(projectDto);
 
-            return "redirect:/projects/list";
+                return "redirect:/projects/listAll";
+
+            } catch (ProjectNotFoundException e) {
+                e.printStackTrace();
+
+                return "redirect:/projects/listAll";
+            }
         }
     }
 
     @GetMapping("/delete")
-    @PreAuthorize("hasRole('ROLE_GENERAL_MANAGER')")
-    public String delete(@ModelAttribute("id") Long id) {
+    @PreAuthorize("hasRole('GENERAL_MANAGER')")
+    public String deleteProject(@ModelAttribute("id") Long id) {
         projectService.delete(id);
 
-        return "redirect:/projects/list";
+        return "redirect:/projects/listAll";
     }
+
+
+    @GetMapping("details")
+    public String showProjectDetailsPage(@RequestParam("id") Long id, Model model) {
+
+        try {
+            model.addAttribute("project", projectService.findProjectById(id));
+
+            return "project-details";
+
+        } catch (ProjectNotFoundException e) {
+            e.printStackTrace();
+
+            return "redirect:/projects/";
+        }
+    }
+
 }

@@ -4,11 +4,9 @@ import com.greally2014.ticketmanager.dao.ProjectRepository;
 import com.greally2014.ticketmanager.dto.ProjectCreationDto;
 import com.greally2014.ticketmanager.dto.ProjectDto;
 import com.greally2014.ticketmanager.dto.UserProfileDto;
-import com.greally2014.ticketmanager.entity.Project;
-import com.greally2014.ticketmanager.entity.Role;
-import com.greally2014.ticketmanager.entity.User;
-import com.greally2014.ticketmanager.entity.UsersProjects;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.greally2014.ticketmanager.entity.*;
+import com.greally2014.ticketmanager.exception.ProjectNotFoundException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -20,7 +18,7 @@ public class ProjectService {
 
     private final CustomUserDetailsService customUserDetailsService;
 
-    private  final ProjectManagerService projectManagerService;
+    private final ProjectManagerService projectManagerService;
 
     private final ProjectRepository projectRepository;
 
@@ -33,15 +31,25 @@ public class ProjectService {
     }
 
     @Transactional
+    public Project findProjectById(Long id) throws ProjectNotFoundException {
+        Optional<Project> projectOptional = projectRepository.findById(id);
+        projectOptional.orElseThrow(() -> new ProjectNotFoundException("Project not found. Id: " + id));
+        return projectOptional.get();
+    }
+
+
     public List<Project> findAllByUsername(String username) {
         User user = customUserDetailsService.loadUserByUsername(username).getUser();
-        Set<String> roleNames = user.getRoles().stream().map(Role::getName).collect(Collectors.toSet());
+        Set<String> roleNames = user.getRoles().stream()
+                .map(Role::getName)
+                .collect(Collectors.toSet());
+
         List<Project> projects;
 
         if (roleNames.contains("ROLE_PROJECT_MANAGER")) {
-            projects = projectManagerService.getProjects(username);
+            projects = projectManagerService.findProjects(username);
         } else {
-            projects = projectRepository.findAllByOrderByTitle();
+            projects = projectRepository.findAll();
         }
 
         return projects;
@@ -49,39 +57,43 @@ public class ProjectService {
 
     @Transactional
     public void create(ProjectCreationDto projectCreationDto) {
-        ProjectDto projectDto = projectCreationDto.getProjectDto();
-        Project project = new Project(projectDto.getTitle(), projectDto.getDescription());
+        Project project = new Project(
+                projectCreationDto.getProjectDto().getTitle(),
+                projectCreationDto.getProjectDto().getDescription()
+        );
 
-        List<UserProfileDto> projectManagerDtoList = projectCreationDto.getProjectManagerDtoList();
+        List<Long> selectedProjectManagerIds = projectCreationDto.getProjectManagerDtoList().stream()
+                .filter(UserProfileDto::getFlag)
+                .map(UserProfileDto::getId)
+                .collect(Collectors.toList());
 
-        List<Long> selectedIds =
-                projectManagerDtoList.stream()
-                        .filter(UserProfileDto::getFlag)
-                        .map(UserProfileDto::getId)
-                        .collect(Collectors.toList());
-
-        List<UsersProjects> usersProjects = projectManagerService.findAllById(selectedIds).stream()
+        List<UsersProjects> usersProjects = projectManagerService.findAllById(selectedProjectManagerIds).stream()
                 .map(o -> (new UsersProjects(o, project)))
                 .collect(Collectors.toList());
 
         project.setUsersProjects(usersProjects);
+        project.setCreator(
+                (GeneralManager) customUserDetailsService.loadUserByUsername(
+                        SecurityContextHolder.getContext().getAuthentication().getName()).getUser()
+        );
+
         projectRepository.save(project);
     }
 
     @Transactional
-    public void delete(Long projectId) {
-        projectRepository.deleteById(projectId);
-    }
-
-    @Transactional
-    public void updateFields(ProjectDto projectDto) {
-        Project project = projectRepository.getOne(projectDto.getId());
+    public void updateFields(ProjectDto projectDto) throws ProjectNotFoundException {
+        Project project = findProjectById(projectDto.getId());
         project.setTitle(projectDto.getTitle());
         project.setDescription(projectDto.getDescription());
     }
 
     @Transactional
-    public ProjectDto getDto(Long id) {
-        return new ProjectDto(projectRepository.getOne(id));
+    public void delete(Long id) {
+        projectRepository.deleteById(id);
+    }
+
+    @Transactional
+    public ProjectDto getDto(Long id) throws ProjectNotFoundException {
+        return new ProjectDto(findProjectById(id));
     }
 }

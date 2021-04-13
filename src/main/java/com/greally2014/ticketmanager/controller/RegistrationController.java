@@ -2,7 +2,6 @@ package com.greally2014.ticketmanager.controller;
 
 import com.greally2014.ticketmanager.dto.RegistrationDto;
 import com.greally2014.ticketmanager.service.CustomUserDetailsService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,13 +10,12 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
-import javax.management.relation.RoleNotFoundException;
 import javax.validation.Valid;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/register")
+@RequestMapping("/registration")
 public class RegistrationController {
 
     private Map<String, String> roles;
@@ -34,7 +32,7 @@ public class RegistrationController {
         webDataBinder.registerCustomEditor(String.class, stringTrimmerEditor);
     }
 
-    @GetMapping("/showRegistrationForm")
+    @GetMapping("/showFormForRegistration")
     public String showRegistrationForm(Model model) {
         model.addAttribute("registrationDto", new RegistrationDto());
         model.addAttribute("roles", roles);
@@ -42,7 +40,7 @@ public class RegistrationController {
         return "register";
     }
 
-    @PostMapping("/processRegistration")
+    @PostMapping("/process")
     public String processRegistration(@Valid @ModelAttribute("registrationDto") RegistrationDto registrationDto,
                                       BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
@@ -51,12 +49,7 @@ public class RegistrationController {
             return "register";
 
         } else {
-            try {
-                customUserDetailsService.register(registrationDto);
-
-            } catch (RoleNotFoundException e) {
-                e.printStackTrace();
-            }
+            customUserDetailsService.register(registrationDto);
 
             return "registration-confirmation";
         }

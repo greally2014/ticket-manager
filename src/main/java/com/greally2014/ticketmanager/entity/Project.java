@@ -34,10 +34,10 @@ public class Project {
 
     @ManyToOne(fetch = FetchType.EAGER,
                 cascade = {CascadeType.DETACH, CascadeType.MERGE,
-                    CascadeType.PERSIST, CascadeType.REFRESH}
+                        CascadeType.PERSIST, CascadeType.REFRESH}
     )
     @JoinColumn(name = "creator_id")
-    private GeneralManager generalManager;
+    private GeneralManager creator;
 
     public Project(String title, String description) {
         this.title = title;
@@ -95,6 +95,14 @@ public class Project {
 
     public void setTickets(List<Ticket> tickets) {
         this.tickets = tickets;
+    }
+
+    public GeneralManager getCreator() {
+        return creator;
+    }
+
+    public void setCreator(GeneralManager generalManager) {
+        this.creator = generalManager;
     }
 
     @Override

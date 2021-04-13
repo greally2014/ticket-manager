@@ -20,7 +20,7 @@ public class GeneralManager extends User {
     public GeneralManager() {
     }
 
-    @OneToMany(mappedBy = "generalManager",
+    @OneToMany(mappedBy = "creator",
             cascade = {CascadeType.DETACH, CascadeType.MERGE,
                     CascadeType.PERSIST, CascadeType.REFRESH}
     )
