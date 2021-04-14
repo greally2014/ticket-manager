@@ -19,6 +19,11 @@
     <div sec:authorize="hasAnyRole('PROJECT_MANAGER', 'GENERAL_MANAGER')">
         <a th:href="@{/projects/listAll}">Projects</a>
     </div>
+
+    <div sec:authorize="hasAnyRole('PROJECT_MANAGER', 'GENERAL_MANAGER')">
+        <a th:href="@{/employees/listAll}">Projects</a>
+    </div>
+
     <br>
     <form th:action="@{/logout}"
           th:method="POST">

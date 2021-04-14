@@ -7,6 +7,7 @@ import com.greally2014.ticketmanager.dto.RegistrationDto;
 import com.greally2014.ticketmanager.dto.UserProfileDto;
 import com.greally2014.ticketmanager.entity.*;
 import com.greally2014.ticketmanager.exception.EmailNotFoundException;
+import com.greally2014.ticketmanager.exception.UserNotFoundException;
 import com.greally2014.ticketmanager.userDetails.CustomUserDetails;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -26,18 +27,21 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private final ProjectManagerService projectManagerService;
 
+
     private final RoleRepository roleRepository;
 
     private final UserRepository userRepository;
 
-    public CustomUserDetailsService(@Lazy BCryptPasswordEncoder bCryptPasswordEncoder,
-                                    RoleRepository roleRepository,
-                                    UserRepository userRepository,
-                                    ProjectManagerService projectManagerService) {
+    public CustomUserDetailsService(
+            @Lazy BCryptPasswordEncoder bCryptPasswordEncoder,
+            ProjectManagerService projectManagerService,
+            RoleRepository roleRepository,
+            UserRepository userRepository
+    ) {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.projectManagerService = projectManagerService;
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
-        this.projectManagerService = projectManagerService;
     }
 
     @Override
@@ -100,15 +104,50 @@ public class CustomUserDetailsService implements UserDetailsService {
         return new UserProfileDto(loadUserByUsername(username).getUser());
     }
 
-    public Object findAllEmployeesByPrincipalRole(Principal principal) {
+    @Transactional
+    public Set<User> findAllEmployeesByPrincipalRole(Principal principal) {
         List<String> principalRoles = loadUserByUsername(principal.getName()).getUser().getRoles().stream()
                 .map(Role::getName)
                 .collect(Collectors.toList());
 
+        Set<User> users;
+
         if (principalRoles.contains("ROLE_PROJECT_MANAGER")) {
-            return projectManagerService.findAllEmployees(principal.getName());
+            users = projectManagerService.findAllEmployees(principal.getName());
         } else {
-            return userRepository.findAll();
+            users = new HashSet<>(userRepository.findAll());
+        }
+
+        return users.stream()
+                .filter(o -> !o.equals(loadUserByUsername(principal.getName()).getUser()))
+                .filter(o -> !(o.getRoles().stream().map(Role::getName).collect(Collectors.toSet()).contains("ROLE_GENERAL_MANAGER")))
+                .collect(Collectors.toSet());
+    }
+
+    @Transactional
+    public User findById(Long id) throws UserNotFoundException {
+        Optional<User> userOptional = userRepository.findById(id);
+        userOptional.orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+        return userOptional.get();
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        try {
+            User user = findById(id);
+
+            if (user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()).contains("ROLE_SUBMITTER")) {
+                Submitter submitter = (Submitter) user;
+
+                for (Ticket ticket : submitter.getTickets()) {
+                    ticket.setSubmitter(null);
+                }
+            }
+
+            userRepository.deleteById(id);
+
+        } catch (UserNotFoundException e) {
+            e.printStackTrace();
         }
     }
 }

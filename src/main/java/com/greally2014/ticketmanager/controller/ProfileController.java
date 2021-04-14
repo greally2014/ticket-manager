@@ -16,7 +16,6 @@ import java.security.Principal;
 
 @Controller
 @RequestMapping("/profile")
-@PreAuthorize("hasRole('ROLE_EMPLOYEE')")
 public class ProfileController {
 
     @InitBinder

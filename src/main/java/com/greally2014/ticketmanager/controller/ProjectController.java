@@ -5,7 +5,6 @@ import com.greally2014.ticketmanager.dto.ProjectDto;
 import com.greally2014.ticketmanager.exception.ProjectNotFoundException;
 import com.greally2014.ticketmanager.service.ProjectManagerService;
 import com.greally2014.ticketmanager.service.ProjectService;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,7 +16,6 @@ import java.security.Principal;
 
 @Controller
 @RequestMapping("/projects")
-@PreAuthorize("hasAnyRole('GENERAL_MANAGER', 'PROJECT_MANAGER')")
 public class ProjectController {
 
     private final ProjectService projectService;
@@ -40,8 +38,7 @@ public class ProjectController {
 
     }
 
-    @GetMapping("/showFormForAdd")
-    @PreAuthorize("hasRole('GENERAL_MANAGER')")
+    @GetMapping("/showAddForm")
     public String showAddProjectForm(Model model) {
         model.addAttribute("projectCreationDto",
                 new ProjectCreationDto(
@@ -53,8 +50,7 @@ public class ProjectController {
         return "project-create";
     }
 
-    @GetMapping("/showFormForUpdate")
-    @PreAuthorize("hasRole('GENERAL_MANAGER')")
+    @GetMapping("/showUpdateFieldsForm")
     public String showUpdateProjectFieldsForm(@RequestParam("id") Long id, Model model) {
 
         try {
@@ -69,10 +65,9 @@ public class ProjectController {
         }
     }
 
-    @PostMapping("/create")
-    @PreAuthorize("hasRole('GENERAL_MANAGER')")
-    public String createProject(@ModelAttribute("projectCreationDto") @Valid ProjectCreationDto projectCreationDto,
-                                BindingResult bindingResult) {
+    @PostMapping("/add")
+    public String addProject(@ModelAttribute("projectCreationDto") @Valid ProjectCreationDto projectCreationDto,
+                             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             projectCreationDto.setProjectManagerDtoList(projectManagerService.findProfileDtoList());
 
@@ -86,7 +81,6 @@ public class ProjectController {
     }
 
     @PostMapping("/updateFields")
-    @PreAuthorize("hasRole('GENERAL_MANAGER')")
     public String updateProjectFields(@ModelAttribute("projectDto") @Valid ProjectDto projectDto,
                                       BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -107,15 +101,14 @@ public class ProjectController {
     }
 
     @GetMapping("/delete")
-    @PreAuthorize("hasRole('GENERAL_MANAGER')")
-    public String deleteProject(@ModelAttribute("id") Long id) {
+    public String deleteProject(@RequestParam("id") Long id) {
         projectService.delete(id);
 
         return "redirect:/projects/listAll";
     }
 
 
-    @GetMapping("details")
+    @GetMapping("/showDetailsPage")
     public String showProjectDetailsPage(@RequestParam("id") Long id, Model model) {
 
         try {
