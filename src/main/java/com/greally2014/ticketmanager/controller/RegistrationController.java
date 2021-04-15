@@ -49,6 +49,7 @@ public class RegistrationController {
             return "register";
 
         } else {
+            // check again if username exists / throw error / handle error
             customUserDetailsService.register(registrationDto);
 
             return "registration-confirmation";

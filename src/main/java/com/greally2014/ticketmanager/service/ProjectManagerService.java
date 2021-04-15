@@ -9,9 +9,8 @@ import com.greally2014.ticketmanager.entity.UsersProjects;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,8 +41,8 @@ public class ProjectManagerService {
                 .collect(Collectors.toList());
     }
 
-    public Set<User> findAllEmployees(String username) {
-        Set<User> users = new HashSet<>();
+    public List<User> findAllEmployees(String username) {
+        List<User> users = new ArrayList<>();
 
         for (Project tempProject: findProjects(username)) {
             for (UsersProjects tempUsersProjects : tempProject.getUsersProjects()) {

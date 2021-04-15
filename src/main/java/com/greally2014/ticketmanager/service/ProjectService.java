@@ -38,19 +38,17 @@ public class ProjectService {
     }
 
 
-    public List<Project> findAllByUsername(String username) {
+    public List<Project> findAllByUsernameOrderByTitle(String username) {
         User user = customUserDetailsService.loadUserByUsername(username).getUser();
-        Set<String> roleNames = user.getRoles().stream()
-                .map(Role::getName)
-                .collect(Collectors.toSet());
-
         List<Project> projects;
 
-        if (roleNames.contains("ROLE_PROJECT_MANAGER")) {
+        if (user.getRoles().stream().anyMatch(o -> o.getName().equals("ROLE_PROJECT_MANAGER"))) {
             projects = projectManagerService.findProjects(username);
         } else {
             projects = projectRepository.findAll();
         }
+
+        projects.sort(Comparator.comparing(Project::getTitle));
 
         return projects;
     }
@@ -60,6 +58,11 @@ public class ProjectService {
         Project project = new Project(
                 projectCreationDto.getProjectDto().getTitle(),
                 projectCreationDto.getProjectDto().getDescription()
+        );
+
+        project.setCreator(
+                (GeneralManager) customUserDetailsService.loadUserByUsername(
+                        SecurityContextHolder.getContext().getAuthentication().getName()).getUser()
         );
 
         List<Long> selectedProjectManagerIds = projectCreationDto.getProjectManagerDtoList().stream()
@@ -72,10 +75,6 @@ public class ProjectService {
                 .collect(Collectors.toList());
 
         project.setUsersProjects(usersProjects);
-        project.setCreator(
-                (GeneralManager) customUserDetailsService.loadUserByUsername(
-                        SecurityContextHolder.getContext().getAuthentication().getName()).getUser()
-        );
 
         projectRepository.save(project);
     }
@@ -89,6 +88,8 @@ public class ProjectService {
 
     @Transactional
     public void delete(Long id) {
+        // check if username exists and handle exception / have denied access redirect / error handler
+        // check if project already deleted
         projectRepository.deleteById(id);
     }
 

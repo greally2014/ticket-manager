@@ -10,13 +10,13 @@ import com.greally2014.ticketmanager.exception.EmailNotFoundException;
 import com.greally2014.ticketmanager.exception.UserNotFoundException;
 import com.greally2014.ticketmanager.userDetails.CustomUserDetails;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -105,23 +105,20 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Transactional
-    public Set<User> findAllEmployeesByPrincipalRole(Principal principal) {
-        List<String> principalRoles = loadUserByUsername(principal.getName()).getUser().getRoles().stream()
-                .map(Role::getName)
-                .collect(Collectors.toList());
+    public List<User> findAllEmployeesByPrincipalRoleOrderByUsername(Authentication authentication) {
+        List<User> users;
 
-        Set<User> users;
-
-        if (principalRoles.contains("ROLE_PROJECT_MANAGER")) {
-            users = projectManagerService.findAllEmployees(principal.getName());
+        if (authentication.getAuthorities().stream().anyMatch(o -> o.getAuthority().equals("ROLE_PROJECT_MANAGER"))) {
+            users = projectManagerService.findAllEmployees(authentication.getName());
         } else {
-            users = new HashSet<>(userRepository.findAll());
+            users = new ArrayList<>(userRepository.findAll());
         }
 
         return users.stream()
-                .filter(o -> !o.equals(loadUserByUsername(principal.getName()).getUser()))
-                .filter(o -> !(o.getRoles().stream().map(Role::getName).collect(Collectors.toSet()).contains("ROLE_GENERAL_MANAGER")))
-                .collect(Collectors.toSet());
+                .filter(o -> !o.getUsername().equals(authentication.getName()))
+                .filter(o -> o.getRoles().stream().noneMatch(r -> r.getName().equals("ROLE_GENERAL_MANAGER")))
+                .sorted(Comparator.comparing(User::getUsername))
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -136,7 +133,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         try {
             User user = findById(id);
 
-            if (user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()).contains("ROLE_SUBMITTER")) {
+            if (user.getRoles().stream().anyMatch(o -> o.getName().equals("ROLE_SUBMITTER"))) {
                 Submitter submitter = (Submitter) user;
 
                 for (Ticket ticket : submitter.getTickets()) {

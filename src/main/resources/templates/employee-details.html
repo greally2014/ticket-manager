@@ -1,5 +1,6 @@
 <!DOCTYPE HTML>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+                xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
     <!-- Required meta tags -->
@@ -26,6 +27,7 @@
 
         <!-- Add a button -->
         <a th:href="@{/employees/delete(id=${employee.id})}"
+           sec:authorize="hasRole('PROJECT_MANGAGER')"
            class="btn btn-primary btn-sm mb-3">
             Delete
         </a>
