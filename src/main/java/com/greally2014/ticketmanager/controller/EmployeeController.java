@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.security.Principal;
+
 @Controller
 @RequestMapping("/employees")
 @PreAuthorize("hasAnyRole('GENERAL_MANAGER', 'PROJECT_MANAGER')")
@@ -24,10 +26,10 @@ public class EmployeeController {
 
     @GetMapping("/listAll")
     public String listAllEmployees(Model model) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Principal principal = SecurityContextHolder.getContext().getAuthentication();
         model.addAttribute(
                 "employees",
-                customUserDetailsService.findAllEmployeesByPrincipalRoleOrderByUsername(authentication)
+                customUserDetailsService.findAllEmployeesOrderByUsername(principal)
         );
 
         return "employee-list";
@@ -36,7 +38,14 @@ public class EmployeeController {
     @GetMapping("/delete")
     @PreAuthorize("hasRole('GENERAL_MANAGER')")
     public String deleteEmployee(@RequestParam("id") Long id) {
-        customUserDetailsService.delete(id);
+
+        try {
+            customUserDetailsService.delete(id);
+
+        } catch (UserNotFoundException e) {
+            e.printStackTrace();
+        }
+
         return "redirect:/employees/listAll";
     }
 

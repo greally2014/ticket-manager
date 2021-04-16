@@ -10,13 +10,13 @@ import com.greally2014.ticketmanager.exception.EmailNotFoundException;
 import com.greally2014.ticketmanager.exception.UserNotFoundException;
 import com.greally2014.ticketmanager.userDetails.CustomUserDetails;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -60,6 +60,13 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Transactional
+    public User findById(Long id) throws UserNotFoundException {
+        Optional<User> userOptional = userRepository.findById(id);
+        userOptional.orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+        return userOptional.get();
+    }
+
+    @Transactional
     public void register(RegistrationDto registrationDto) {
         User user = switch (registrationDto.getFormRole()) {
             case "ROLE_GENERAL_MANAGER" -> new GeneralManager();
@@ -82,54 +89,76 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Transactional
-    public void updateProfile(UserProfileDto userProfileDto, String principalUsername) {
-        User user = loadUserByUsername(principalUsername).getUser();
-        user.setFirstName(userProfileDto.getFirstName());
-        user.setLastName(userProfileDto.getLastName());
-        user.setGender(userProfileDto.getGender());
-        user.setEmail(userProfileDto.getEmail());
-        user.setPhoneNumber(userProfileDto.getPhoneNumber());
+    public void updateProfile(UserProfileDto userProfileDto, String principalUsername) throws UsernameNotFoundException {
 
-        AddressDto addressDto = userProfileDto.getAddress();
-        user.setAddress(new Address(
-                addressDto.getLine1(),
-                addressDto.getLine2(),
-                addressDto.getCity(),
-                addressDto.getCounty()
-        ));
+        try {
+            User user = loadUserByUsername(principalUsername).getUser();
+
+            user.setFirstName(userProfileDto.getFirstName());
+            user.setLastName(userProfileDto.getLastName());
+            user.setGender(userProfileDto.getGender());
+            user.setEmail(userProfileDto.getEmail());
+            user.setPhoneNumber(userProfileDto.getPhoneNumber());
+
+
+            AddressDto addressDto = userProfileDto.getAddress();
+
+            user.setAddress(new Address(
+                    addressDto.getLine1(),
+                    addressDto.getLine2(),
+                    addressDto.getCity(),
+                    addressDto.getCounty()
+            ));
+
+        } catch (UsernameNotFoundException e) {
+            e.printStackTrace();
+
+            throw e;
+        }
     }
 
     @Transactional
-    public UserProfileDto findProfileDto(String username) {
-        return new UserProfileDto(loadUserByUsername(username).getUser());
+    public UserProfileDto findProfileDto(String username) throws UsernameNotFoundException {
+
+        try {
+            return new UserProfileDto(loadUserByUsername(username).getUser());
+
+        } catch (UsernameNotFoundException e) {
+            e.printStackTrace();
+
+            throw e;
+        }
     }
 
     @Transactional
-    public List<User> findAllEmployeesByPrincipalRoleOrderByUsername(Authentication authentication) {
+    public Set<User> findAllEmployeesOrderByUsername(Principal principal) throws UsernameNotFoundException {
+
         List<User> users;
 
-        if (authentication.getAuthorities().stream().anyMatch(o -> o.getAuthority().equals("ROLE_PROJECT_MANAGER"))) {
-            users = projectManagerService.findAllEmployees(authentication.getName());
-        } else {
-            users = new ArrayList<>(userRepository.findAll());
+        try {
+            User user = loadUserByUsername(principal.getName()).getUser();
+
+            if (user.getRoles().stream().anyMatch(o -> o.getName().equals("ROLE_PROJECT_MANAGER"))) {
+                users = projectManagerService.findAllEmployees(principal.getName());
+            } else {
+                users = new ArrayList<>(userRepository.findAll());
+            }
+
+            return users.stream()
+                    .filter(o -> !o.getUsername().equals(principal.getName()))
+                    .filter(o -> o.getRoles().stream().noneMatch(r -> r.getName().equals("ROLE_GENERAL_MANAGER")))
+                    .sorted(Comparator.comparing(User::getUsername))
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        } catch (UsernameNotFoundException e) {
+            e.printStackTrace();
+
+            throw e;
         }
-
-        return users.stream()
-                .filter(o -> !o.getUsername().equals(authentication.getName()))
-                .filter(o -> o.getRoles().stream().noneMatch(r -> r.getName().equals("ROLE_GENERAL_MANAGER")))
-                .sorted(Comparator.comparing(User::getUsername))
-                .collect(Collectors.toList());
     }
 
     @Transactional
-    public User findById(Long id) throws UserNotFoundException {
-        Optional<User> userOptional = userRepository.findById(id);
-        userOptional.orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
-        return userOptional.get();
-    }
-
-    @Transactional
-    public void delete(Long id) {
+    public void delete(Long id) throws UserNotFoundException {
         try {
             User user = findById(id);
 
@@ -145,6 +174,8 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         } catch (UserNotFoundException e) {
             e.printStackTrace();
+
+            throw e;
         }
     }
 }

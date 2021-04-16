@@ -7,6 +7,7 @@ import com.greally2014.ticketmanager.dto.UserProfileDto;
 import com.greally2014.ticketmanager.entity.*;
 import com.greally2014.ticketmanager.exception.ProjectNotFoundException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -37,20 +38,28 @@ public class ProjectService {
         return projectOptional.get();
     }
 
-
     public List<Project> findAllByUsernameOrderByTitle(String username) {
-        User user = customUserDetailsService.loadUserByUsername(username).getUser();
+
         List<Project> projects;
 
-        if (user.getRoles().stream().anyMatch(o -> o.getName().equals("ROLE_PROJECT_MANAGER"))) {
-            projects = projectManagerService.findProjects(username);
-        } else {
-            projects = projectRepository.findAll();
+        try {
+            User user = customUserDetailsService.loadUserByUsername(username).getUser();
+
+            if (user.getRoles().stream().anyMatch(o -> o.getName().equals("ROLE_PROJECT_MANAGER"))) {
+                projects = projectManagerService.findProjects(username);
+            } else {
+                projects = projectRepository.findAll();
+            }
+
+            projects.sort(Comparator.comparing(Project::getTitle));
+
+            return projects;
+
+        } catch (UsernameNotFoundException e) {
+            e.printStackTrace();
+
+            throw e;
         }
-
-        projects.sort(Comparator.comparing(Project::getTitle));
-
-        return projects;
     }
 
     @Transactional
@@ -87,10 +96,16 @@ public class ProjectService {
     }
 
     @Transactional
-    public void delete(Long id) {
+    public void delete(Long id) throws ProjectNotFoundException {
         // check if username exists and handle exception / have denied access redirect / error handler
         // check if project already deleted
-        projectRepository.deleteById(id);
+        try {
+            findProjectById(id);
+            projectRepository.deleteById(id);
+
+        } catch (ProjectNotFoundException e) {
+            throw e;
+        }
     }
 
     @Transactional

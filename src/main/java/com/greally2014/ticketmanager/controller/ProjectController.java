@@ -52,7 +52,7 @@ public class ProjectController {
                 )
         );
 
-        return "project-create";
+        return "project-add";
     }
 
     @GetMapping("/showUpdateFieldsForm")
@@ -77,7 +77,7 @@ public class ProjectController {
         if (bindingResult.hasErrors()) {
             projectCreationDto.setProjectManagerDtoList(projectManagerService.findProfileDtoList());
 
-            return "project-create";
+            return "project-add";
 
         } else {
             // check if username exists and handle exception / have denied access redirect / error handler
@@ -114,9 +114,16 @@ public class ProjectController {
     public String deleteProject(@RequestParam("id") Long id) {
         // check if username exists and handle exception / have denied access redirect / error handler
         // check if project already deleted
-        projectService.delete(id);
+        try {
+            projectService.delete(id);
 
-        return "redirect:/projects/listAll";
+            return "redirect:/projects/listAll";
+
+        } catch (ProjectNotFoundException  e) {
+            e.printStackTrace();
+
+            return "redirect:/projects/listAll";
+        }
     }
 
 

@@ -26,7 +26,7 @@
           method="GET" class="form-inline">
 
         <!-- Add a button -->
-        <a th:href="@{/projects/showFormForAdd}"
+        <a th:href="@{/projects/showAddForm}"
            sec:authorize="hasRole('GENERAL_MANAGER')"
            class="btn btn-primary btn-sm mb-3">
             Add Project
@@ -57,7 +57,7 @@
             <td th:text="${tempProject.dateCreated}"></td>
             <td sec:authorize="hasRole('GENERAL_MANAGER')">
                 <!-- Add "update" button/link -->
-                <a th:href="@{/projects/showFormForUpdate(id=${tempProject.id})}"
+                <a th:href="@{/projects/showUpdateFieldsForm(id=${tempProject.id})}"
                    class="btn btn-info btn-sm">
                     Update
                 </a>

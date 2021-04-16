@@ -4,6 +4,7 @@ import com.greally2014.ticketmanager.dto.UserProfileDto;
 import com.greally2014.ticketmanager.service.CustomUserDetailsService;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -33,10 +34,17 @@ public class ProfileController {
     public String showUpdateProfileForm(Model model) {
         // check if username exists and handle exception / have denied access redirect / error handler
         Principal principal = SecurityContextHolder.getContext().getAuthentication();
-        model.addAttribute(
-                "userProfileDto",
-                customUserDetailsService.findProfileDto(principal.getName())
-        );
+
+        try {
+            model.addAttribute(
+                    "userProfileDto",
+                    customUserDetailsService.findProfileDto(principal.getName())
+            );
+
+        } catch (UsernameNotFoundException e) {
+            e.printStackTrace();
+            // logout or something
+        }
 
         return "profile";
     }
@@ -50,7 +58,14 @@ public class ProfileController {
 
         // check if username exists and handle exception / have denied access redirect / error handler
         Principal principal = SecurityContextHolder.getContext().getAuthentication();
-        customUserDetailsService.updateProfile(userProfileDto, principal.getName());
+
+        try {
+            customUserDetailsService.updateProfile(userProfileDto, principal.getName());
+
+        } catch (UsernameNotFoundException e) {
+            e.printStackTrace();
+            // log the user out or something
+        }
 
         return "index";
     }
