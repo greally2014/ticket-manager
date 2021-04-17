@@ -27,7 +27,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private final ProjectManagerService projectManagerService;
 
-
     private final RoleRepository roleRepository;
 
     private final UserRepository userRepository;

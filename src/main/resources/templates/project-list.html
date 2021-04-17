@@ -45,6 +45,7 @@
             <th onclick="sortTable(0)">Title</th>
             <th onclick="sortTable(1)">Description</th>
             <th onclick="sortTable(3)">Date Created</th>
+            <th onclick="sortTable(4)">Creator</th>
             <th sec:authorize="hasRole('GENERAL_MANAGER')">Action</th>
         </tr>
         </thead>
@@ -55,18 +56,13 @@
             <td th:text="${tempProject.title}"></td>
             <td th:text="${tempProject.description}"></td>
             <td th:text="${tempProject.dateCreated}"></td>
+            <td th:text="${tempProject.creator.username}"></td>
             <td sec:authorize="hasRole('GENERAL_MANAGER')">
-                <!-- Add "update" button/link -->
-                <a th:href="@{/projects/showUpdateFieldsForm(id=${tempProject.id})}"
-                   class="btn btn-info btn-sm">
-                    Update
-                </a>
 
-                <!-- Add "delete" button/link -->
-                <a th:href="@{/projects/delete(id=${tempProject.id})}"
-                   class="btn btn-danger btn-sm"
-                   onclick="if (!(confirm('Are you sure you want to delete this project?'))) return false">
-                    Delete
+                <!-- Add "details" button/link -->
+                <a th:href="@{/projects/showDetailsPage(id=${tempProject.id})}"
+                   class="btn btn-info btn-sm">
+                    Details
                 </a>
 
             </td>

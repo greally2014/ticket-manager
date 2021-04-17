@@ -18,18 +18,18 @@ import java.util.Map;
 @RequestMapping("/registration")
 public class RegistrationController {
 
+    @InitBinder
+    public void initBinder(WebDataBinder webDataBinder) {
+        StringTrimmerEditor stringTrimmerEditor = new StringTrimmerEditor(true);
+        webDataBinder.registerCustomEditor(String.class, stringTrimmerEditor);
+    }
+
     private Map<String, String> roles;
 
     private final CustomUserDetailsService customUserDetailsService;
 
     public RegistrationController(CustomUserDetailsService customUserDetailsService) {
         this.customUserDetailsService = customUserDetailsService;
-    }
-
-    @InitBinder
-    public void initBinder(WebDataBinder webDataBinder) {
-        StringTrimmerEditor stringTrimmerEditor = new StringTrimmerEditor(true);
-        webDataBinder.registerCustomEditor(String.class, stringTrimmerEditor);
     }
 
     @GetMapping("/showFormForRegistration")

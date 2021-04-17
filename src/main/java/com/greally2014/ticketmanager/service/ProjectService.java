@@ -1,7 +1,9 @@
 package com.greally2014.ticketmanager.service;
 
 import com.greally2014.ticketmanager.dao.ProjectRepository;
+import com.greally2014.ticketmanager.dao.UsersProjectsRepository;
 import com.greally2014.ticketmanager.dto.ProjectCreationDto;
+import com.greally2014.ticketmanager.dto.ProjectDetailsDto;
 import com.greally2014.ticketmanager.dto.ProjectDto;
 import com.greally2014.ticketmanager.dto.UserProfileDto;
 import com.greally2014.ticketmanager.entity.*;
@@ -23,12 +25,16 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
 
+    private final UsersProjectsRepository usersProjectsRepository;
+
     public ProjectService(CustomUserDetailsService customUserDetailsService,
                           ProjectManagerService projectManagerService,
-                          ProjectRepository projectRepository) {
+                          ProjectRepository projectRepository,
+                          UsersProjectsRepository usersProjectsRepository) {
         this.customUserDetailsService = customUserDetailsService;
         this.projectManagerService = projectManagerService;
         this.projectRepository = projectRepository;
+        this.usersProjectsRepository = usersProjectsRepository;
     }
 
     @Transactional
@@ -63,7 +69,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public void create(ProjectCreationDto projectCreationDto) {
+    public void add(ProjectCreationDto projectCreationDto) {
         Project project = new Project(
                 projectCreationDto.getProjectDto().getTitle(),
                 projectCreationDto.getProjectDto().getDescription()
@@ -104,6 +110,8 @@ public class ProjectService {
             projectRepository.deleteById(id);
 
         } catch (ProjectNotFoundException e) {
+            e.printStackTrace();
+
             throw e;
         }
     }
@@ -111,5 +119,72 @@ public class ProjectService {
     @Transactional
     public ProjectDto getDto(Long id) throws ProjectNotFoundException {
         return new ProjectDto(findProjectById(id));
+    }
+
+    @Transactional
+    public List<UserProfileDto> findAllUserProfileDtoByRole(Long id, String role) throws ProjectNotFoundException {
+
+        try {
+
+            List<UserProfileDto> userProfileDtoList = findProjectById(id).getUsersProjects().stream()
+                    .map(UsersProjects::getUser)
+                    .filter(o -> o.getRoles().stream()
+                            .anyMatch(r -> r.getName().equals(role))
+                    )
+                    .map(UserProfileDto::new)
+                    .collect(Collectors.toList());
+
+            userProfileDtoList.forEach(o -> o.setUsersProjects(usersProjectsRepository.findByUserIdAndProjectId(o.getId(), id)));
+
+            return userProfileDtoList;
+
+        } catch (ProjectNotFoundException e) {
+            e.printStackTrace();
+
+            throw e;
+        }
+
+    }
+
+    @Transactional
+    public List<Ticket> findAllTickets(Long id) throws ProjectNotFoundException {
+
+        try {
+            return findProjectById(id).getTickets();
+
+        } catch (ProjectNotFoundException e) {
+            e.printStackTrace();
+
+            throw e;
+        }
+    }
+
+    public ProjectDetailsDto getDetailsDto(Long id) throws ProjectNotFoundException {
+
+        try {
+            return new ProjectDetailsDto(
+                    getDto(id),
+                    findAllUserProfileDtoByRole(id, "ROLE_PROJECT_MANAGER"),
+                    findAllUserProfileDtoByRole(id, "ROLE_DEVELOPER"),
+                    findAllUserProfileDtoByRole(id, "ROLE_SUBMITTER"),
+                    findAllTickets(id)
+            );
+
+        } catch (ProjectNotFoundException e) {
+            e.printStackTrace();
+
+            throw e;
+        }
+    }
+
+    public void kickUser(Long userId, Long projectId) {
+        try {
+            usersProjectsRepository.deleteAllByUserIdAndProjectId(userId, projectId);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            throw e;
+        }
     }
 }

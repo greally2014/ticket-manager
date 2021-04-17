@@ -1,6 +1,7 @@
 package com.greally2014.ticketmanager.dto;
 
 import com.greally2014.ticketmanager.entity.User;
+import com.greally2014.ticketmanager.entity.UsersProjects;
 import com.greally2014.ticketmanager.validation.email.uniqueEmail.UniqueEmail;
 import com.greally2014.ticketmanager.validation.email.validEmail.ValidEmail;
 import com.greally2014.ticketmanager.validation.phoneNumber.ValidPhoneNumber;
@@ -8,6 +9,7 @@ import com.greally2014.ticketmanager.validation.phoneNumber.ValidPhoneNumber;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.List;
 
 public class UserProfileDto {
 
@@ -40,6 +42,8 @@ public class UserProfileDto {
     @Size(min = 1, max = 20, message = "Phone number is required")
     @ValidPhoneNumber
     private String phoneNumber;
+
+    private UsersProjects usersProjects;
 
     private boolean flag;
 
@@ -119,6 +123,14 @@ public class UserProfileDto {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public UsersProjects getUsersProjects() {
+        return usersProjects;
+    }
+
+    public void setUsersProjects(UsersProjects usersProjects) {
+        this.usersProjects = usersProjects;
     }
 
     public boolean getFlag() {
