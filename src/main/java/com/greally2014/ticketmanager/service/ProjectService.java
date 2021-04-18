@@ -1,11 +1,10 @@
 package com.greally2014.ticketmanager.service;
 
 import com.greally2014.ticketmanager.dao.ProjectRepository;
-import com.greally2014.ticketmanager.dto.ProjectCreationDto;
-import com.greally2014.ticketmanager.dto.ProjectDto;
-import com.greally2014.ticketmanager.dto.UserProfileDto;
+import com.greally2014.ticketmanager.dto.*;
 import com.greally2014.ticketmanager.entity.*;
 import com.greally2014.ticketmanager.exception.ProjectNotFoundException;
+import com.greally2014.ticketmanager.exception.UserNotFoundException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -21,13 +20,25 @@ public class ProjectService {
 
     private final ProjectManagerService projectManagerService;
 
+    private final DeveloperService developerService;
+
+    private final SubmitterService submitterService;
+
+    private final UsersProjectsService usersProjectsService;
+
     private final ProjectRepository projectRepository;
 
     public ProjectService(CustomUserDetailsService customUserDetailsService,
                           ProjectManagerService projectManagerService,
+                          DeveloperService developerService,
+                          SubmitterService submitterService,
+                          UsersProjectsService usersProjectsService,
                           ProjectRepository projectRepository) {
         this.customUserDetailsService = customUserDetailsService;
         this.projectManagerService = projectManagerService;
+        this.developerService = developerService;
+        this.submitterService = submitterService;
+        this.usersProjectsService = usersProjectsService;
         this.projectRepository = projectRepository;
     }
 
@@ -63,7 +74,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public void create(ProjectCreationDto projectCreationDto) {
+    public void add(ProjectCreationDto projectCreationDto) {
         Project project = new Project(
                 projectCreationDto.getProjectDto().getTitle(),
                 projectCreationDto.getProjectDto().getDescription()
@@ -104,6 +115,8 @@ public class ProjectService {
             projectRepository.deleteById(id);
 
         } catch (ProjectNotFoundException e) {
+            e.printStackTrace();
+
             throw e;
         }
     }
@@ -111,5 +124,139 @@ public class ProjectService {
     @Transactional
     public ProjectDto getDto(Long id) throws ProjectNotFoundException {
         return new ProjectDto(findProjectById(id));
+    }
+
+    @Transactional
+    public List<UserProfileDto> findAllUserProfileDto(Long id, String role) throws ProjectNotFoundException {
+        try {
+            List<UserProfileDto> userProfileDtoList = findProjectById(id).getUsersProjects().stream()
+                    .map(UsersProjects::getUser)
+                    .filter(o -> o.getRoles().stream()
+                            .anyMatch(r -> r.getName().equals(role))
+                    )
+                    .map(UserProfileDto::new)
+                    .collect(Collectors.toList());
+
+            userProfileDtoList.forEach(o -> o.setUsersProjects(
+                    usersProjectsService.findByUserIdAndProjectId(o.getId(), id)));
+
+            return userProfileDtoList;
+
+        } catch (ProjectNotFoundException e) {
+            e.printStackTrace();
+
+            throw e;
+        }
+
+    }
+
+    @Transactional
+    public List<Ticket> findAllTickets(Long id) throws ProjectNotFoundException {
+        try {
+
+            return findProjectById(id).getTickets();
+
+        } catch (ProjectNotFoundException e) {
+            e.printStackTrace();
+
+            throw e;
+        }
+    }
+
+    @Transactional
+    public ProjectDetailsDto getDetailsDto(Long id) throws ProjectNotFoundException {
+        try {
+
+            return new ProjectDetailsDto(
+                    getDto(id),
+                    findAllUserProfileDto(id, "ROLE_PROJECT_MANAGER"),
+                    findAllUserProfileDto(id, "ROLE_DEVELOPER"),
+                    findAllUserProfileDto(id, "ROLE_SUBMITTER"),
+                    findAllTickets(id)
+            );
+
+        } catch (ProjectNotFoundException e) {
+            e.printStackTrace();
+
+            throw e;
+        }
+    }
+
+    @Transactional
+    public void kickUser(Long userId, Long projectId) {
+        try {
+            usersProjectsService.deleteByUserIdAndProjectId(userId, projectId);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            throw e;
+        }
+    }
+
+    @Transactional
+    public List<UserProfileDto> findAllUserProfileDtoNotAdded(ProjectDetailsDto projectDetailsDto,
+                                                              Long roleIdentifier) throws ProjectNotFoundException {
+        try {
+            findProjectById(projectDetailsDto.getProjectDto().getId());
+            List<UserProfileDto> alreadyAdded;
+            List<UserProfileDto> userDtoList;
+
+            if (roleIdentifier == 1) {
+                alreadyAdded = projectDetailsDto.getProjectManagerDtoList();
+                userDtoList = projectManagerService.findProfileDtoList();
+            } else if (roleIdentifier == 2) {
+                alreadyAdded = projectDetailsDto.getDeveloperDtoList();
+                userDtoList = developerService.findProfileDtoList();
+            } else {
+                alreadyAdded = projectDetailsDto.getSubmitterDtoList();
+                userDtoList = submitterService.findProfileDtoList();
+            }
+
+            alreadyAdded.forEach(o -> System.out.println(o.getUsername()));
+            userDtoList.forEach(o -> System.out.println(o.getUsername()));
+
+            List<UserProfileDto> userDtoListCopy = new ArrayList<>();
+
+            for (UserProfileDto userProfileDto : userDtoList) {
+                String username = userProfileDto.getUsername();
+                for (UserProfileDto test : alreadyAdded) {
+                    if (username.equals(test.getUsername())) {
+                        userDtoListCopy.add(userProfileDto);
+                    }
+                }
+            }
+
+            for (UserProfileDto userProfileDto : userDtoListCopy) {
+                userDtoList.remove(userProfileDto);
+            }
+
+            return userDtoList;
+
+
+        } catch (ProjectNotFoundException e) {
+            e.printStackTrace();
+
+            throw e;
+        }
+    }
+
+    public void addUsers(ProjectAddUserDto projectAddUserDto) throws ProjectNotFoundException, UserNotFoundException {
+        try {
+            Project project = findProjectById(projectAddUserDto.getProjectDto().getId());
+
+            for (UserProfileDto userProfileDto : projectAddUserDto.getUserDtoList()) {
+                if (userProfileDto.getFlag()) {
+                    User user = customUserDetailsService.findById(userProfileDto.getId());
+
+                    usersProjectsService.add(user, project);
+                }
+            }
+
+        } catch (ProjectNotFoundException e) {
+            e.printStackTrace();
+
+            throw e;
+        }
     }
 }

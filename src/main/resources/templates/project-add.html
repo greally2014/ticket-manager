@@ -51,13 +51,6 @@
                   class="badge badge-danger ml-2 mb-4"></span>
         </div>
 
-        <div class="form-inline">
-            <!-- Add error message (if present) -->
-            <span th:if="${#fields.hasErrors('projectManagerDtoList')}"
-                  th:errors="*{projectManagerDtoList}"
-                  class="badge badge-danger ml-2 mb-4"></span>
-        </div>
-
         <table class="table table-bordered table-striped">
             <thead class="thead-dark">
             <tr>
@@ -71,7 +64,7 @@
 
             <tbody>
                 <tr th:each="tempProjectManager, itemStat : *{projectManagerDtoList}">
-                    <td style="display: none"><input type="hidden"
+                    <td><input
                                                      th:field="*{projectManagerDtoList[__${itemStat.index}__].id}"/></td>
                     <td th:text="*{projectManagerDtoList[__${itemStat.index}__].username}"></td>
                     <td th:text="*{projectManagerDtoList[__${itemStat.index}__].firstName}"></td>

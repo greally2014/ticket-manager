@@ -41,6 +41,7 @@ public class ProjectManagerService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public List<User> findAllEmployees(String username) {
         List<User> users = new ArrayList<>();
 
@@ -52,4 +53,5 @@ public class ProjectManagerService {
 
         return users;
     }
+
 }

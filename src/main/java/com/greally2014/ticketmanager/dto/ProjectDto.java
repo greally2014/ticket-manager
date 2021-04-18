@@ -1,5 +1,6 @@
 package com.greally2014.ticketmanager.dto;
 
+import com.greally2014.ticketmanager.entity.GeneralManager;
 import com.greally2014.ticketmanager.entity.Project;
 
 import javax.validation.constraints.NotNull;
@@ -15,16 +16,19 @@ public class ProjectDto {
     private String title;
 
     @NotNull(message = "Description is required")
-    @Size(min = 1, max = 50, message = "Description is required")
+    @Size(min = 1, max = 200, message = "Description is required")
     private String description;
 
     private LocalDate dateCreated;
+
+    private GeneralManager creator;
 
     public ProjectDto(Project project) {
         this.id = project.getId();
         this.title = project.getTitle();
         this.description = project.getDescription();
         this.dateCreated = project.getDateCreated();
+        this.creator = project.getCreator();
     }
 
     public ProjectDto() {
@@ -61,5 +65,13 @@ public class ProjectDto {
 
     public void setDateCreated(LocalDate dateCreated) {
         this.dateCreated = dateCreated;
+    }
+
+    public GeneralManager getCreator() {
+        return creator;
+    }
+
+    public void setCreator(GeneralManager creator) {
+        this.creator = creator;
     }
 }

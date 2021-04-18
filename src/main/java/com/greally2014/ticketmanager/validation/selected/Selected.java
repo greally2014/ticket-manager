@@ -9,7 +9,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Selected {
-    String message() default "Must select a projectCreationDto manager";
+    String message() default "Must select a projectDetailsDto manager";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }
