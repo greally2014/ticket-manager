@@ -26,7 +26,7 @@
     <form action="#" class="form-inline">
 
         <!-- Add a button -->
-        <a th:href="@{/employees/delete(id=${employee.id})}"
+        <a th:href="@{/projects/deleteEmployee(employeeId=${employee.id}, projectId=${projectId})}"
            sec:authorize="hasRole('GENERAL_MANAGER')"
            class="btn btn-primary btn-sm mb-3">
             Delete

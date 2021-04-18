@@ -195,12 +195,12 @@ public class ProjectService {
     }
 
     @Transactional
-    public List<UserProfileDto> findAllUserProfileDtoNotAdded(ProjectDetailsDto projectDetailsDto,
-                                                              Long roleIdentifier) throws ProjectNotFoundException {
+    public List<UserProfileDto> findAllUserProfileDtoNotAdded(Long id, Long roleIdentifier) throws ProjectNotFoundException {
         try {
-            findById(projectDetailsDto.getProjectDto().getId());
+            findById(id);
             List<UserProfileDto> alreadyAdded;
             List<UserProfileDto> userDtoList;
+            ProjectDetailsDto projectDetailsDto = getDetailsDto(id);
 
             if (roleIdentifier == 1) {
                 alreadyAdded = projectDetailsDto.getProjectManagerDtoList();
@@ -212,9 +212,6 @@ public class ProjectService {
                 alreadyAdded = projectDetailsDto.getSubmitterDtoList();
                 userDtoList = submitterService.findProfileDtoList();
             }
-
-            alreadyAdded.forEach(o -> System.out.println(o.getUsername()));
-            userDtoList.forEach(o -> System.out.println(o.getUsername()));
 
             List<UserProfileDto> userDtoListCopy = new ArrayList<>();
 

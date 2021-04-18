@@ -105,14 +105,16 @@ public class ProjectController {
     public String addProjectUser(@ModelAttribute("projectAddUserDto") @Valid ProjectAddUserDto projectAddUserDto,
                                  BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
-
             if (projectAddUserDto.getUserDtoList() == null) {
+
                 return "project-add-user";
 
             } else {
                 try {
-                    ProjectDetailsDto projectDetailsDto = projectService.getDetailsDto(projectAddUserDto.getProjectDto().getId());
-                    List<UserProfileDto> userProfileDtos = projectService.findAllUserProfileDtoNotAdded(projectDetailsDto, projectAddUserDto.getRoleIdentifier());
+                    List<UserProfileDto> userProfileDtos = projectService.findAllUserProfileDtoNotAdded(
+                            projectAddUserDto.getProjectDto().getId(),
+                            projectAddUserDto.getRoleIdentifier()
+                    );
 
                     projectAddUserDto.setUserDtoList(userProfileDtos);
 
@@ -123,7 +125,6 @@ public class ProjectController {
 
                     return "redirect:/projects/listAll";
                 }
-
             }
 
         } else {
@@ -206,10 +207,10 @@ public class ProjectController {
                                          @RequestParam("roleIdentifier") Long roleIdentifier,
                                          Model model) {
         try {
-            ProjectDetailsDto projectDetailsDto = projectService.getDetailsDto(id);
+            ProjectDto projectDto = projectService.getDto(id);
             List<UserProfileDto> userDtoList =
-                    projectService.findAllUserProfileDtoNotAdded(projectDetailsDto, roleIdentifier);
-            ProjectAddUserDto projectAddUserDto = new ProjectAddUserDto(projectDetailsDto.getProjectDto(), userDtoList);
+                    projectService.findAllUserProfileDtoNotAdded(id, roleIdentifier);
+            ProjectAddUserDto projectAddUserDto = new ProjectAddUserDto(projectDto, userDtoList);
             projectAddUserDto.setRoleIdentifier(roleIdentifier);
 
             model.addAttribute("projectAddUserDto", projectAddUserDto);
@@ -253,5 +254,21 @@ public class ProjectController {
 
             return showProjectDetailsPage(projectId, model);
         }
+    }
+
+    @GetMapping("/deleteEmployee")
+    @PreAuthorize("hasRole('GENERAL_MANAGER')")
+    public String deleteProjectEmployee(@RequestParam("employeeId") Long employeeId,
+                                        @RequestParam("projectId") Long projectId,
+                                        Model model) {
+
+        try {
+            customUserDetailsService.delete(employeeId);
+
+        } catch (UserNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return showProjectDetailsPage(projectId, model);
     }
 }

@@ -129,7 +129,7 @@
                         </a>
 
                         <!-- Add "kick" button/link -->
-                        <a th:href="@{/tickets/kickUser(developerId=${tempDeveloperDto.id},
+                        <a th:href="@{/tickets/kickDeveloper(developerId=${tempDeveloperDto.id},
                                                                 ticketId=${ticketDetailsDto.ticketDto.id})}"
                            sec:authorize="hasRole('PROJECT_MANAGER')"
                            class="btn btn-danger btn-sm"

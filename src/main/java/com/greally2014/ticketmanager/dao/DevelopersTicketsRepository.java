@@ -6,5 +6,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DevelopersTicketsRepository extends JpaRepository<DevelopersTickets, Long> {
-    DevelopersTickets findByDeveloperIdAndTicketId(Long id, Long id1);
+
+    void deleteByDeveloperIdAndTicketId(Long developerId, Long ticketId);
+
+    DevelopersTickets findByDeveloperIdAndTicketId(Long developerId, Long ticketId);
 }

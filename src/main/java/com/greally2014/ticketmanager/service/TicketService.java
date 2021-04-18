@@ -1,23 +1,18 @@
 package com.greally2014.ticketmanager.service;
 
 import com.greally2014.ticketmanager.dao.TicketRepository;
-import com.greally2014.ticketmanager.dto.TicketCreationDto;
-import com.greally2014.ticketmanager.dto.TicketDetailsDto;
-import com.greally2014.ticketmanager.dto.TicketDto;
-import com.greally2014.ticketmanager.dto.UserProfileDto;
+import com.greally2014.ticketmanager.dto.*;
 import com.greally2014.ticketmanager.entity.*;
 import com.greally2014.ticketmanager.exception.ProjectNotFoundException;
 import com.greally2014.ticketmanager.exception.TicketNotFoundException;
+import com.greally2014.ticketmanager.exception.UserNotFoundException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.security.Principal;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -205,6 +200,67 @@ public class TicketService {
         try {
             findById(id);
             ticketRepository.deleteById(id);
+
+        } catch (TicketNotFoundException e) {
+            e.printStackTrace();
+
+            throw e;
+        }
+    }
+
+    @Transactional
+    public void kickUser(Long developerId, Long ticketId) {
+        try {
+            developersTicketsService.deleteByDeveloperIdAndTicketId(developerId, ticketId);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            throw e;
+        }
+    }
+
+    public List<UserProfileDto> findAllDeveloperProfileDtoNotAdded(Long id) throws TicketNotFoundException {
+        try {
+            findById(id);
+            List<UserProfileDto> alreadyAdded = getDetailsDto(id).getDeveloperDtoList();
+            List<UserProfileDto> developerDtoList = developerService.findProfileDtoList();
+
+            List<UserProfileDto> developerDtoListCopy = new ArrayList<>();
+
+            for (UserProfileDto userProfileDto : developerDtoList) {
+                String username = userProfileDto.getUsername();
+                for (UserProfileDto test : alreadyAdded) {
+                    if (username.equals(test.getUsername())) {
+                        developerDtoListCopy.add(userProfileDto);
+                    }
+                }
+            }
+
+            for (UserProfileDto userProfileDto : developerDtoListCopy) {
+                developerDtoList.remove(userProfileDto);
+            }
+
+            return developerDtoList;
+
+        } catch (TicketNotFoundException e) {
+            e.printStackTrace();
+
+            throw e;
+        }
+    }
+
+    public void addDevelopers(TicketAddDeveloperDto ticketAddDeveloperDto) throws TicketNotFoundException, UserNotFoundException {
+        try {
+            Ticket ticket = findById(ticketAddDeveloperDto.getTicketDto().getId());
+
+            for (UserProfileDto userProfileDto : ticketAddDeveloperDto.getDeveloperDtoList()) {
+                if (userProfileDto.getFlag()) {
+                    Developer developer = (Developer) customUserDetailsService.findById(userProfileDto.getId());
+
+                    developersTicketsService.add(developer, ticket);
+                }
+            }
 
         } catch (TicketNotFoundException e) {
             e.printStackTrace();
