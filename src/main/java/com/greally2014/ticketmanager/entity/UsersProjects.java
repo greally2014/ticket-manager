@@ -23,6 +23,13 @@ public class UsersProjects {
     @Column(name = "date_assigned")
     private LocalDate dateAssigned;
 
+    public UsersProjects(User user, Project project, LocalDate dateAssigned) {
+        this.id = new UsersProjectsKey();
+        this.user = user;
+        this.project = project;
+        this.dateAssigned = dateAssigned;
+    }
+
     public UsersProjects(User user, Project project) {
         this.id = new UsersProjectsKey();
         this.user = user;

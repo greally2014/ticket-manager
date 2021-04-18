@@ -10,8 +10,10 @@ public class ProjectAddUserDto {
 
     private ProjectDto projectDto;
 
-    @NotNull
-    @Selected
+    private Long roleIdentifier;
+
+    @NotNull(message = "There are no users to add")
+    @Selected(message = "Please select a user")
     private List<UserProfileDto> userDtoList;
 
     public ProjectAddUserDto(ProjectDto projectDto, List<UserProfileDto> userDtoList) {
@@ -25,6 +27,14 @@ public class ProjectAddUserDto {
 
     public void setProjectDto(ProjectDto projectDto) {
         this.projectDto = projectDto;
+    }
+
+    public Long getRoleIdentifier() {
+        return roleIdentifier;
+    }
+
+    public void setRoleIdentifier(Long roleIdentifier) {
+        this.roleIdentifier = roleIdentifier;
     }
 
     public List<UserProfileDto> getUserDtoList() {

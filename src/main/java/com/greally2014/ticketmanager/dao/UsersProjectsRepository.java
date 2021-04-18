@@ -12,6 +12,4 @@ public interface UsersProjectsRepository extends JpaRepository<UsersProjects, Lo
     void deleteByUserIdAndProjectId(Long userId, Long projectId);
 
     UsersProjects findByUserIdAndProjectId(Long userId, Long projectId);
-
-    List<UsersProjects> findAllByProjectId(Long id);
 }

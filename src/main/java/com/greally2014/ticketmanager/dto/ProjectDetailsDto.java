@@ -18,11 +18,6 @@ public class ProjectDetailsDto {
 
     private List<Ticket> ticketList;
 
-    public ProjectDetailsDto(ProjectDto projectDto, List<UserProfileDto> projectManagerDtoList) {
-        this.projectDto = projectDto;
-        this.projectManagerDtoList = projectManagerDtoList;
-    }
-
     public ProjectDetailsDto(ProjectDto projectDto,
                              List<UserProfileDto> projectManagerDtoList, List<UserProfileDto> developerDtoList,
                              List<UserProfileDto> submitterDtoList, List<Ticket> ticketList) {

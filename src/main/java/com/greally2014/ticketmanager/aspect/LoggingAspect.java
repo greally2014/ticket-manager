@@ -33,7 +33,7 @@ public class LoggingAspect {
     private void forApplication() {};
 
     @Before(value = "forApplication()")
-    public void beforeCallingArguments(JoinPoint joinpoint) {
+    public void beforeCallingMethods(JoinPoint joinpoint) {
         String method = joinpoint.getSignature().toShortString();
 
         logger.info("=====> @Before: " + method);
@@ -51,21 +51,5 @@ public class LoggingAspect {
         logger.info("=====> Result: " + result);
 
         System.out.println("\n");
-    }
-
-    @Before(value = "forControllerPackage()")
-    public void afterReturningBindingError(JoinPoint joinPoint) {
-        Object[] args = joinPoint.getArgs();
-        Optional<BindingResult> optionalBindingResult = Arrays.stream(args)
-                .filter(o -> o instanceof BindingResult)
-                .findAny()
-                .map(o -> (BindingResult) o);
-        if (optionalBindingResult.isPresent()) {
-            BindingResult bindingResult = optionalBindingResult.get();
-            List<String> errors = bindingResult.getAllErrors().stream()
-                    .map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.toList());
-            logger.info("=====> Form error(s): " + errors);
-            System.out.println();
-        }
     }
 }

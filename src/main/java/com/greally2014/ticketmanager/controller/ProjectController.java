@@ -105,8 +105,27 @@ public class ProjectController {
     public String addProjectUser(@ModelAttribute("projectAddUserDto") @Valid ProjectAddUserDto projectAddUserDto,
                                  BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
+            if (projectAddUserDto.getUserDtoList() == null) {
 
-            return "project-add-user";
+                return "project-add-user";
+
+            } else {
+                try {
+                    List<UserProfileDto> userProfileDtos = projectService.findAllUserProfileDtoNotAdded(
+                            projectAddUserDto.getProjectDto().getId(),
+                            projectAddUserDto.getRoleIdentifier()
+                    );
+
+                    projectAddUserDto.setUserDtoList(userProfileDtos);
+
+                    return "project-add-user";
+
+                } catch (ProjectNotFoundException e) {
+                    e.printStackTrace();
+
+                    return "redirect:/projects/listAll";
+                }
+            }
 
         } else {
             // check if username exists and handle exception / have denied access redirect / error handler
@@ -115,15 +134,15 @@ public class ProjectController {
 
                 return showProjectDetailsPage(projectAddUserDto.getProjectDto().getId(), model);
 
-            } catch (ProjectNotFoundException e) {
-                e.printStackTrace();
-
-                return "redirect:/projects/listAll";
-
             } catch (UserNotFoundException e) {
                 e.printStackTrace();
 
                 return showProjectDetailsPage(projectAddUserDto.getProjectDto().getId(), model);
+
+            } catch (ProjectNotFoundException e) {
+                e.printStackTrace();
+
+                return "redirect:/projects/listAll";
             }
         }
     }
@@ -184,15 +203,17 @@ public class ProjectController {
 
     @GetMapping("/showAddUserForm")
     @PreAuthorize("hasRole('GENERAL_MANAGER')")
-    public String addProjectUser(@RequestParam("id") Long id,
-                                 @RequestParam("roleIdentifier") Long roleIdentifier,
-                                 Model model) {
+    public String showAddProjectUserForm(@RequestParam("id") Long id,
+                                         @RequestParam("roleIdentifier") Long roleIdentifier,
+                                         Model model) {
         try {
-            ProjectDetailsDto projectDetailsDto = projectService.getDetailsDto(id);
+            ProjectDto projectDto = projectService.getDto(id);
             List<UserProfileDto> userDtoList =
-                    projectService.findAllUserProfileDtoNotAdded(projectDetailsDto, roleIdentifier);
-            model.addAttribute("projectAddUserDto",
-                    new ProjectAddUserDto(projectDetailsDto.getProjectDto(), userDtoList));
+                    projectService.findAllUserProfileDtoNotAdded(id, roleIdentifier);
+            ProjectAddUserDto projectAddUserDto = new ProjectAddUserDto(projectDto, userDtoList);
+            projectAddUserDto.setRoleIdentifier(roleIdentifier);
+
+            model.addAttribute("projectAddUserDto", projectAddUserDto);
 
             return "project-add-user";
 
@@ -233,5 +254,21 @@ public class ProjectController {
 
             return showProjectDetailsPage(projectId, model);
         }
+    }
+
+    @GetMapping("/deleteEmployee")
+    @PreAuthorize("hasRole('GENERAL_MANAGER')")
+    public String deleteProjectEmployee(@RequestParam("employeeId") Long employeeId,
+                                        @RequestParam("projectId") Long projectId,
+                                        Model model) {
+
+        try {
+            customUserDetailsService.delete(employeeId);
+
+        } catch (UserNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return showProjectDetailsPage(projectId, model);
     }
 }

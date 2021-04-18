@@ -1,5 +1,6 @@
 package com.greally2014.ticketmanager.dto;
 
+import com.greally2014.ticketmanager.entity.DevelopersTickets;
 import com.greally2014.ticketmanager.entity.User;
 import com.greally2014.ticketmanager.entity.UsersProjects;
 import com.greally2014.ticketmanager.validation.email.uniqueEmail.UniqueEmail;
@@ -44,6 +45,8 @@ public class UserProfileDto {
     private String phoneNumber;
 
     private UsersProjects usersProjects;
+
+    private DevelopersTickets developersTickets;
 
     private boolean flag;
 
@@ -131,6 +134,14 @@ public class UserProfileDto {
 
     public void setUsersProjects(UsersProjects usersProjects) {
         this.usersProjects = usersProjects;
+    }
+
+    public DevelopersTickets getDevelopersTickets() {
+        return developersTickets;
+    }
+
+    public void setDevelopersTickets(DevelopersTickets developersTickets) {
+        this.developersTickets = developersTickets;
     }
 
     public boolean getFlag() {

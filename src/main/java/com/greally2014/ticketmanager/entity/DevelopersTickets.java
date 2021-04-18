@@ -30,7 +30,15 @@ public class DevelopersTickets {
         this.dateAssigned = dateAssigned;
     }
 
+    public DevelopersTickets(Developer developer, Ticket ticket) {
+        this.id = new DevelopersTicketsKey();
+        this.developer = developer;
+        this.ticket = ticket;
+        this.dateAssigned = LocalDate.now();
+    }
+
     public DevelopersTickets() {
+        this.dateAssigned = LocalDate.now();
     }
 
     public DevelopersTicketsKey getId() {

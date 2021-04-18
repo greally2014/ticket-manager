@@ -16,6 +16,4 @@ import java.util.List;
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {
 
-    @Query("select p from Project p where concat(p.title, p.description, p.dateCreated)  like  %?1%")
-    List<Project> search(String searchText);
 }

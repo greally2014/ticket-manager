@@ -2,6 +2,9 @@ package com.greally2014.ticketmanager.service;
 
 import com.greally2014.ticketmanager.dao.SubmitterRepository;
 import com.greally2014.ticketmanager.dto.UserProfileDto;
+import com.greally2014.ticketmanager.entity.Project;
+import com.greally2014.ticketmanager.entity.Ticket;
+import com.greally2014.ticketmanager.entity.UsersProjects;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,6 +22,16 @@ public class SubmitterService {
     public List<UserProfileDto> findProfileDtoList() {
         return submitterRepository.findAll().stream()
                 .map(UserProfileDto::new)
+                .collect(Collectors.toList());
+    }
+
+    public List<Ticket> findTickets(String username) {
+        return submitterRepository.findByUsername(username).getTickets();
+    }
+
+    public List<Project> findProjects(String username) {
+        return submitterRepository.findByUsername(username).getUsersProjects().stream()
+                .map(UsersProjects::getProject)
                 .collect(Collectors.toList());
     }
 }

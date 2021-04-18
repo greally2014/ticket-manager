@@ -27,10 +27,6 @@ public class UsersProjectsService {
         usersProjectsRepository.deleteByUserIdAndProjectId(userId, projectId);
     }
 
-    public List<UsersProjects> findAllByProjectId(Long id) {
-        return usersProjectsRepository.findAllByProjectId(id);
-    }
-
     public void add(User user, Project project) {
         UsersProjects usersProjects = new UsersProjects(user, project);
         usersProjectsRepository.save(usersProjects);

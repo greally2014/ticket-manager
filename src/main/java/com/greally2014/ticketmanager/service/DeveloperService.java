@@ -2,6 +2,8 @@ package com.greally2014.ticketmanager.service;
 
 import com.greally2014.ticketmanager.dao.DeveloperRepository;
 import com.greally2014.ticketmanager.dto.UserProfileDto;
+import com.greally2014.ticketmanager.entity.DevelopersTickets;
+import com.greally2014.ticketmanager.entity.Ticket;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,6 +21,12 @@ public class DeveloperService {
     public List<UserProfileDto> findProfileDtoList() {
         return developerRepository.findAll().stream()
                 .map(UserProfileDto::new)
+                .collect(Collectors.toList());
+    }
+
+    public List<Ticket> findTickets(String username) {
+        return developerRepository.findByUsername(username).getDevelopersTickets().stream()
+                .map(DevelopersTickets::getTicket)
                 .collect(Collectors.toList());
     }
 }

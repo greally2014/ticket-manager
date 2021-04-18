@@ -14,8 +14,6 @@
         <a th:href="@{/profile/showFormForUpdate}">Edit profile</a>
     </div>
     <br>
-    <hr>
-    <br>
     <div sec:authorize="hasAnyRole('PROJECT_MANAGER', 'GENERAL_MANAGER')">
         <a th:href="@{/projects/listAll}">Projects</a>
     </div>
@@ -23,7 +21,10 @@
     <div sec:authorize="hasAnyRole('PROJECT_MANAGER', 'GENERAL_MANAGER')">
         <a th:href="@{/employees/listAll}">Employees</a>
     </div>
-
+    <br>
+    <div sec:authorize="hasAnyRole('DEVELOPER', 'SUBMITTER', 'PROJECT_MANAGER', 'GENERAL_MANAGER')">
+        <a th:href="@{/tickets/listAll}">Tickets</a>
+    </div>
     <br>
     <form th:action="@{/logout}"
           th:method="POST">
