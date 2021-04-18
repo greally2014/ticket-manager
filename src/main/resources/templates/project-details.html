@@ -16,12 +16,12 @@
     <form>
         <div class="form-row">
 
-            <div class="form-group col-xs-4">
+            <div class="form-group col-4">
                 <label for="title">Title</label>
                 <input type="text" th:value="${projectDetailsDto.projectDto.title}" class="form-control" id="title" readonly>
             </div>
 
-            <div class="form-group col-xs-8">
+            <div class="form-group col-8">
                 <label for="description">Description</label>
                 <textarea th:text="${projectDetailsDto.projectDto.description}" class="form-control" id="description" rows="4" cols="50" readonly></textarea>
             </div>
@@ -30,7 +30,7 @@
 
         <div class="form-row">
 
-            <div class="form-group col-xs-8">
+            <div class="form-group col-8">
                 <label for="creator">Creator</label>
                 <input type="text" th:value="${projectDetailsDto.projectDto.creator.username}" class="form-control" id="creator" readonly>
             </div>
@@ -55,10 +55,18 @@
             Delete
         </a>
 
-        <div class="row">
+        <div class="row justify-content-center">
 
             <div class="table-responsive col-4">
                 <h2>Project Managers</h2>
+
+                <!-- Add "assign" button/link -->
+                <a th:href="@{/projects/showAddUserForm(id=${projectDetailsDto.projectDto.id}, roleIdentifier=1)}"
+                   sec:authorize="hasRole('GENERAL_MANAGER')"
+                   class="btn btn-info btn-sm">
+                    Assign
+                </a>
+
                 <table class="table table-bordered table-striped" id="project-manager-table">
 
                     <thead class="thead-dark">
@@ -66,7 +74,7 @@
                             <th onclick="sortTable(0)">Username</th>
                             <th onclick="sortTable(1)">Email</th>
                             <th onclick="sortTable(2)">Date Assigned</th>
-                            <th sec:authorize="hasRole('GENERAL_MANAGER')">Action</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
 
@@ -102,6 +110,14 @@
 
             <div class="table-responsive col-4">
                 <h2>Developers</h2>
+
+                <!-- Add "assign" button/link -->
+                <a th:href="@{/projects/showAddUserForm(id=${projectDetailsDto.projectDto.id}, roleIdentifier=2)}"
+                   sec:authorize="hasRole('GENERAL_MANAGER')"
+                   class="btn btn-info btn-sm">
+                    Assign
+                </a>
+
                 <table class="table table-bordered table-striped" id="developer-table">
 
                     <thead class="thead-dark">
@@ -109,7 +125,7 @@
                         <th onclick="sortTable(0)">Username</th>
                         <th onclick="sortTable(1)">Email</th>
                         <th onclick="sortTable(2)">Date Assigned</th>
-                        <th sec:authorize="hasRole('GENERAL_MANAGER')">Action</th>
+                        <th>Action</th>
                     </tr>
                     </thead>
 
@@ -145,6 +161,14 @@
 
             <div class="table-responsive col-4">
                 <h2>Submitters</h2>
+
+                <!-- Add "assign" button/link -->
+                <a th:href="@{/projects/showAddUserForm(id=${projectDetailsDto.projectDto.id}, roleIdentifier=3)}"
+                   sec:authorize="hasRole('GENERAL_MANAGER')"
+                   class="btn btn-info btn-sm">
+                    Assign
+                </a>
+
                 <table class="table table-bordered table-striped" id="submitter-table">
 
                     <thead class="thead-dark">
@@ -152,7 +176,7 @@
                         <th onclick="sortTable(0)">Username</th>
                         <th onclick="sortTable(1)">Email</th>
                         <th onclick="sortTable(2)">Date Assigned</th>
-                        <th sec:authorize="hasRole('GENERAL_MANAGER')">Action</th>
+                        <th>Action</th>
                     </tr>
                     </thead>
 
@@ -185,9 +209,10 @@
 
                 </table>
             </div>
+        </div>
 
-        <div>
-            <div class="table-responsive col-12">
+        <div class="row">
+            <div class="table-responsive col-8">
                 <table class="table table-bordered table-striped" id="ticket-table">
                     <caption>Ticket</caption>
 
@@ -199,7 +224,7 @@
                             <th onclick="sortTable(3)">Priority</th>
                             <th onclick="sortTable(4)">Submitter</th>
                             <th onclick="sortTable(5)">Date Created</th>
-                            <th sec:authorize="hasRole('GENERAL_MANAGER')">Action</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
 

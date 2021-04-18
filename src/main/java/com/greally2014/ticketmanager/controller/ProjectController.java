@@ -1,12 +1,9 @@
 package com.greally2014.ticketmanager.controller;
 
-import com.greally2014.ticketmanager.dto.ProjectCreationDto;
-import com.greally2014.ticketmanager.dto.ProjectDto;
+import com.greally2014.ticketmanager.dto.*;
 import com.greally2014.ticketmanager.exception.ProjectNotFoundException;
 import com.greally2014.ticketmanager.exception.UserNotFoundException;
-import com.greally2014.ticketmanager.service.CustomUserDetailsService;
-import com.greally2014.ticketmanager.service.ProjectManagerService;
-import com.greally2014.ticketmanager.service.ProjectService;
+import com.greally2014.ticketmanager.service.*;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.List;
 
 @Controller
 @RequestMapping("/projects")
@@ -60,7 +58,7 @@ public class ProjectController {
     @PreAuthorize("hasRole('GENERAL_MANAGER')")
     public String showAddProjectForm(Model model) {
         // check if username exists and handle exception / have denied access redirect / error handler
-        model.addAttribute("projectDetailsDto",
+        model.addAttribute("projectCreationDto",
                 new ProjectCreationDto(
                         new ProjectDto(),
                         projectManagerService.findProfileDtoList()
@@ -71,23 +69,24 @@ public class ProjectController {
     }
 
     @GetMapping("/showUpdateFieldsForm")
+    @PreAuthorize("hasRole('GENERAL_MANAGER')")
     public String showUpdateProjectFieldsForm(@RequestParam("id") Long id, Model model) {
-
         try {
             model.addAttribute("projectDto", projectService.getDto(id));
 
             return "project-update-fields";
 
         } catch (ProjectNotFoundException e) {
+            e.printStackTrace();
 
-            return "redirect:/projects/showDetailsPage";
+            return "redirect:/projects/listAll";
         }
     }
 
     @PostMapping("/add")
     @PreAuthorize("hasRole('GENERAL_MANAGER')")
-    public String addProject(@ModelAttribute("projectDetailsDto") @Valid ProjectCreationDto projectCreationDto,
-                             BindingResult bindingResult) {
+    public String addProject(@ModelAttribute("projectCreationDto") @Valid ProjectCreationDto projectCreationDto,
+                                 BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             projectCreationDto.setProjectManagerDtoList(projectManagerService.findProfileDtoList());
 
@@ -101,10 +100,40 @@ public class ProjectController {
         }
     }
 
+    @PostMapping("/addUser")
+    @PreAuthorize("hasRole('GENERAL_MANAGER')")
+    public String addProjectUser(@ModelAttribute("projectAddUserDto") @Valid ProjectAddUserDto projectAddUserDto,
+                                 BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+
+            return "project-add-user";
+
+        } else {
+            // check if username exists and handle exception / have denied access redirect / error handler
+            try {
+                projectService.addUsers(projectAddUserDto);
+
+                return showProjectDetailsPage(projectAddUserDto.getProjectDto().getId(), model);
+
+            } catch (ProjectNotFoundException e) {
+                e.printStackTrace();
+
+                return "redirect:/projects/listAll";
+
+            } catch (UserNotFoundException e) {
+                e.printStackTrace();
+
+                return showProjectDetailsPage(projectAddUserDto.getProjectDto().getId(), model);
+            }
+        }
+    }
+
     @PostMapping("/updateFields")
+    @PreAuthorize("hasRole('GENERAL_MANAGER')")
     public String updateProjectFields(@ModelAttribute("projectDto") @Valid ProjectDto projectDto,
                                       BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
+
             return "project-update-fields";
 
         } else {
@@ -140,7 +169,6 @@ public class ProjectController {
 
     @GetMapping("/showDetailsPage")
     public String showProjectDetailsPage(@RequestParam("id") Long id, Model model) {
-
         try {
             // check if username exists and handle exception / have denied access redirect / error handler
             // check if project deleted
@@ -154,11 +182,32 @@ public class ProjectController {
         }
     }
 
+    @GetMapping("/showAddUserForm")
+    @PreAuthorize("hasRole('GENERAL_MANAGER')")
+    public String addProjectUser(@RequestParam("id") Long id,
+                                 @RequestParam("roleIdentifier") Long roleIdentifier,
+                                 Model model) {
+        try {
+            ProjectDetailsDto projectDetailsDto = projectService.getDetailsDto(id);
+            List<UserProfileDto> userDtoList =
+                    projectService.findAllUserProfileDtoNotAdded(projectDetailsDto, roleIdentifier);
+            model.addAttribute("projectAddUserDto",
+                    new ProjectAddUserDto(projectDetailsDto.getProjectDto(), userDtoList));
+
+            return "project-add-user";
+
+        } catch (ProjectNotFoundException e) {
+            e.printStackTrace();
+
+            return showProjectDetailsPage(id, model);
+        }
+    }
+
     @GetMapping("/kickUser")
+    @PreAuthorize("hasRole('GENERAL_MANAGER')")
     public String kickProjectUser(@RequestParam("userId") Long userId,
                                   @RequestParam("projectId") Long projectId,
                                   Model model) {
-
         try {
             projectService.kickUser(userId, projectId);
 
@@ -173,12 +222,11 @@ public class ProjectController {
     public String showEmployeeDetailsPage(@RequestParam("userId") Long userId,
                                           @RequestParam("projectId") Long projectId,
                                           Model model) {
-
         try {
             model.addAttribute("employee", customUserDetailsService.findById(userId));
             model.addAttribute("projectId", projectId);
 
-            return "employee-details";
+            return "project-employee-details";
 
         } catch (UserNotFoundException e) {
             e.printStackTrace();

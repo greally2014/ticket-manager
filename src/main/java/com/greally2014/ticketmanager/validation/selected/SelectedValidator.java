@@ -9,6 +9,10 @@ import java.util.List;
 public class SelectedValidator implements ConstraintValidator<Selected, List<UserProfileDto>> {
     @Override
     public boolean isValid(List<UserProfileDto> userProfileDtos, ConstraintValidatorContext context) {
+        if (userProfileDtos == null) {
+            return true;
+        }
+
         for (UserProfileDto userProfileDto : userProfileDtos) {
             if (userProfileDto.getFlag()) {
                 return true;

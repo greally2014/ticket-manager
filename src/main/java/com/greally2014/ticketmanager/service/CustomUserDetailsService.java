@@ -89,7 +89,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Transactional
     public void updateProfile(UserProfileDto userProfileDto, String principalUsername) throws UsernameNotFoundException {
-
         try {
             User user = loadUserByUsername(principalUsername).getUser();
 
@@ -118,7 +117,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Transactional
     public UserProfileDto findProfileDto(String username) throws UsernameNotFoundException {
-
         try {
             return new UserProfileDto(loadUserByUsername(username).getUser());
 
@@ -131,7 +129,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Transactional
     public Set<User> findAllEmployeesOrderByUsername(Principal principal) throws UsernameNotFoundException {
-
         List<User> users;
 
         try {

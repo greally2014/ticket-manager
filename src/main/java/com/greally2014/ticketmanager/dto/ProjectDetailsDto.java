@@ -8,16 +8,12 @@ import java.util.List;
 
 public class ProjectDetailsDto {
 
-    @Valid
     private ProjectDto projectDto;
 
-    @Selected
     private List<UserProfileDto> projectManagerDtoList;
 
-    @Selected
     private List<UserProfileDto> developerDtoList;
 
-    @Selected
     private List<UserProfileDto> submitterDtoList;
 
     private List<Ticket> ticketList;
