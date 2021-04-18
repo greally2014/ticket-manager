@@ -43,7 +43,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public Project findProjectById(Long id) throws ProjectNotFoundException {
+    public Project findById(Long id) throws ProjectNotFoundException {
         Optional<Project> projectOptional = projectRepository.findById(id);
         projectOptional.orElseThrow(() -> new ProjectNotFoundException("Project not found. Id: " + id));
         return projectOptional.get();
@@ -101,7 +101,7 @@ public class ProjectService {
 
     @Transactional
     public void updateFields(ProjectDto projectDto) throws ProjectNotFoundException {
-        Project project = findProjectById(projectDto.getId());
+        Project project = findById(projectDto.getId());
         project.setTitle(projectDto.getTitle());
         project.setDescription(projectDto.getDescription());
     }
@@ -111,7 +111,7 @@ public class ProjectService {
         // check if username exists and handle exception / have denied access redirect / error handler
         // check if project already deleted
         try {
-            findProjectById(id);
+            findById(id);
             projectRepository.deleteById(id);
 
         } catch (ProjectNotFoundException e) {
@@ -123,13 +123,13 @@ public class ProjectService {
 
     @Transactional
     public ProjectDto getDto(Long id) throws ProjectNotFoundException {
-        return new ProjectDto(findProjectById(id));
+        return new ProjectDto(findById(id));
     }
 
     @Transactional
     public List<UserProfileDto> findAllUserProfileDto(Long id, String role) throws ProjectNotFoundException {
         try {
-            List<UserProfileDto> userProfileDtoList = findProjectById(id).getUsersProjects().stream()
+            List<UserProfileDto> userProfileDtoList = findById(id).getUsersProjects().stream()
                     .map(UsersProjects::getUser)
                     .filter(o -> o.getRoles().stream()
                             .anyMatch(r -> r.getName().equals(role))
@@ -154,7 +154,7 @@ public class ProjectService {
     public List<Ticket> findAllTickets(Long id) throws ProjectNotFoundException {
         try {
 
-            return findProjectById(id).getTickets();
+            return findById(id).getTickets();
 
         } catch (ProjectNotFoundException e) {
             e.printStackTrace();
@@ -198,7 +198,7 @@ public class ProjectService {
     public List<UserProfileDto> findAllUserProfileDtoNotAdded(ProjectDetailsDto projectDetailsDto,
                                                               Long roleIdentifier) throws ProjectNotFoundException {
         try {
-            findProjectById(projectDetailsDto.getProjectDto().getId());
+            findById(projectDetailsDto.getProjectDto().getId());
             List<UserProfileDto> alreadyAdded;
             List<UserProfileDto> userDtoList;
 
@@ -241,9 +241,10 @@ public class ProjectService {
         }
     }
 
+    @Transactional
     public void addUsers(ProjectAddUserDto projectAddUserDto) throws ProjectNotFoundException, UserNotFoundException {
         try {
-            Project project = findProjectById(projectAddUserDto.getProjectDto().getId());
+            Project project = findById(projectAddUserDto.getProjectDto().getId());
 
             for (UserProfileDto userProfileDto : projectAddUserDto.getUserDtoList()) {
                 if (userProfileDto.getFlag()) {
@@ -259,4 +260,5 @@ public class ProjectService {
             throw e;
         }
     }
+
 }

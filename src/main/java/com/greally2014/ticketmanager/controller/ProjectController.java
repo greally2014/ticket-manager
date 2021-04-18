@@ -106,7 +106,25 @@ public class ProjectController {
                                  BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
 
-            return "project-add-user";
+            if (projectAddUserDto.getUserDtoList() == null) {
+                return "project-add-user";
+
+            } else {
+                try {
+                    ProjectDetailsDto projectDetailsDto = projectService.getDetailsDto(projectAddUserDto.getProjectDto().getId());
+                    List<UserProfileDto> userProfileDtos = projectService.findAllUserProfileDtoNotAdded(projectDetailsDto, projectAddUserDto.getRoleIdentifier());
+
+                    projectAddUserDto.setUserDtoList(userProfileDtos);
+
+                    return "project-add-user";
+
+                } catch (ProjectNotFoundException e) {
+                    e.printStackTrace();
+
+                    return "redirect:/projects/listAll";
+                }
+
+            }
 
         } else {
             // check if username exists and handle exception / have denied access redirect / error handler
@@ -115,15 +133,15 @@ public class ProjectController {
 
                 return showProjectDetailsPage(projectAddUserDto.getProjectDto().getId(), model);
 
-            } catch (ProjectNotFoundException e) {
-                e.printStackTrace();
-
-                return "redirect:/projects/listAll";
-
             } catch (UserNotFoundException e) {
                 e.printStackTrace();
 
                 return showProjectDetailsPage(projectAddUserDto.getProjectDto().getId(), model);
+
+            } catch (ProjectNotFoundException e) {
+                e.printStackTrace();
+
+                return "redirect:/projects/listAll";
             }
         }
     }
@@ -184,15 +202,17 @@ public class ProjectController {
 
     @GetMapping("/showAddUserForm")
     @PreAuthorize("hasRole('GENERAL_MANAGER')")
-    public String addProjectUser(@RequestParam("id") Long id,
-                                 @RequestParam("roleIdentifier") Long roleIdentifier,
-                                 Model model) {
+    public String showAddProjectUserForm(@RequestParam("id") Long id,
+                                         @RequestParam("roleIdentifier") Long roleIdentifier,
+                                         Model model) {
         try {
             ProjectDetailsDto projectDetailsDto = projectService.getDetailsDto(id);
             List<UserProfileDto> userDtoList =
                     projectService.findAllUserProfileDtoNotAdded(projectDetailsDto, roleIdentifier);
-            model.addAttribute("projectAddUserDto",
-                    new ProjectAddUserDto(projectDetailsDto.getProjectDto(), userDtoList));
+            ProjectAddUserDto projectAddUserDto = new ProjectAddUserDto(projectDetailsDto.getProjectDto(), userDtoList);
+            projectAddUserDto.setRoleIdentifier(roleIdentifier);
+
+            model.addAttribute("projectAddUserDto", projectAddUserDto);
 
             return "project-add-user";
 

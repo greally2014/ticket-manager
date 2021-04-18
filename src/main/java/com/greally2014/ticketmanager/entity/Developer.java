@@ -1,5 +1,8 @@
 package com.greally2014.ticketmanager.entity;
 
+import org.hibernate.validator.constraints.EAN;
+import org.springframework.data.repository.cdi.Eager;
+
 import javax.persistence.*;
 import java.util.List;
 

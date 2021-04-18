@@ -29,6 +29,7 @@
             <!-- Add hidden form field to handle update -->
             <input type="hidden" th:field="*{projectDto.id}" />
             <input type="hidden" th:field="*{projectDto.dateCreated}" />
+            <input type="hidden" th:field="*{roleIdentifier}">
 
             <div class="form-inline">
                 <input type="text" th:field="*{projectDto.title}"
@@ -43,6 +44,12 @@
             </div>
 
             <table class="table table-bordered table-striped">
+
+                <!-- Add error message (if present) -->
+                <span th:if="${#fields.hasErrors('userDtoList')}"
+                      th:errors="*{userDtoList}"
+                      class="badge badge-danger ml-2 mb-4"></span>
+
                 <thead class="thead-dark">
                     <tr>
                         <th>Username</th>
@@ -55,7 +62,7 @@
 
                 <tbody>
                     <tr th:each="tempUser, itemStat : *{userDtoList}">
-                        <td><input
+                        <td  style="display: none" ><input type="hidden"
                                                          th:field="*{userDtoList[__${itemStat.index}__].id}"/></td>
                         <td th:text="*{userDtoList[__${itemStat.index}__].username}"></td>
                         <td th:text="*{userDtoList[__${itemStat.index}__].firstName}"></td>

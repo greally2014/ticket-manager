@@ -44,12 +44,14 @@
 
         <!-- Add "update" button/link -->
         <a th:href="@{/projects/showUpdateFieldsForm(id=${projectDetailsDto.projectDto.id})}"
+           sec:authorize="hasRole('GENERAL_MANAGER')"
            class="btn btn-info btn-sm">
             Update
         </a>
 
         <!-- Add "delete" button/link -->
         <a th:href="@{/projects/delete(id=${projectDetailsDto.projectDto.id})}"
+           sec:authorize="hasRole('GENERAL_MANAGER')"
            class="btn btn-danger btn-sm"
            onclick="if (!(confirm('Are you sure you want to delete this project?'))) return false">
             Delete
@@ -235,7 +237,7 @@
                             <td th:text="${tempTicket.status}"></td>
                             <td th:text="${tempTicket.priority}"></td>
                             <td th:text="${tempTicket.submitter}"></td>
-                            <td th:text="${tempTicket.date_created}"></td>
+                            <td th:text="${tempTicket.dateCreated}"></td>
                             <td>
 
                                 <!-- Add "details" button/link -->

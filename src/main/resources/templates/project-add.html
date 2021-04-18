@@ -32,7 +32,7 @@
 
         <div class="form-inline">
             <input type="text" th:field="*{projectDto.title}"
-                   class="form-control mb-4 col-4" placeholder="Title">
+                   maxlength="200" class="form-control mb-4 col-4" placeholder="Title">
 
             <!-- Add error message (if present) -->
             <span th:if="${#fields.hasErrors('projectDto.title')}"
@@ -43,7 +43,7 @@
 
         <div class="form-inline">
             <textarea rows="4" cols="50" th:field="*{projectDto.description}"
-                      class="form-control mb-4 col-4" placeholder="Description"></textarea>
+                      maxlength="50" class="form-control mb-4 col-4" placeholder="Description"></textarea>
 
             <!-- Add error message (if present) -->
             <span th:if="${#fields.hasErrors('projectDto.description')}"
@@ -64,7 +64,7 @@
 
             <tbody>
                 <tr th:each="tempProjectManager, itemStat : *{projectManagerDtoList}">
-                    <td><input
+                    <td style="display: none"><input type="hidden"
                                                      th:field="*{projectManagerDtoList[__${itemStat.index}__].id}"/></td>
                     <td th:text="*{projectManagerDtoList[__${itemStat.index}__].username}"></td>
                     <td th:text="*{projectManagerDtoList[__${itemStat.index}__].firstName}"></td>

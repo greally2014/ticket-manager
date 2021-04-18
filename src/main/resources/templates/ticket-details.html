@@ -1,0 +1,152 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Project Details</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+          integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+          crossorigin="anonymous">
+</head>
+<body>
+
+<form>
+    <div class="form-row">
+
+        <div class="form-group col-4">
+            <label for="title">Title</label>
+            <input type="text" th:value="${ticketDetailsDto.ticketDto.title}" class="form-control" id="title" readonly>
+        </div>
+
+        <div class="form-group col-8">
+            <label for="description">Description</label>
+            <textarea th:text="${ticketDetailsDto.ticketDto.description}" class="form-control" id="description" rows="4" cols="50" readonly></textarea>
+        </div>
+
+    </div>
+
+    <div class="form-row">
+
+        <div class="form-group col-8">
+            <label for="creator">Type</label>
+            <input type="text" th:value="${ticketDetailsDto.ticketDto.type}" class="form-control" id="creator" readonly>
+        </div>
+
+        <div class="form-group col-xs-4">
+            <label for="date-created">Status</label>
+            <input type="text" th:value="${ticketDetailsDto.ticketDto.status}" class="form-control" id="status" readonly>
+        </div>
+
+    </div>
+
+    <div class="form-row">
+
+        <div class="form-group col-8">
+            <label for="creator">Priority</label>
+            <input type="text" th:value="${ticketDetailsDto.ticketDto.priority}" class="form-control" id="priority" readonly>
+        </div>
+
+        <div class="form-group col-xs-4">
+            <label for="date-created">Date Created</label>
+            <input type="text" th:value="${ticketDetailsDto.ticketDto.dateCreated}" class="form-control" id="date-created" readonly>
+        </div>
+
+    </div>
+
+    <div class="form-row">
+
+        <div class="form-group col-8">
+            <label for="creator">Submitter</label>
+            <input type="text" th:value="${ticketDetailsDto.ticketDto.submitter.username}" class="form-control" id="submitter" readonly>
+        </div>
+
+        <div class="form-group col-xs-4">
+            <label for="date-created">Project</label>
+            <input type="text" th:value="${ticketDetailsDto.ticketDto.project.title}" class="form-control" id="project" readonly>
+        </div>
+
+    </div>
+
+    <!-- Add "update" button/link -->
+    <a th:href="@{/tickets/showUpdateFieldsForm(id=${ticketDetailsDto.ticketDto.id})}"
+       sec:authorize="hasRole('DEVELOPER')"
+       class="btn btn-info btn-sm">
+        Update
+    </a>
+
+    <!-- Add "close" button/link -->
+    <a th:href="@{/tickets/close(id=${ticketDetailsDto.ticketDto.id})}"
+       sec:authorize="hasRole('DEVELOPER')"
+       class="btn btn-danger btn-sm"
+       onclick="if (!(confirm('Are you sure you want to close this project?'))) return false">
+        Close
+    </a>
+
+    <div class="row justify-content-center">
+
+        <div class="table-responsive col-10">
+            <h2>Developers</h2>
+
+            <!-- Add "assign" button/link -->
+            <a th:href="@{/tickets/showAddDeveloperForm(id=${ticketDetailsDto.ticketDto.id})}"
+               sec:authorize="hasRole('PROJECT_MANAGER')"
+               class="btn btn-info btn-sm">
+                Assign
+            </a>
+
+            <table class="table table-bordered table-striped" id="developer-table">
+
+                <thead class="thead-dark">
+                <tr>
+                    <th onclick="sortTable(0)">Username</th>
+                    <th onclick="sortTable(1)">First Name</th>
+                    <th onclick="sortTable(2)">Last Name</th>
+                    <th onclick="sortTable(3)">Email</th>
+                    <th onclick="sortTable(4)">Phone</th>
+                    <th onclick="sortTable(5)">Date Assigned</th>
+                    <th sec:authorize="hasRole('PROJECT_MANAGER')">Action</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="tempDeveloperDto : ${ticketDetailsDto.developerDtoList}">
+                    <td th:text="${tempDeveloperDto.username}"></td>
+                    <td th:text="${tempDeveloperDto.firstName}"></td>
+                    <td th:text="${tempDeveloperDto.lastName}"></td>
+                    <td th:text="${tempDeveloperDto.email}"></td>
+                    <td th:text="${tempDeveloperDto.phoneNumber}"></td>
+                    <td th:text="${tempDeveloperDto.developersTickets.dateAssigned}"></td>
+                    <td sec:authorize="hasRole('PROJECT_MANAGER')">
+
+                        <!-- Add "details" button/link -->
+                        <a th:href="@{/tickets/showDeveloperDetails(developerId=${tempDeveloperDto.id},
+                                                                ticketId=${ticketDetailsDto.ticketDto.id})}"
+                           class="btn btn-danger btn-sm">
+                            Details
+                        </a>
+
+                        <!-- Add "kick" button/link -->
+                        <a th:href="@{/tickets/kickUser(developerId=${tempDeveloperDto.id},
+                                                                ticketId=${ticketDetailsDto.ticketDto.id})}"
+                           sec:authorize="hasRole('PROJECT_MANAGER')"
+                           class="btn btn-danger btn-sm"
+                           onclick="if (!(confirm('Are you sure you want to kick this developer?'))) return false">
+                            Kick
+                        </a>
+
+                    </td>
+                </tr>
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+
+</form>
+
+</body>
+</html>

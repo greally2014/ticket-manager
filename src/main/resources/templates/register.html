@@ -123,16 +123,16 @@
                             <legend>What's your gender?</legend>
                             <ul>
                                 <li>
-                                    <input id="gender-male" type="radio" name="gender" th:field="*{gender}" th:value="'m'">
-                                    <label th:for="gender-male">Male</label>
+                                    <input id="gender-male" type="radio" name="gender" th:field="*{gender}" value="m">
+                                    <label for="gender-male">Male</label>
                                 </li>
                                 <li>
-                                    <input id="gender-female" type="radio" name="gender" th:field="*{gender}" th:value="'f'">
-                                    <label th:for="gender-female">Female</label>
+                                    <input id="gender-female" type="radio" name="gender" th:field="*{gender}" value="f">
+                                    <label for="gender-female">Female</label>
                                 </li>
                                 <li>
-                                    <input id="gender-other" type="radio" name="gender" th:field="*{gender}" th:value="'o'">
-                                    <label th:for="gender-other">Other</label>
+                                    <input id="gender-other" type="radio" name="gender" th:field="*{gender}" value="o">
+                                    <label for="gender-other">Other</label>
                                 </li>
                             </ul>
                             <div th:if="${#fields.hasErrors('gender')}"
@@ -195,40 +195,41 @@
                         </div>
 
                         <select th:field="*{address.county}" class="form-control mb-4 col-4">
-                            <option th:value="''" th:text="County"></option>
-                            <option th:value="'Antrim'" th:text="Antrim"></option>
-                            <option th:value="'Armagh'" th:text="Armagh"></option>
-                            <option th:value="'Carlow'" th:text="Carlow"></option>
-                            <option th:value="'Cavan'" th:text="Cavan"></option>
-                            <option th:value="'Clare'" th:text="Clare"></option>
-                            <option th:value="'Cork'" th:text="Cork"></option>
-                            <option th:value="'Derry'" th:text="Derry"></option>
-                            <option th:value="'Donegal'" th:text="Donegal"></option>
-                            <option th:value="'Down'" th:text="Down"></option>
-                            <option th:value="'Dublin'" th:text="Dublin"></option>
-                            <option th:value="'Fermanagh'" th:text="Fermanagh"></option>
-                            <option th:value="'Galway'" th:text="Galway"></option>
-                            <option th:value="'Kerry'" th:text="Kerry"></option>
-                            <option th:value="'Kildare'" th:text="Kildare"></option>
-                            <option th:value="'Kilkenny'" th:text="Kilkenny"></option>
-                            <option th:value="'Laois'" th:text="Laois"></option>
-                            <option th:value="'Leitrim'" th:text="Leitrim"></option>
-                            <option th:value="'Limerick'" th:text="Limerick"></option>
-                            <option th:value="'Longford'" th:text="Longford"></option>
-                            <option th:value="'Louth'" th:text="Louth"></option>
-                            <option th:value="'Mayo'" th:text="Mayo"></option>
-                            <option th:value="'Meath'" th:text="Meath"></option>
-                            <option th:value="'Monaghan'" th:text="Monaghan"></option>
-                            <option th:value="'Offaly'" th:text="Offaly"></option>
-                            <option th:value="'Roscomon'" th:text="Roscomon"></option>
-                            <option th:value="'Sligo'" th:text="Sligo"></option>
-                            <option th:value="'Tipperary'" th:text="Tipperary"></option>
-                            <option th:value="'Tyrone'" th:text="Tyrone"></option>
-                            <option th:value="'Waterford'" th:text="Waterford"></option>
-                            <option th:value="'Westmeath'" th:text="Westmeath"></option>
-                            <option th:value="'Wexford'" th:text="Wexford"></option>
-                            <option th:value="'Wicklow'" th:text="Wicklow"></option>
+                            <option value="">County</option>
+                            <option value="Antrim">Antrim</option>
+                            <option value="Armagh">Armagh</option>
+                            <option value="Carlow">Carlow</option>
+                            <option value="Cavan">Cavan</option>
+                            <option value="Clare">Clare</option>
+                            <option value="Cork">Cork></option>
+                            <option value="Derry">Derry</option>
+                            <option value="Donegal">Donegal</option>
+                            <option value="Down">Down</option>
+                            <option value="Dublin">Dublin</option>
+                            <option value="Fermanagh">Fermanagh</option>
+                            <option value="Galway">Galway</option>
+                            <option value="Kerry">Kerry</option>
+                            <option value="Kildare">Kildare</option>
+                            <option value="Kilkenny">Kilkenny</option>
+                            <option value="Laois">Laois</option>
+                            <option value="Leitrim">Leitrim</option>
+                            <option value="Limerick">Limerick</option>
+                            <option value="Longford">Longford</option>
+                            <option value="Louth">Louth</option>
+                            <option value="Mayo">Mayo</option>
+                            <option value="Meath">Meath</option>
+                            <option value="Monaghan">Monaghan</option>
+                            <option value="Offaly">Offaly</option>
+                            <option value="Roscomon">Roscomon</option>
+                            <option value="Tyrone">Tyrone</option>
+                            <option value="Waterford">Waterford</option>
+                            <option value="Sligo">Sligo</option>
+                            <option value="Tipperary">Tipperary</option>
+                            <option value="Westmeath">Westmeath</option>
+                            <option value="Wexford">Wexford</option>
+                            <option value="Wicklow">Wicklow</option>
                         </select>
+
 
                         <div th:if="${#fields.hasErrors('address.county')}"
                              style="margin-bottom: 25px; color: #ff0000">

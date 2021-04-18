@@ -28,7 +28,7 @@ public class Ticket {
     private String priority;
 
     @Column(name = "date_created")
-    private LocalDate date_created;
+    private LocalDate dateCreated;
 
     @ManyToOne(
             fetch = FetchType.EAGER,
@@ -50,12 +50,15 @@ public class Ticket {
     private List<DevelopersTickets> developersTickets;
 
     public Ticket(String title, String description,
-                  String type, String priority,
+                  String type, String status,
+                  String priority, LocalDate dateCreated,
                   Project project, Submitter submitter) {
         this.title = title;
         this.description = description;
         this.type = type;
+        this.status = status;
         this.priority = priority;
+        this.dateCreated = dateCreated;
         this.project = project;
         this.submitter = submitter;
     }
@@ -111,12 +114,12 @@ public class Ticket {
         this.priority = priority;
     }
 
-    public LocalDate getDate_created() {
-        return date_created;
+    public LocalDate getDateCreated() {
+        return dateCreated;
     }
 
-    public void setDate_created(LocalDate date_created) {
-        this.date_created = date_created;
+    public void setDateCreated(LocalDate date_created) {
+        this.dateCreated = date_created;
     }
 
     public Project getProject() {

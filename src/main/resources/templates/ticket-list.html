@@ -12,7 +12,7 @@
           integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
           crossorigin="anonymous">
 
-    <title>Project Directory</title>
+    <title>Ticket Directory</title>
 </head>
 
 <body>
@@ -26,10 +26,10 @@
               method="GET" class="form-inline">
 
             <!-- Add a button -->
-            <a th:href="@{/projects/showAddForm}"
-               sec:authorize="hasRole('GENERAL_MANAGER')"
+            <a th:href="@{/tickets/showAddForm}"
+               sec:authorize="hasRole('SUBMITTER')"
                class="btn btn-primary btn-sm mb-3">
-                Add Project
+                Add Ticket
             </a>
             <input type="text"
                    id="search-input"
@@ -44,23 +44,31 @@
                 <tr>
                     <th onclick="sortTable(0)">Title</th>
                     <th onclick="sortTable(1)">Description</th>
-                    <th onclick="sortTable(2)">Date Created</th>
-                    <th onclick="sortTable(3)">Creator</th>
+                    <th onclick="sortTable(2)">Type</th>
+                    <th onclick="sortTable(3)">Status</th>
+                    <th onclick="sortTable(4)">Priority</th>
+                    <th onclick="sortTable(5)">Date Created</th>
+                    <th onclick="sortTable(6)">Submitter</th>
+                    <th onclick="sortTable(7)">Project</th>
                     <th>Action</th>
                 </tr>
             </thead>
 
             <tbody>
-                <tr th:each="tempProject : ${projects}">
+                <tr th:each="tempTicket : ${tickets}">
 
-                    <td th:text="${tempProject.title}"></td>
-                    <td th:text="${tempProject.description}"></td>
-                    <td th:text="${tempProject.dateCreated}"></td>
-                    <td th:text="${tempProject.creator.username}"></td>
+                    <td th:text="${tempTicket.title}"></td>
+                    <td th:text="${tempTicket.description}"></td>
+                    <td th:text="${tempTicket.type}"></td>
+                    <td th:text="${tempTicket.status}"></td>
+                    <td th:text="${tempTicket.priority}"></td>
+                    <td th:text="${tempTicket.dateCreated}"></td>
+                    <td th:text="${tempTicket.submitter.username}"></td>
+                    <td th:text="${tempTicket.project.title}"></td>
                     <td>
 
                         <!-- Add "details" button/link -->
-                        <a th:href="@{/projects/showDetailsPage(id=${tempProject.id})}"
+                        <a th:href="@{/tickets/showDetailsPage(id=${tempTicket.id})}"
                            class="btn btn-info btn-sm">
                             Details
                         </a>
@@ -157,6 +165,3 @@
 </body>
 
 </html>
-
-
-

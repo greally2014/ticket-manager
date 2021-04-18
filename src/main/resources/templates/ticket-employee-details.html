@@ -23,17 +23,6 @@
     <h3>Employee Profile</h3>
     <hr>
 
-    <form action="#" class="form-inline">
-
-        <!-- Add a button -->
-        <a th:href="@{/employees/delete(id=${employee.id})}"
-           sec:authorize="hasRole('GENERAL_MANAGER')"
-           class="btn btn-primary btn-sm mb-3">
-            Delete
-        </a>
-
-    </form>
-
     <form action="#" th:object="${employee}" readonly>
 
         <input type="text" name="username" th:field="*{username}" class="form-control mb-4 col-4" readonly>
@@ -64,7 +53,7 @@
     </form>
 
     <hr>
-    <a th:href="@{/projects/showDetailsPage(id=${projectId})}">Back to Project Details</a>
+    <a th:href="@{/tickets/showDetailsPage(id=${ticketId})}">Back to Ticket Details</a>
 
 </div>
 

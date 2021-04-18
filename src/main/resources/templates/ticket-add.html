@@ -1,0 +1,129 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+          integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+          crossorigin="anonymous">
+
+    <title>Project Form</title>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h3>Project Directory</h3>
+    <hr>
+
+    <p class="h4 mb-4">Save Project</p>
+
+    <form action="#" th:action="@{/tickets/add}"
+          th:object="${ticketCreationDto}" method="POST">
+
+        <!-- Add hidden form field to handle update -->
+        <input type="hidden" th:field="*{ticketDto.id}" />
+        <input type="hidden" th:field="*{ticketDto.dateCreated}" />
+
+        <div class="form-inline">
+            <input type="text" th:field="*{ticketDto.title}"
+                   maxlength="50" class="form-control mb-4 col-4" placeholder="Title">
+
+            <!-- Add error message (if present) -->
+            <span th:if="${#fields.hasErrors('ticketDto.title')}"
+                  th:errors="*{ticketDto.title}"
+                  class="badge badge-danger ml-2 mb-4"></span>
+        </div>
+
+        <div class="form-inline">
+            <textarea rows="4" cols="50" th:field="*{ticketDto.description}"
+                      maxlength="200" class="form-control mb-4 col-4" placeholder="Description"></textarea>
+
+            <!-- Add error message (if present) -->
+            <span th:if="${#fields.hasErrors('ticketDto.description')}"
+                  th:errors="*{ticketDto.description}"
+                  class="badge badge-danger ml-2 mb-4"></span>
+        </div>
+
+        <select th:field="*{ticketDto.type}" class="form-control mb-4 col-4">
+            <option value="">Select Type</option>
+            <option value="type1">Type One</option>
+            <option value="type2">Type Two</option>
+            <option value="type3">Type Three</option>
+        </select>
+
+        <div th:if="${#fields.hasErrors('ticketDto.type')}"
+             style="margin-bottom: 25px; color: #ff0000">
+            <ul>
+                <li th:each="err : ${#fields.errors('ticketDto.type')}" th:text="${err}" ></li>
+            </ul>
+        </div>
+        <br>
+
+        <fieldset>
+            <legend>Select Ticket Priority</legend>
+                <ul>
+                    <li>
+                        <input id="priority-high" type="radio" name="priority" th:field="*{ticketDto.priority}"
+                               value="high">
+                        <label for="priority-high">High</label>
+                    </li>
+                    <li>
+                        <input id="priority-medium" type="radio" name="priority" th:field="*{ticketDto.priority}"
+                               value="medium">
+                        <label for="priority-medium">Medium</label>
+                    </li>
+                    <li>
+                        <input id="priority-low" type="radio" name="priority" th:field="*{ticketDto.priority}"
+                               value="low">
+                        <label for="priority-low">Low</label>
+                    </li>
+                </ul>
+                <div th:if="${#fields.hasErrors('ticketDto.priority')}"
+                     style="margin-bottom: 25px" class="text-danger">
+                    <ul>
+                        <li th:each="err : ${#fields.errors('ticketDto.priority')}" th:text="${err}" />
+                    </ul>
+                </div>
+        </fieldset>
+
+        <select th:field="*{projectId}" class="form-control mb-4 col-4">
+            <option value="">Project</option>
+            <option th:each="tempProject : ${ticketCreationDto.projectList}" th:value="${tempProject.id}"
+                    th:text="${tempProject.title}"></option>
+        </select>
+
+        <div th:if="${#fields.hasErrors('projectId')}"
+             style="margin-bottom: 25px; color: #ff0000">
+            <ul>
+                <li th:each="err : ${#fields.errors('projectId')}" th:text="${err}" ></li>
+            </ul>
+        </div>
+        <br>
+
+        <button type="submit" class="btn btn-info col-2">Save</button>
+
+    </form>
+
+    <hr>
+    <a th:href="@{/tickets/listAll}">Back to Ticket List</a>
+
+</div>
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+

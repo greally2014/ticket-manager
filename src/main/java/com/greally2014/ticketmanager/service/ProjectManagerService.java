@@ -2,10 +2,7 @@ package com.greally2014.ticketmanager.service;
 
 import com.greally2014.ticketmanager.dao.ProjectManagerRepository;
 import com.greally2014.ticketmanager.dto.UserProfileDto;
-import com.greally2014.ticketmanager.entity.Project;
-import com.greally2014.ticketmanager.entity.ProjectManager;
-import com.greally2014.ticketmanager.entity.User;
-import com.greally2014.ticketmanager.entity.UsersProjects;
+import com.greally2014.ticketmanager.entity.*;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -41,6 +38,17 @@ public class ProjectManagerService {
                 .collect(Collectors.toList());
     }
 
+
+    public List<Ticket> findTickets(String username) {
+        List<Ticket> tickets = new ArrayList<>();
+
+        findProjects(username).stream()
+                .map(Project::getTickets)
+                .forEach(tickets::addAll);
+
+        return tickets;
+    }
+
     @Transactional
     public List<User> findAllEmployees(String username) {
         List<User> users = new ArrayList<>();
@@ -53,5 +61,4 @@ public class ProjectManagerService {
 
         return users;
     }
-
 }
