@@ -1,7 +1,5 @@
 package com.greally2014.ticketmanager.dto;
 
-import com.greally2014.ticketmanager.entity.Developer;
-
 import java.util.List;
 
 public class TicketDetailsDto {
@@ -10,9 +8,12 @@ public class TicketDetailsDto {
 
     private List<UserProfileDto> developerDtoList;
 
-    public TicketDetailsDto(TicketDto ticketDto, List<UserProfileDto> developerDtoList) {
+    private List<TicketCommentsDto> ticketCommentsDtoList;
+
+    public TicketDetailsDto(TicketDto ticketDto, List<UserProfileDto> developerDtoList, List<TicketCommentsDto> ticketCommentsDtoList) {
         this.ticketDto = ticketDto;
         this.developerDtoList = developerDtoList;
+        this.ticketCommentsDtoList = ticketCommentsDtoList;
     }
 
     public TicketDetailsDto() {
@@ -32,5 +33,13 @@ public class TicketDetailsDto {
 
     public void setDeveloperDtoList(List<UserProfileDto> developerDtoList) {
         this.developerDtoList = developerDtoList;
+    }
+
+    public List<TicketCommentsDto> getTicketCommentsDtoList() {
+        return ticketCommentsDtoList;
+    }
+
+    public void setTicketCommentsDtoList(List<TicketCommentsDto> ticketCommentsDtoList) {
+        this.ticketCommentsDtoList = ticketCommentsDtoList;
     }
 }

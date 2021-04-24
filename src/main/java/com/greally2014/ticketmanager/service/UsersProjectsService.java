@@ -7,6 +7,7 @@ import com.greally2014.ticketmanager.entity.User;
 import com.greally2014.ticketmanager.entity.UsersProjects;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,10 +24,12 @@ public class UsersProjectsService {
         return usersProjectsRepository.findByUserIdAndProjectId(userId, projectId);
     }
 
+    @Transactional
     public void deleteByUserIdAndProjectId(Long userId, Long projectId) {
         usersProjectsRepository.deleteByUserIdAndProjectId(userId, projectId);
     }
 
+    @Transactional
     public void add(User user, Project project) {
         UsersProjects usersProjects = new UsersProjects(user, project);
         usersProjectsRepository.save(usersProjects);

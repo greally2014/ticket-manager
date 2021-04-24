@@ -75,14 +75,14 @@
                         <tr>
                             <th onclick="sortTable(0)">Username</th>
                             <th onclick="sortTable(1)">Email</th>
-                            <th onclick="sortTable(2)">Date Assigned</th>
+                            <th>Date Assigned</th>
                             <th>Action</th>
                         </tr>
                     </thead>
 
                     <tbody>
                         <tr th:each="tempProjectManagerDto : ${projectDetailsDto.projectManagerDtoList}">
-                            <td th:text="${tempProjectManagerDto.username}"></td>
+                            <td th:text="${tempProjectManagerDto != null} ? ${tempProjectManagerDto.username} : 'N/A'"></td>
                             <td th:text="${tempProjectManagerDto.email}"></td>
                             <td th:text="${tempProjectManagerDto.usersProjects.dateAssigned}"></td>
                             <td>

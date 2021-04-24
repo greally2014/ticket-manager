@@ -66,6 +66,11 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Transactional
+    public boolean usernameExists(String username) throws UsernameNotFoundException {
+        return userRepository.existsByUsername(username);
+    }
+
+    @Transactional
     public void register(RegistrationDto registrationDto) {
         User user = switch (registrationDto.getFormRole()) {
             case "ROLE_GENERAL_MANAGER" -> new GeneralManager();
@@ -174,4 +179,5 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw e;
         }
     }
+
 }

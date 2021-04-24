@@ -49,6 +49,7 @@ public class ProjectService {
         return projectOptional.get();
     }
 
+    @Transactional
     public List<Project> findAllByUsernameOrderByTitle(String username) {
 
         List<Project> projects;

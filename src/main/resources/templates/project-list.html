@@ -44,7 +44,7 @@
                 <tr>
                     <th onclick="sortTable(0)">Title</th>
                     <th onclick="sortTable(1)">Description</th>
-                    <th onclick="sortTable(2)">Date Created</th>
+                    <th>Date Created</th>
                     <th onclick="sortTable(3)">Creator</th>
                     <th>Action</th>
                 </tr>
@@ -56,7 +56,7 @@
                     <td th:text="${tempProject.title}"></td>
                     <td th:text="${tempProject.description}"></td>
                     <td th:text="${tempProject.dateCreated}"></td>
-                    <td th:text="${tempProject.creator.username}"></td>
+                    <td th:text="${tempProject.creator != null} ? ${tempProject.creator.username} : 'N/A'"></td>
                     <td>
 
                         <!-- Add "details" button/link -->

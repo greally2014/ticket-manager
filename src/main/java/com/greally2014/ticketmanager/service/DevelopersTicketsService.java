@@ -27,6 +27,7 @@ public class DevelopersTicketsService {
         developersTicketsRepository.deleteByDeveloperIdAndTicketId(developerId, ticketId);
     }
 
+    @Transactional
     public void add(Developer developer, Ticket ticket) {
         DevelopersTickets developersTickets = new DevelopersTickets(developer, ticket);
         developersTicketsRepository.save(developersTickets);

@@ -7,9 +7,11 @@ import com.greally2014.ticketmanager.exception.UserNotFoundException;
 import com.greally2014.ticketmanager.service.CustomUserDetailsService;
 import com.greally2014.ticketmanager.service.SubmitterService;
 import com.greally2014.ticketmanager.service.TicketService;
+import com.greally2014.ticketmanager.userDetails.CustomUserDetails;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -63,7 +65,7 @@ public class TicketController {
         return "ticket-add";
     }
 
-    @PostMapping("add")
+    @PostMapping("/add")
     @PreAuthorize("hasRole('SUBMITTER')")
     public String addTicket(@ModelAttribute("ticketCreationDto") @Valid TicketCreationDto ticketCreationDto,
                             BindingResult bindingResult) {
@@ -88,10 +90,14 @@ public class TicketController {
         }
     }
 
-    @GetMapping("showDetailsPage")
+    @GetMapping("/showDetailsPage")
     public String showTicketDetailsPage(@RequestParam("id") Long id, Model model) {
         try {
+            TicketCommentsCreationDto ticketCommentsCreationDto = new TicketCommentsCreationDto();
+            ticketCommentsCreationDto.setTicketId(id);
+
             model.addAttribute("ticketDetailsDto", ticketService.getDetailsDto(id));
+            model.addAttribute("ticketCommentsCreationDto", ticketCommentsCreationDto);
 
             return "ticket-details";
 
@@ -101,7 +107,7 @@ public class TicketController {
         }
     }
 
-    @GetMapping("showDeveloperDetails")
+    @GetMapping("/showDeveloperDetails")
     public String showDeveloperDetailsPage(@RequestParam("developerId") Long developerId,
                                            @RequestParam("ticketId") Long ticketId,
                                            Model model) {
@@ -118,7 +124,7 @@ public class TicketController {
         }
     }
 
-    @GetMapping("showUpdateFieldsForm")
+    @GetMapping("/showUpdateFieldsForm")
     public String showUpdateTicketFieldsForm(@RequestParam("id") Long id, Model model) {
         try {
             model.addAttribute("ticketDto", ticketService.getDto(id));
@@ -132,7 +138,7 @@ public class TicketController {
         }
     }
 
-    @PostMapping("updateFields")
+    @PostMapping("/updateFields")
     public String updateTicketFields(@ModelAttribute("ticketDto") @Valid TicketDto ticketDto,
                                      BindingResult bindingResult, Model model) {
         if(bindingResult.hasErrors()) {
@@ -152,7 +158,7 @@ public class TicketController {
         }
     }
 
-    @GetMapping("close")
+    @GetMapping("/close")
     public String closeTicket(@RequestParam("id") Long id) {
         try {
             ticketService.delete(id);
@@ -165,12 +171,13 @@ public class TicketController {
         }
     }
 
-    @GetMapping("kickDeveloper")
+    @GetMapping("/kickDeveloper")
     public String kickTicketDeveloper(@RequestParam("developerId") Long developerId,
                                       @RequestParam("ticketId") Long ticketId,
                                       Model model) {
         try {
             ticketService.kickUser(developerId, ticketId);
+            ticketService.setStatus(ticketId);
 
         } catch (Exception e) {
             //nothing
@@ -179,7 +186,7 @@ public class TicketController {
         return showTicketDetailsPage(ticketId, model);
     }
 
-    @GetMapping("showAddDeveloperForm")
+    @GetMapping("/showAddDeveloperForm")
     public String showAddTicketDeveloperForm(@RequestParam("id") Long id, Model model) {
         try {
             List<UserProfileDto> userDtoList =
@@ -198,7 +205,7 @@ public class TicketController {
         }
     }
 
-    @PostMapping("addDeveloper")
+    @PostMapping("/addDeveloper")
     public String addTicketDeveloper(@ModelAttribute("ticketAddDeveloperDto") @Valid TicketAddDeveloperDto ticketAddDeveloperDto,
                                      BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
@@ -226,7 +233,7 @@ public class TicketController {
         } else {
             try {
                 ticketService.addDevelopers(ticketAddDeveloperDto);
-
+                ticketService.setStatus(ticketAddDeveloperDto.getTicketDto().getId());
                 return showTicketDetailsPage(ticketAddDeveloperDto.getTicketDto().getId(), model);
 
             } catch (UserNotFoundException e) {
@@ -242,4 +249,45 @@ public class TicketController {
 
         }
     }
+
+    @PostMapping("/addComment")
+    public String addTicketComment(@ModelAttribute("ticketCommentsCreationDto") @Valid TicketCommentsCreationDto ticketCommentsCreationDto,
+                                   BindingResult bindingResult, Model model) throws UserNotFoundException {
+        if (bindingResult.hasErrors()) {
+
+            return "ticket-details";
+
+        } else {
+            Long ticketId = ticketCommentsCreationDto.getTicketId();
+            Long userId = customUserDetailsService.loadUserByUsername(
+                    SecurityContextHolder.getContext().getAuthentication().getName()).getUser().getId();
+            String comment = ticketCommentsCreationDto.getComment();
+
+            try {
+                ticketService.addComment(userId, ticketId, comment);
+
+                return showTicketDetailsPage(ticketId, model);
+
+            } catch (TicketNotFoundException e) {
+                e.printStackTrace();
+
+                return "redirect:/tickets/listAll";
+            }
+        }
+    }
+
+    @GetMapping("/deleteComments")
+    public String deleteTicketComments(@RequestParam("ticketId") Long ticketId, Model model) {
+        try {
+            ticketService.deleteComments(ticketId);
+
+            return showTicketDetailsPage(ticketId, model);
+
+        } catch (TicketNotFoundException e) {
+            e.printStackTrace();
+
+            return "redirect:/tickets/listAll";
+        }
+    }
+
 }

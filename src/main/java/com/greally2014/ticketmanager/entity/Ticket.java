@@ -49,14 +49,16 @@ public class Ticket {
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL)
     private List<DevelopersTickets> developersTickets;
 
+    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL)
+    private List<TicketComments> ticketComments;
+
     public Ticket(String title, String description,
-                  String type, String status,
-                  String priority, LocalDate dateCreated,
+                  String type, String priority,
+                  LocalDate dateCreated,
                   Project project, Submitter submitter) {
         this.title = title;
         this.description = description;
         this.type = type;
-        this.status = status;
         this.priority = priority;
         this.dateCreated = dateCreated;
         this.project = project;
@@ -144,5 +146,13 @@ public class Ticket {
 
     public void setDevelopersTickets(List<DevelopersTickets> developersTickets) {
         this.developersTickets = developersTickets;
+    }
+
+    public List<TicketComments> getTicketComments() {
+        return ticketComments;
+    }
+
+    public void setTicketComments(List<TicketComments> ticketComments) {
+        this.ticketComments = ticketComments;
     }
 }

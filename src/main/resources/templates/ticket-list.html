@@ -47,7 +47,7 @@
                     <th onclick="sortTable(2)">Type</th>
                     <th onclick="sortTable(3)">Status</th>
                     <th onclick="sortTable(4)">Priority</th>
-                    <th onclick="sortTable(5)">Date Created</th>
+                    <th>Date Created</th>
                     <th onclick="sortTable(6)">Submitter</th>
                     <th onclick="sortTable(7)">Project</th>
                     <th>Action</th>
@@ -63,7 +63,7 @@
                     <td th:text="${tempTicket.status}"></td>
                     <td th:text="${tempTicket.priority}"></td>
                     <td th:text="${tempTicket.dateCreated}"></td>
-                    <td th:text="${tempTicket.submitter.username}"></td>
+                    <td th:text="${tempTicket.submitter != null} ? ${tempTicket.submitter.username} : 'N/A'"></td>
                     <td th:text="${tempTicket.project.title}"></td>
                     <td>
 

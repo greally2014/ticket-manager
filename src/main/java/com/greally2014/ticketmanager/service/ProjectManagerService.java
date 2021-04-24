@@ -38,7 +38,7 @@ public class ProjectManagerService {
                 .collect(Collectors.toList());
     }
 
-
+    @Transactional
     public List<Ticket> findTickets(String username) {
         List<Ticket> tickets = new ArrayList<>();
 

@@ -6,6 +6,7 @@ import com.greally2014.ticketmanager.entity.DevelopersTickets;
 import com.greally2014.ticketmanager.entity.Ticket;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,12 +19,14 @@ public class DeveloperService {
         this.developerRepository = developerRepository;
     }
 
+    @Transactional
     public List<UserProfileDto> findProfileDtoList() {
         return developerRepository.findAll().stream()
                 .map(UserProfileDto::new)
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public List<Ticket> findTickets(String username) {
         return developerRepository.findByUsername(username).getDevelopersTickets().stream()
                 .map(DevelopersTickets::getTicket)

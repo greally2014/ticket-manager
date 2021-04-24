@@ -30,6 +30,8 @@ public class TicketService {
 
     private final DevelopersTicketsService developersTicketsService;
 
+    private final TicketCommentsService ticketCommentsService;
+
     private final TicketRepository ticketRepository;
 
 
@@ -39,6 +41,7 @@ public class TicketService {
                          SubmitterService submitterService,
                          DevelopersTicketsService developersTicketsService,
                          ProjectService projectService,
+                         TicketCommentsService ticketCommentsService,
                          TicketRepository ticketRepository) {
         this.customUserDetailsService = customUserDetailsService;
         this.projectManagerService = projectManagerService;
@@ -46,6 +49,7 @@ public class TicketService {
         this.submitterService = submitterService;
         this.developersTicketsService = developersTicketsService;
         this.projectService = projectService;
+        this.ticketCommentsService = ticketCommentsService;
         this.ticketRepository = ticketRepository;
     }
 
@@ -130,12 +134,13 @@ public class TicketService {
                 ticketCreationDto.getTicketDto().getTitle(),
                 ticketCreationDto.getTicketDto().getDescription(),
                 ticketCreationDto.getTicketDto().getType(),
-                "Unassigned",
                 ticketCreationDto.getTicketDto().getPriority(),
                 ticketCreationDto.getTicketDto().getDateCreated(),
                 projectService.findById(ticketCreationDto.getProjectId()),
                 (Submitter) customUserDetailsService.loadUserByUsername(principal.getName()).getUser()
         );
+
+        ticket.setStatus("Unassigned");
 
         ticketRepository.save(ticket);
     }
@@ -171,10 +176,10 @@ public class TicketService {
     @Transactional
     public TicketDetailsDto getDetailsDto(Long id) throws TicketNotFoundException {
         try {
-
             return new TicketDetailsDto(
                     getDto(id),
-                    findAllDeveloperProfileDto(id)
+                    findAllDeveloperProfileDto(id),
+                    findById(id).getTicketComments().stream().map(TicketCommentsDto::new).collect(Collectors.toList())
             );
 
         } catch (TicketNotFoundException e) {
@@ -220,6 +225,7 @@ public class TicketService {
         }
     }
 
+    @Transactional
     public List<UserProfileDto> findAllDeveloperProfileDtoNotAdded(Long id) throws TicketNotFoundException {
         try {
             findById(id);
@@ -250,6 +256,7 @@ public class TicketService {
         }
     }
 
+    @Transactional
     public void addDevelopers(TicketAddDeveloperDto ticketAddDeveloperDto) throws TicketNotFoundException, UserNotFoundException {
         try {
             Ticket ticket = findById(ticketAddDeveloperDto.getTicketDto().getId());
@@ -266,6 +273,36 @@ public class TicketService {
             e.printStackTrace();
 
             throw e;
+        }
+    }
+
+    @Transactional
+    public void addComment(Long userId, Long ticketId, String comment) throws TicketNotFoundException, UserNotFoundException {
+        User user = customUserDetailsService.findById(userId);
+        Ticket ticket = findById(ticketId);
+        ticketCommentsService.add(user, ticket, comment);
+    }
+
+    @Transactional
+    public void deleteComments(Long ticketId) throws TicketNotFoundException {
+        try {
+            findById(ticketId);
+            ticketCommentsService.deleteByTicketId(ticketId);
+
+        } catch (TicketNotFoundException e) {
+            e.printStackTrace();
+
+            throw e;
+        }
+    }
+
+    public void setStatus(Long ticketId) throws TicketNotFoundException {
+        Ticket ticket = findById(ticketId);
+        System.out.println(ticket.getDevelopersTickets());
+        if (ticket.getDevelopersTickets() == null || ticket.getDevelopersTickets().isEmpty()) {
+            ticket.setStatus("Unassigned");
+        } else {
+            ticket.setStatus("Occupied");
         }
     }
 }
