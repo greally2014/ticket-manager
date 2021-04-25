@@ -1,7 +1,7 @@
 package com.greally2014.ticketmanager.service;
 
 import com.greally2014.ticketmanager.dao.DeveloperRepository;
-import com.greally2014.ticketmanager.dto.UserProfileDto;
+import com.greally2014.ticketmanager.dto.user.UserProfileDto;
 import com.greally2014.ticketmanager.entity.DevelopersTickets;
 import com.greally2014.ticketmanager.entity.Ticket;
 import org.springframework.stereotype.Service;

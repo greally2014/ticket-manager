@@ -1,17 +1,16 @@
 package com.greally2014.ticketmanager.controller;
 
 import com.greally2014.ticketmanager.dto.*;
+import com.greally2014.ticketmanager.dto.user.UserProfileDto;
 import com.greally2014.ticketmanager.exception.ProjectNotFoundException;
 import com.greally2014.ticketmanager.exception.TicketNotFoundException;
 import com.greally2014.ticketmanager.exception.UserNotFoundException;
 import com.greally2014.ticketmanager.service.CustomUserDetailsService;
 import com.greally2014.ticketmanager.service.SubmitterService;
 import com.greally2014.ticketmanager.service.TicketService;
-import com.greally2014.ticketmanager.userDetails.CustomUserDetails;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;

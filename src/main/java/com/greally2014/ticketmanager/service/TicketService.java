@@ -2,6 +2,7 @@ package com.greally2014.ticketmanager.service;
 
 import com.greally2014.ticketmanager.dao.TicketRepository;
 import com.greally2014.ticketmanager.dto.*;
+import com.greally2014.ticketmanager.dto.user.UserProfileDto;
 import com.greally2014.ticketmanager.entity.*;
 import com.greally2014.ticketmanager.exception.ProjectNotFoundException;
 import com.greally2014.ticketmanager.exception.TicketNotFoundException;
@@ -161,7 +162,7 @@ public class TicketService {
                     .collect(Collectors.toList());
 
             userProfileDtoList.forEach(o -> o.setDevelopersTickets(
-                    developersTicketsService.findByDeveloperIdAndTicketId(o.getId(), id)));
+                    developersTicketsService.find(o.getId(), id)));
 
             return userProfileDtoList;
 
@@ -216,7 +217,7 @@ public class TicketService {
     @Transactional
     public void kickUser(Long developerId, Long ticketId) {
         try {
-            developersTicketsService.deleteByDeveloperIdAndTicketId(developerId, ticketId);
+            developersTicketsService.delete(developerId, ticketId);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -287,7 +288,7 @@ public class TicketService {
     public void deleteComments(Long ticketId) throws TicketNotFoundException {
         try {
             findById(ticketId);
-            ticketCommentsService.deleteByTicketId(ticketId);
+            ticketCommentsService.delete(ticketId);
 
         } catch (TicketNotFoundException e) {
             e.printStackTrace();

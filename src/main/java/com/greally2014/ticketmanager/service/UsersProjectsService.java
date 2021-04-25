@@ -1,15 +1,12 @@
 package com.greally2014.ticketmanager.service;
 
 import com.greally2014.ticketmanager.dao.UsersProjectsRepository;
-import com.greally2014.ticketmanager.dto.UserProfileDto;
 import com.greally2014.ticketmanager.entity.Project;
 import com.greally2014.ticketmanager.entity.User;
 import com.greally2014.ticketmanager.entity.UsersProjects;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UsersProjectsService {

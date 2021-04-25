@@ -18,18 +18,17 @@ public class DevelopersTicketsService {
     }
 
     @Transactional
-    public DevelopersTickets findByDeveloperIdAndTicketId(Long userId, Long ticketId) {
+    public DevelopersTickets find(Long userId, Long ticketId) {
         return developersTicketsRepository.findByDeveloperIdAndTicketId(userId, ticketId);
     }
 
     @Transactional
-    public void deleteByDeveloperIdAndTicketId(Long developerId, Long ticketId) {
+    public void delete(Long developerId, Long ticketId) {
         developersTicketsRepository.deleteByDeveloperIdAndTicketId(developerId, ticketId);
     }
 
     @Transactional
     public void add(Developer developer, Ticket ticket) {
-        DevelopersTickets developersTickets = new DevelopersTickets(developer, ticket);
-        developersTicketsRepository.save(developersTickets);
+        developersTicketsRepository.save(new DevelopersTickets(developer, ticket));
     }
 }

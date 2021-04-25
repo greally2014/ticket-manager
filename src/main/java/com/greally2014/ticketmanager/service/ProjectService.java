@@ -2,6 +2,7 @@ package com.greally2014.ticketmanager.service;
 
 import com.greally2014.ticketmanager.dao.ProjectRepository;
 import com.greally2014.ticketmanager.dto.*;
+import com.greally2014.ticketmanager.dto.user.UserProfileDto;
 import com.greally2014.ticketmanager.entity.*;
 import com.greally2014.ticketmanager.exception.ProjectNotFoundException;
 import com.greally2014.ticketmanager.exception.UserNotFoundException;
@@ -91,7 +92,7 @@ public class ProjectService {
                 .map(UserProfileDto::getId)
                 .collect(Collectors.toList());
 
-        List<UsersProjects> usersProjects = projectManagerService.findAllById(selectedProjectManagerIds).stream()
+        List<UsersProjects> usersProjects = projectManagerService.findAll(selectedProjectManagerIds).stream()
                 .map(o -> (new UsersProjects(o, project)))
                 .collect(Collectors.toList());
 

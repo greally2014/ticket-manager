@@ -1,9 +1,8 @@
 package com.greally2014.ticketmanager.dto;
 
+import com.greally2014.ticketmanager.dto.user.UserProfileDto;
 import com.greally2014.ticketmanager.entity.Ticket;
-import com.greally2014.ticketmanager.validation.selected.Selected;
 
-import javax.validation.Valid;
 import java.util.List;
 
 public class ProjectDetailsDto {

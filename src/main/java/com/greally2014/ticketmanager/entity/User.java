@@ -37,6 +37,9 @@ public class User {
     @Column(name = "phone_number")
     private String phoneNumber;
 
+    @Column(name = "photo")
+    private String photo;
+
     @Column(name = "enabled")
     private boolean enabled;
 
@@ -135,6 +138,14 @@ public class User {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(String photo) {
+        this.photo = photo;
     }
 
     public boolean isEnabled() {

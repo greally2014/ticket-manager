@@ -1,6 +1,7 @@
 package com.greally2014.ticketmanager.controller;
 
 import com.greally2014.ticketmanager.dto.*;
+import com.greally2014.ticketmanager.dto.user.UserProfileDto;
 import com.greally2014.ticketmanager.exception.ProjectNotFoundException;
 import com.greally2014.ticketmanager.exception.UserNotFoundException;
 import com.greally2014.ticketmanager.service.*;

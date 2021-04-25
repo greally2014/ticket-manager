@@ -1,5 +1,7 @@
 package com.greally2014.ticketmanager.dto;
 
+import com.greally2014.ticketmanager.dto.user.UserProfileDto;
+
 import java.util.List;
 
 public class TicketDetailsDto {

@@ -1,25 +1,19 @@
 package com.greally2014.ticketmanager.controller;
 
-import com.greally2014.ticketmanager.dto.UserProfileDto;
+import com.greally2014.ticketmanager.dto.user.UserProfileDto;
 import com.greally2014.ticketmanager.service.CustomUserDetailsService;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.security.Principal;
-import java.util.Objects;
 
 @Controller
 @RequestMapping("/profile")
@@ -38,7 +32,7 @@ public class ProfileController {
     }
 
     @GetMapping("/showFormForUpdate")
-    public String showUpdateProfileForm(Model model) {
+    public String showUpdateProfileForm(Model model) throws IOException {
         // check if username exists and handle exception / have denied access redirect / error handler
         Principal principal = SecurityContextHolder.getContext().getAuthentication();
         try {
@@ -57,13 +51,13 @@ public class ProfileController {
 
     @PostMapping("/update")
     public String updateProfile(@Valid @ModelAttribute("userProfileDto") UserProfileDto userProfileDto,
-                                BindingResult bindingResult) {
+                                BindingResult bindingResult, Model model, Principal principal) throws IOException {
+
         if (bindingResult.hasErrors()) {
+            model.addAttribute("userProfileDto", userProfileDto);
+
             return "profile";
         }
-
-        // check if username exists and handle exception / have denied access redirect / error handler
-        Principal principal = SecurityContextHolder.getContext().getAuthentication();
 
         try {
             customUserDetailsService.updateProfile(userProfileDto, principal.getName());

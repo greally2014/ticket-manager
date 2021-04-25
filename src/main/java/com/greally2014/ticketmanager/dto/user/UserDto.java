@@ -1,8 +1,5 @@
-package com.greally2014.ticketmanager.dto;
+package com.greally2014.ticketmanager.dto.user;
 
-import com.greally2014.ticketmanager.entity.DevelopersTickets;
-import com.greally2014.ticketmanager.entity.User;
-import com.greally2014.ticketmanager.entity.UsersProjects;
 import com.greally2014.ticketmanager.validation.email.uniqueEmail.UniqueEmail;
 import com.greally2014.ticketmanager.validation.email.validEmail.ValidEmail;
 import com.greally2014.ticketmanager.validation.phoneNumber.ValidPhoneNumber;
@@ -10,13 +7,8 @@ import com.greally2014.ticketmanager.validation.phoneNumber.ValidPhoneNumber;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.List;
 
-public class UserProfileDto {
-
-    private Long id;
-
-    private String username;
+public class UserDto {
 
     @NotNull(message = "First name is required")
     @Size(min = 1, max = 50, message = "First name is required")
@@ -44,40 +36,16 @@ public class UserProfileDto {
     @ValidPhoneNumber
     private String phoneNumber;
 
-    private UsersProjects usersProjects;
-
-    private DevelopersTickets developersTickets;
-
-    private boolean flag;
-
-    public UserProfileDto(User user) {
-        this.id = user.getId();
-        this.username = user.getUsername();
-        this.firstName = user.getFirstName();
-        this.lastName = user.getLastName();
-        this.gender = user.getGender();
-        this.email = user.getEmail();
-        this.address = new AddressDto(user.getAddress());
-        this.phoneNumber = user.getPhoneNumber();
+    public UserDto(String firstName, String lastName, String gender, String email, AddressDto address, String phoneNumber) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.gender = gender;
+        this.email = email;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
     }
 
-    public UserProfileDto() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
+    public UserDto() {
     }
 
     public String getFirstName() {
@@ -126,29 +94,5 @@ public class UserProfileDto {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
-    }
-
-    public UsersProjects getUsersProjects() {
-        return usersProjects;
-    }
-
-    public void setUsersProjects(UsersProjects usersProjects) {
-        this.usersProjects = usersProjects;
-    }
-
-    public DevelopersTickets getDevelopersTickets() {
-        return developersTickets;
-    }
-
-    public void setDevelopersTickets(DevelopersTickets developersTickets) {
-        this.developersTickets = developersTickets;
-    }
-
-    public boolean getFlag() {
-        return flag;
-    }
-
-    public void setFlag(boolean flag) {
-        this.flag = flag;
     }
 }

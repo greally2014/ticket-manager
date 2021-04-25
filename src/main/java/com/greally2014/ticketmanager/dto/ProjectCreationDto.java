@@ -1,6 +1,8 @@
 package com.greally2014.ticketmanager.dto;
 
 
+import com.greally2014.ticketmanager.dto.user.UserProfileDto;
+
 import javax.validation.Valid;
 import java.util.List;
 

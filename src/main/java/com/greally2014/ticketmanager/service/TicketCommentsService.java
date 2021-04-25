@@ -12,7 +12,7 @@ import javax.transaction.Transactional;
 @Service
 public class TicketCommentsService {
 
-    private TicketCommentsRepository ticketCommentsRepository;
+    private final TicketCommentsRepository ticketCommentsRepository;
 
     public TicketCommentsService(TicketCommentsRepository ticketCommentsRepository) {
         this.ticketCommentsRepository = ticketCommentsRepository;
@@ -20,12 +20,11 @@ public class TicketCommentsService {
 
     @Transactional
     public void add(User user, Ticket ticket, String comment) {
-        TicketComments ticketComments = new TicketComments(user, ticket, comment);
-        ticketCommentsRepository.save(ticketComments);
+        ticketCommentsRepository.save(new TicketComments(user, ticket, comment));
     }
 
     @Transactional
-    public void deleteByTicketId(Long ticketId) {
+    public void delete(Long ticketId) {
         ticketCommentsRepository.deleteByTicketId(ticketId);
     }
 }

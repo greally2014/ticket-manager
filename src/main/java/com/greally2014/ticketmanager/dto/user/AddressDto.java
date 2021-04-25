@@ -1,4 +1,4 @@
-package com.greally2014.ticketmanager.dto;
+package com.greally2014.ticketmanager.dto.user;
 
 import com.greally2014.ticketmanager.entity.Address;
 

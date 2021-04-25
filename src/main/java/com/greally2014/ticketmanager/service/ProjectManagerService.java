@@ -1,7 +1,7 @@
 package com.greally2014.ticketmanager.service;
 
 import com.greally2014.ticketmanager.dao.ProjectManagerRepository;
-import com.greally2014.ticketmanager.dto.UserProfileDto;
+import com.greally2014.ticketmanager.dto.user.UserProfileDto;
 import com.greally2014.ticketmanager.entity.*;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +20,7 @@ public class ProjectManagerService {
     }
 
     @Transactional
-    public List<ProjectManager> findAllById(List<Long> idList) {
+    public List<ProjectManager> findAll(List<Long> idList) {
         return projectManagerRepository.findAllById(idList);
     }
 
@@ -40,25 +40,18 @@ public class ProjectManagerService {
 
     @Transactional
     public List<Ticket> findTickets(String username) {
-        List<Ticket> tickets = new ArrayList<>();
-
-        findProjects(username).stream()
+        return findProjects(username).stream()
                 .map(Project::getTickets)
-                .forEach(tickets::addAll);
-
-        return tickets;
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 
     @Transactional
     public List<User> findAllEmployees(String username) {
-        List<User> users = new ArrayList<>();
-
-        for (Project tempProject: findProjects(username)) {
-            for (UsersProjects tempUsersProjects : tempProject.getUsersProjects()) {
-                users.add(tempUsersProjects.getUser());
-            }
-        }
-
-        return users;
+        return findProjects(username).stream()
+                .map(Project::getUsersProjects)
+                .flatMap(List::stream)
+                .map(UsersProjects::getUser)
+                .collect(Collectors.toList());
     }
 }
