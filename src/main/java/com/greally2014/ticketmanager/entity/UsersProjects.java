@@ -30,13 +30,6 @@ public class UsersProjects {
         this.dateAssigned = dateAssigned;
     }
 
-    public UsersProjects(User user, Project project) {
-        this.id = new UsersProjectsKey();
-        this.user = user;
-        this.project = project;
-        this.dateAssigned = LocalDate.now();
-    }
-
     public UsersProjects() {
     }
 

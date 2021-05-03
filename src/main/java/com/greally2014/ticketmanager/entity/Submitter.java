@@ -7,7 +7,7 @@ import java.util.List;
 @DiscriminatorValue(value = "SUBMITTER")
 public class Submitter extends User {
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<UsersProjects> usersProjects;
 
     @OneToMany(

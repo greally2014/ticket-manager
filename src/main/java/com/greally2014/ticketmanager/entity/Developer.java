@@ -1,7 +1,5 @@
 package com.greally2014.ticketmanager.entity;
 
-import org.hibernate.validator.constraints.EAN;
-import org.springframework.data.repository.cdi.Eager;
 
 import javax.persistence.*;
 import java.util.List;
@@ -10,18 +8,11 @@ import java.util.List;
 @DiscriminatorValue("DEVELOPER")
 public class Developer extends User {
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<UsersProjects> usersProjects;
 
-    @OneToMany(mappedBy = "developer", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "developer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<DevelopersTickets> developersTickets;
-
-    public Developer(String username, String password,
-                     String firstName, String lastName,
-                     String gender,
-                     String email, String phoneNumber) {
-        super(username, password, firstName, lastName, gender, email, phoneNumber);
-    }
 
     public Developer() {
     }

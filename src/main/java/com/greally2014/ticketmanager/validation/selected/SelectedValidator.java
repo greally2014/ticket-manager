@@ -1,6 +1,6 @@
 package com.greally2014.ticketmanager.validation.selected;
 
-import com.greally2014.ticketmanager.dto.UserProfileDto;
+import com.greally2014.ticketmanager.dto.user.UserProfileDto;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

@@ -1,15 +1,13 @@
 package com.greally2014.ticketmanager.service;
 
 import com.greally2014.ticketmanager.dao.UsersProjectsRepository;
-import com.greally2014.ticketmanager.dto.UserProfileDto;
 import com.greally2014.ticketmanager.entity.Project;
 import com.greally2014.ticketmanager.entity.User;
 import com.greally2014.ticketmanager.entity.UsersProjects;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDate;
 
 @Service
 public class UsersProjectsService {
@@ -20,18 +18,17 @@ public class UsersProjectsService {
         this.usersProjectsRepository = usersProjectsRepository;
     }
 
-    public UsersProjects findByUserIdAndProjectId(Long userId, Long projectId) {
+    public UsersProjects findOne(Long userId, Long projectId) {
         return usersProjectsRepository.findByUserIdAndProjectId(userId, projectId);
     }
 
     @Transactional
-    public void deleteByUserIdAndProjectId(Long userId, Long projectId) {
+    public void delete(Long userId, Long projectId) {
         usersProjectsRepository.deleteByUserIdAndProjectId(userId, projectId);
     }
 
     @Transactional
     public void add(User user, Project project) {
-        UsersProjects usersProjects = new UsersProjects(user, project);
-        usersProjectsRepository.save(usersProjects);
+        usersProjectsRepository.save(new UsersProjects(user, project, LocalDate.now()));
     }
 }

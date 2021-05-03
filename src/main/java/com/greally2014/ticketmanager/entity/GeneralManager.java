@@ -10,13 +10,6 @@ import java.util.List;
 @DiscriminatorValue(value = "GENERAL_MANAGER")
 public class GeneralManager extends User {
 
-    public GeneralManager(String username, String password,
-                          String firstName, String lastName,
-                          String gender,
-                          String email, String phoneNumber) {
-        super(username, password, firstName, lastName, gender, email, phoneNumber);
-    }
-
     public GeneralManager() {
     }
 

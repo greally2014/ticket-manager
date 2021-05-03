@@ -37,6 +37,9 @@ public class User {
     @Column(name = "phone_number")
     private String phoneNumber;
 
+    @Column(name = "photo")
+    private String photo;
+
     @Column(name = "enabled")
     private boolean enabled;
 
@@ -137,12 +140,32 @@ public class User {
         this.phoneNumber = phoneNumber;
     }
 
+    public String getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(String photo) {
+        this.photo = photo;
+    }
+
     public boolean isEnabled() {
         return enabled;
     }
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public String getRoleName() {
+        if (this instanceof Developer) {
+            return "Developer";
+        } else if (this instanceof Submitter) {
+            return "Submitter";
+        } else if (this instanceof ProjectManager) {
+            return "Project Manager";
+        } else {
+            return "General Manager";
+        }
     }
 
     public Set<Role> getRoles() {

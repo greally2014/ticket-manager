@@ -1,6 +1,6 @@
 package com.greally2014.ticketmanager.controller;
 
-import com.greally2014.ticketmanager.dto.RegistrationDto;
+import com.greally2014.ticketmanager.dto.user.RegistrationDto;
 import com.greally2014.ticketmanager.service.CustomUserDetailsService;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.stereotype.Controller;
@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -32,7 +33,7 @@ public class RegistrationController {
         this.customUserDetailsService = customUserDetailsService;
     }
 
-    @GetMapping("/showFormForRegistration")
+    @GetMapping("/showRegistrationForm")
     public String showRegistrationForm(Model model) {
         model.addAttribute("registrationDto", new RegistrationDto());
         model.addAttribute("roles", roles);
@@ -49,10 +50,17 @@ public class RegistrationController {
             return "register";
 
         } else {
-            // check again if username exists / throw error / handle error
-            customUserDetailsService.register(registrationDto);
+            try {
+                customUserDetailsService.register(registrationDto);
 
-            return "registration-confirmation";
+                return "registration-confirmation";
+
+            } catch (IOException e) {
+                model.addAttribute("registrationDto", registrationDto);
+                model.addAttribute("roles", roles);
+
+                return "register";
+            }
         }
     }
 

@@ -11,11 +11,17 @@ public class TicketComments {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @ManyToOne
+    @ManyToOne(
+            fetch = FetchType.LAZY,
+            cascade= {CascadeType.PERSIST, CascadeType.MERGE,
+                    CascadeType.DETACH, CascadeType.REFRESH})
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
+    @ManyToOne(
+            fetch = FetchType.LAZY,
+            cascade= {CascadeType.PERSIST, CascadeType.MERGE,
+                    CascadeType.DETACH, CascadeType.REFRESH})
     @JoinColumn(name = "ticket_id")
     private Ticket ticket;
 
@@ -25,22 +31,14 @@ public class TicketComments {
     @Column(name = "comment")
     private String comment;
 
-    public TicketComments(User user, Ticket ticket, LocalDateTime dateTimePosted, String comment) {
+    public TicketComments(User user, Ticket ticket, String comment, LocalDateTime localDateTime) {
         this.user = user;
         this.ticket = ticket;
-        this.dateTimePosted = dateTimePosted;
         this.comment = comment;
-    }
-
-    public TicketComments(User user, Ticket ticket, String comment) {
-        this.user = user;
-        this.ticket = ticket;
-        this.dateTimePosted = LocalDateTime.now();
-        this.comment = comment;
+        this.dateTimePosted = localDateTime;
     }
 
     public TicketComments() {
-        this.dateTimePosted = LocalDateTime.now();
     }
 
     public Long getId() {
