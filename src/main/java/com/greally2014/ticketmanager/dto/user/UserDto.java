@@ -2,7 +2,8 @@ package com.greally2014.ticketmanager.dto.user;
 
 import com.greally2014.ticketmanager.validation.email.uniqueEmail.UniqueEmail;
 import com.greally2014.ticketmanager.validation.email.validEmail.ValidEmail;
-import com.greally2014.ticketmanager.validation.phoneNumber.ValidPhoneNumber;
+import com.greally2014.ticketmanager.validation.phoneNumber.validNumber.ValidPhoneNumber;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -35,6 +36,8 @@ public class UserDto {
     @Size(min = 1, max = 20, message = "Phone number is required")
     @ValidPhoneNumber
     private String phoneNumber;
+
+    private MultipartFile photo;
 
     public UserDto(String firstName, String lastName, String gender, String email, AddressDto address, String phoneNumber) {
         this.firstName = firstName;
@@ -94,5 +97,13 @@ public class UserDto {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public MultipartFile getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(MultipartFile photo) {
+        this.photo = photo;
     }
 }

@@ -3,7 +3,6 @@ package com.greally2014.ticketmanager.controller;
 import com.greally2014.ticketmanager.exception.UserNotFoundException;
 import com.greally2014.ticketmanager.service.CustomUserDetailsService;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,25 +23,23 @@ public class EmployeeController {
     }
 
     @GetMapping("/listAll")
-    public String listAllEmployees(Model model) {
-        Principal principal = SecurityContextHolder.getContext().getAuthentication();
+    public String listAllEmployees(Model model, Principal principal) {
         model.addAttribute(
                 "employees",
-                customUserDetailsService.findAllEmployeesOrderByUsername(principal)
+                customUserDetailsService.findAllEmployees(principal)
         );
 
-        return "employee-list";
+        return "employee/employee-list";
     }
 
     @GetMapping("/delete")
     @PreAuthorize("hasRole('GENERAL_MANAGER')")
     public String deleteEmployee(@RequestParam("id") Long id) {
-
         try {
             customUserDetailsService.delete(id);
 
         } catch (UserNotFoundException e) {
-            e.printStackTrace();
+            // nothing
         }
 
         return "redirect:/employees/listAll";
@@ -53,12 +50,12 @@ public class EmployeeController {
         try {
             model.addAttribute("employee", customUserDetailsService.findById(id));
 
-            return "employee-details";
+            return "employee/employee-details";
 
         } catch (UserNotFoundException e) {
-            e.printStackTrace();
 
             return "redirect:/employees/listAll";
         }
     }
+
 }

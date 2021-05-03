@@ -2,7 +2,7 @@ package com.greally2014.ticketmanager.entity;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Table(name = "tickets")
@@ -46,11 +46,28 @@ public class Ticket {
     @JoinColumn(name = "submitter_id")
     private Submitter submitter;
 
-    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<DevelopersTickets> developersTickets;
 
-    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<TicketComments> ticketComments;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "ticket_id")
+    private List<TicketDocument> ticketDocuments;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "ticket_activity",
+            joinColumns = @JoinColumn(name = "ticket_id")
+    )
+    @OrderColumn(name = "activity_index")
+    @AttributeOverrides({
+            @AttributeOverride(name = "type", column = @Column(name = "activity_type")),
+            @AttributeOverride(name = "username", column = @Column(name = "username")),
+            @AttributeOverride(name = "role", column = @Column(name = "role")),
+            @AttributeOverride(name = "dateTimeCreated", column = @Column(name = "datetime_created"))
+    })
+    private List<TicketActivity> ticketActivities;
 
     public Ticket(String title, String description,
                   String type, String priority,
@@ -66,6 +83,18 @@ public class Ticket {
     }
 
     public Ticket() {
+    }
+
+    public void addDocument(TicketDocument ticketDocument) {
+        this.ticketDocuments.add(ticketDocument);
+    }
+
+    public void addActivity(TicketActivity ticketActivity) {
+        if (this.ticketActivities == null) {
+            this.ticketActivities = new ArrayList<>();
+        }
+
+        this.ticketActivities.add(ticketActivity);
     }
 
     public Long getId() {
@@ -154,5 +183,21 @@ public class Ticket {
 
     public void setTicketComments(List<TicketComments> ticketComments) {
         this.ticketComments = ticketComments;
+    }
+
+    public List<TicketDocument> getTicketDocuments() {
+        return ticketDocuments;
+    }
+
+    public void setTicketDocuments(List<TicketDocument> ticketDocuments) {
+        this.ticketDocuments = ticketDocuments;
+    }
+
+    public List<TicketActivity> getTicketActivities() {
+        return ticketActivities;
+    }
+
+    public void setTicketActivities(List<TicketActivity> ticketActivities) {
+        this.ticketActivities = ticketActivities;
     }
 }

@@ -13,8 +13,6 @@ public class UserProfileDto extends UserDto {
 
     private String photoName;
 
-    private MultipartFile photo;
-
     private UsersProjects usersProjects;
 
     private DevelopersTickets developersTickets;
@@ -58,16 +56,7 @@ public class UserProfileDto extends UserDto {
 
     public String getPhotoImagePath() {
         if (photoName == null || id == null) return null;
-
-        return "/user-profile-picture/" + id + "/" + photoName;
-    }
-
-    public MultipartFile getPhoto() {
-        return photo;
-    }
-
-    public void setPhoto(MultipartFile photo) {
-        this.photo = photo;
+        return "/src/main/resources/profile-pictures/" + id + "/" + photoName;
     }
 
     public UsersProjects getUsersProjects() {

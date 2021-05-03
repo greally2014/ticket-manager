@@ -28,8 +28,6 @@ public class RegistrationDto extends UserDto {
     @Size(min = 1, max = 50, message = "Please select a role")
     private String formRole;
 
-    private MultipartFile photo;
-
     public RegistrationDto() {
     }
 
@@ -65,11 +63,4 @@ public class RegistrationDto extends UserDto {
         this.formRole = formRole;
     }
 
-    public MultipartFile getPhoto() {
-        return photo;
-    }
-
-    public void setPhoto(MultipartFile photo) {
-        this.photo = photo;
-    }
 }

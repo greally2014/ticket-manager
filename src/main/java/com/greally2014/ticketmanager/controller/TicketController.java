@@ -1,8 +1,11 @@
 package com.greally2014.ticketmanager.controller;
 
-import com.greally2014.ticketmanager.dto.*;
+import com.greally2014.ticketmanager.dto.ticket.*;
 import com.greally2014.ticketmanager.dto.user.UserProfileDto;
+import com.greally2014.ticketmanager.entity.TicketDocument;
+import com.greally2014.ticketmanager.entity.User;
 import com.greally2014.ticketmanager.exception.ProjectNotFoundException;
+import com.greally2014.ticketmanager.exception.TicketDocumentNotFoundException;
 import com.greally2014.ticketmanager.exception.TicketNotFoundException;
 import com.greally2014.ticketmanager.exception.UserNotFoundException;
 import com.greally2014.ticketmanager.service.CustomUserDetailsService;
@@ -10,14 +13,17 @@ import com.greally2014.ticketmanager.service.SubmitterService;
 import com.greally2014.ticketmanager.service.TicketService;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 
@@ -46,34 +52,30 @@ public class TicketController {
     }
 
     @GetMapping("/listAll")
-    public String listAllTickets(Model model) {
-        Principal principal = SecurityContextHolder.getContext().getAuthentication();
+    public String listAllTickets(Model model, Principal principal) {
         model.addAttribute("tickets",
-                ticketService.findAllByUsernameOrderByTitle(principal.getName())
+                ticketService.findAllByRole(principal.getName())
         );
 
-        return "ticket-list";
+        return "ticket/ticket-list";
     }
 
     @GetMapping("/showAddForm")
     @PreAuthorize("hasRole('SUBMITTER')")
     public String showAddTicketForm(Model model) {
-        // check if username exists and handle exception / have denied access redirect / error handler
         model.addAttribute("ticketCreationDto", ticketService.getCreationDto());
 
-        return "ticket-add";
+        return "ticket/ticket-add";
     }
 
     @PostMapping("/add")
     @PreAuthorize("hasRole('SUBMITTER')")
     public String addTicket(@ModelAttribute("ticketCreationDto") @Valid TicketCreationDto ticketCreationDto,
-                            BindingResult bindingResult) {
-        Principal principal = SecurityContextHolder.getContext().getAuthentication();
-
+                            BindingResult bindingResult, Principal principal) {
         if (bindingResult.hasErrors()) {
             ticketCreationDto.setProjectList(submitterService.findProjects(principal.getName()));
 
-            return "ticket-add";
+            return "ticket/ticket-add";
 
         } else {
             try {
@@ -83,22 +85,19 @@ public class TicketController {
 
             } catch (ProjectNotFoundException e) {
 
-                return "ticket-add";
+                return "redirect:/tickets/showAddForm";
             }
-
         }
     }
 
     @GetMapping("/showDetailsPage")
     public String showTicketDetailsPage(@RequestParam("id") Long id, Model model) {
         try {
-            TicketCommentsCreationDto ticketCommentsCreationDto = new TicketCommentsCreationDto();
-            ticketCommentsCreationDto.setTicketId(id);
-
             model.addAttribute("ticketDetailsDto", ticketService.getDetailsDto(id));
-            model.addAttribute("ticketCommentsCreationDto", ticketCommentsCreationDto);
+            model.addAttribute("ticketCommentsCreationDto", new TicketCommentsCreationDto(id));
+            model.addAttribute("ticketDocumentUploadDto", new TicketDocumentUploadDto(id));
 
-            return "ticket-details";
+            return "ticket/ticket-details";
 
         } catch (TicketNotFoundException e) {
 
@@ -106,43 +105,27 @@ public class TicketController {
         }
     }
 
-    @GetMapping("/showDeveloperDetails")
-    public String showDeveloperDetailsPage(@RequestParam("developerId") Long developerId,
-                                           @RequestParam("ticketId") Long ticketId,
-                                           Model model) {
-        try {
-            model.addAttribute("employee", customUserDetailsService.findById(developerId));
-            model.addAttribute("ticketId", ticketId);
-
-            return "ticket-employee-details";
-
-        } catch (UserNotFoundException e) {
-            e.printStackTrace();
-
-            return showTicketDetailsPage(ticketId, model);
-        }
-    }
-
     @GetMapping("/showUpdateFieldsForm")
+    @PreAuthorize("hasRole('DEVELOPER')")
     public String showUpdateTicketFieldsForm(@RequestParam("id") Long id, Model model) {
         try {
             model.addAttribute("ticketDto", ticketService.getDto(id));
 
-            return "ticket-update-fields";
+            return "ticket/ticket-update-fields";
 
         } catch (TicketNotFoundException e) {
-            e.printStackTrace();
 
             return "redirect:/tickets/listAll";
         }
     }
 
     @PostMapping("/updateFields")
+    @PreAuthorize("hasRole('DEVELOPER')")
     public String updateTicketFields(@ModelAttribute("ticketDto") @Valid TicketDto ticketDto,
                                      BindingResult bindingResult, Model model) {
-        if(bindingResult.hasErrors()) {
+        if (bindingResult.hasErrors()) {
 
-            return "ticket-update-fields";
+            return "ticket/ticket-update-fields";
 
         } else {
             try {
@@ -158,90 +141,66 @@ public class TicketController {
     }
 
     @GetMapping("/close")
+    @PreAuthorize("hasRole('DEVELOPER')")
     public String closeTicket(@RequestParam("id") Long id) {
         try {
             ticketService.delete(id);
 
-            return "redirect:/tickets/listAll";
-
         } catch (TicketNotFoundException e) {
-
-            return "redirect:/tickets/listAll";
-        }
-    }
-
-    @GetMapping("/kickDeveloper")
-    public String kickTicketDeveloper(@RequestParam("developerId") Long developerId,
-                                      @RequestParam("ticketId") Long ticketId,
-                                      Model model) {
-        try {
-            ticketService.kickUser(developerId, ticketId);
-            ticketService.setStatus(ticketId);
-
-        } catch (Exception e) {
             //nothing
         }
 
-        return showTicketDetailsPage(ticketId, model);
+        return "redirect:/tickets/listAll";
     }
 
     @GetMapping("/showAddDeveloperForm")
+    @PreAuthorize("hasRole('PROJECT_MANAGER')")
     public String showAddTicketDeveloperForm(@RequestParam("id") Long id, Model model) {
         try {
-            List<UserProfileDto> userDtoList =
-                    ticketService.findAllDeveloperProfileDtoNotAdded(id);
             TicketDto ticketDto = ticketService.getDto(id);
+            List<UserProfileDto> userDtoList =
+                    ticketService.findAllDeveloperDtoNotAdded(id);
             TicketAddDeveloperDto ticketAddDeveloperDto = new TicketAddDeveloperDto(ticketDto, userDtoList);
 
             model.addAttribute("ticketAddDeveloperDto", ticketAddDeveloperDto);
 
-            return "ticket-add-developer";
+            return "ticket/ticket-add-developer";
 
         } catch (TicketNotFoundException e) {
-            e.printStackTrace();
 
-            return showTicketDetailsPage(id, model);
+            return "redirect:/tickets/listAll";
         }
     }
 
     @PostMapping("/addDeveloper")
+    @PreAuthorize("hasRole('PROJECT_MANAGER')")
     public String addTicketDeveloper(@ModelAttribute("ticketAddDeveloperDto") @Valid TicketAddDeveloperDto ticketAddDeveloperDto,
                                      BindingResult bindingResult, Model model) {
+        Long ticketId = ticketAddDeveloperDto.getTicketDto().getId();
+
         if (bindingResult.hasErrors()) {
-            if (ticketAddDeveloperDto.getDeveloperDtoList() == null) {
+            try {
+                ticketAddDeveloperDto.setDeveloperDtoList(ticketService.findAllDeveloperDtoNotAdded(ticketId));
 
-                return "ticket-add-developer";
+                return "ticket/ticket-add-developer";
 
-            } else {
-                try {
-                    List<UserProfileDto> userProfileDtos = ticketService.findAllDeveloperProfileDtoNotAdded(
-                            ticketAddDeveloperDto.getTicketDto().getId()
-                    );
+            } catch (TicketNotFoundException e) {
 
-                    ticketAddDeveloperDto.setDeveloperDtoList(userProfileDtos);
-
-                    return "ticket-add-developer";
-
-                } catch (TicketNotFoundException e) {
-                    e.printStackTrace();
-
-                    return "redirect:/tickets/listAll";
-                }
+                return "redirect:/tickets/listAll";
             }
 
         } else {
             try {
                 ticketService.addDevelopers(ticketAddDeveloperDto);
-                ticketService.setStatus(ticketAddDeveloperDto.getTicketDto().getId());
-                return showTicketDetailsPage(ticketAddDeveloperDto.getTicketDto().getId(), model);
+                ticketService.setStatus(ticketId);
+
+                return showTicketDetailsPage(ticketId, model);
 
             } catch (UserNotFoundException e) {
-                e.printStackTrace();
 
-                return showTicketDetailsPage(ticketAddDeveloperDto.getTicketDto().getId(), model);
+                return showAddTicketDeveloperForm(ticketId, model);
 
             } catch (TicketNotFoundException e) {
-                e.printStackTrace();
 
                 return "redirect:/tickets/listAll";
             }
@@ -249,26 +208,72 @@ public class TicketController {
         }
     }
 
-    @PostMapping("/addComment")
-    public String addTicketComment(@ModelAttribute("ticketCommentsCreationDto") @Valid TicketCommentsCreationDto ticketCommentsCreationDto,
-                                   BindingResult bindingResult, Model model) throws UserNotFoundException {
-        if (bindingResult.hasErrors()) {
+    @GetMapping("/kickDeveloper")
+    @PreAuthorize("hasRole('PROJECT_MANAGER')")
+    public String kickTicketDeveloper(@RequestParam("developerId") Long developerId,
+                                      @RequestParam("ticketId") Long ticketId,
+                                      Model model) {
+        try {
+            ticketService.kickDeveloper(developerId, ticketId);
+            ticketService.setStatus(ticketId);
 
-            return "ticket-details";
+        } catch (UserNotFoundException e) {
+            // nothing
+
+        } catch (TicketNotFoundException e) {
+
+            return "redirect:/tickets/listAll";
+        }
+
+        return showTicketDetailsPage(ticketId, model);
+    }
+
+    @GetMapping("/showDeveloperDetails")
+    @PreAuthorize("hasAnyRole('GENERAL_MANAGER', 'PROJECT_MANAGER')")
+    public String showDeveloperDetailsPage(@RequestParam("developerId") Long developerId,
+                                           @RequestParam("ticketId") Long ticketId,
+                                           Model model) {
+        try {
+            model.addAttribute("employee", customUserDetailsService.findById(developerId));
+            model.addAttribute("ticketId", ticketId);
+
+            return "ticket/ticket-employee-details";
+
+        } catch (UserNotFoundException e) {
+
+            return showTicketDetailsPage(ticketId, model);
+        }
+    }
+
+    @PostMapping("/addComment")
+    @PreAuthorize("hasAnyRole('PROJECT_MANAGER', 'DEVELOPER', 'SUBMITTER')")
+    public String addTicketComment(@ModelAttribute("ticketCommentsCreationDto") @Valid TicketCommentsCreationDto ticketCommentsCreationDto,
+                                   BindingResult bindingResult, Model model, Principal principal) {
+        Long ticketId = ticketCommentsCreationDto.getTicketId();
+
+        if (bindingResult.hasErrors()) {
+            try {
+                model.addAttribute("ticketDetailsDto", ticketService.getDetailsDto(ticketId));
+                model.addAttribute("ticketCommentsCreationDto", ticketCommentsCreationDto);
+                model.addAttribute("ticketDocumentUploadDto", new TicketDocumentUploadDto(ticketId));
+
+                return "ticket/ticket-details";
+
+            } catch (TicketNotFoundException e) {
+
+                return "redirect:/tickets/listAll";
+            }
 
         } else {
-            Long ticketId = ticketCommentsCreationDto.getTicketId();
-            Long userId = customUserDetailsService.loadUserByUsername(
-                    SecurityContextHolder.getContext().getAuthentication().getName()).getUser().getId();
+            User user = customUserDetailsService.loadUserByUsername(principal.getName()).getUser();
             String comment = ticketCommentsCreationDto.getComment();
 
             try {
-                ticketService.addComment(userId, ticketId, comment);
+                ticketService.addComment(user, ticketId, comment);
 
                 return showTicketDetailsPage(ticketId, model);
 
             } catch (TicketNotFoundException e) {
-                e.printStackTrace();
 
                 return "redirect:/tickets/listAll";
             }
@@ -276,6 +281,7 @@ public class TicketController {
     }
 
     @GetMapping("/deleteComments")
+    @PreAuthorize("hasRole('PROJECT_MANAGER')")
     public String deleteTicketComments(@RequestParam("ticketId") Long ticketId, Model model) {
         try {
             ticketService.deleteComments(ticketId);
@@ -283,10 +289,93 @@ public class TicketController {
             return showTicketDetailsPage(ticketId, model);
 
         } catch (TicketNotFoundException e) {
-            e.printStackTrace();
 
             return "redirect:/tickets/listAll";
         }
     }
 
+    @PostMapping("uploadDocument")
+    @PreAuthorize("hasAnyRole('PROJECT_MANAGER', 'DEVELOPER', 'SUBMITTER')")
+    public String uploadTicketDocument(@ModelAttribute("ticketDocumentUploadDto") @Valid TicketDocumentUploadDto ticketDocumentUploadDto,
+                                       BindingResult bindingResult, Model model) throws IOException {
+        Long ticketId = ticketDocumentUploadDto.getTicketId();
+
+        if (bindingResult.hasErrors()) {
+            try {
+                model.addAttribute("ticketDetailsDto", ticketService.getDetailsDto(ticketId));
+                model.addAttribute("ticketCommentsCreationDto", new TicketCommentsCreationDto(ticketId));
+                model.addAttribute("ticketDocumentUploadDto", ticketDocumentUploadDto);
+
+                return "ticket/ticket-details";
+
+            } catch (TicketNotFoundException e) {
+
+                return "redirect:/tickets/listAll";
+            }
+
+        } else {
+            try {
+                MultipartFile document = ticketDocumentUploadDto.getDocument();
+                ticketService.addDocument(ticketId, document);
+
+                return showTicketDetailsPage(ticketId, model);
+
+            } catch (TicketNotFoundException e) {
+
+                return "redirect:/tickets/listAll";
+            }
+        }
+    }
+
+    @GetMapping("deleteDocument")
+    @PreAuthorize("hasAnyRole('PROJECT_MANAGER', 'DEVELOPER', 'SUBMITTER')")
+    public String deleteTicketDocument(@RequestParam("ticketDocumentId") Long ticketDocumentId,
+                                       @RequestParam("ticketId") Long ticketId,
+                                       Model model) {
+        try {
+            ticketService.deleteDocument(ticketId, ticketDocumentId);
+
+        } catch (TicketNotFoundException e) {
+
+            return "redirect:/tickets/listAll";
+
+        } catch (TicketDocumentNotFoundException e) {
+            //nothing
+        }
+
+        return showTicketDetailsPage(ticketId, model);
+
+    }
+
+    @GetMapping("downloadDocument")
+    @PreAuthorize("hasAnyRole('PROJECT_MANAGER', 'DEVELOPER', 'SUBMITTER')")
+    public void downloadTicketDocument(@RequestParam("ticketDocumentId") Long ticketDocumentId,
+                                       @RequestParam("ticketId") Long ticketId,
+                                       HttpServletResponse response,
+                                       Principal principal,
+                                       Model model) throws IOException {
+        try {
+            TicketDocument ticketDocument = ticketService.findDocument(ticketId, ticketDocumentId);
+
+            response.setContentType("application/octet-stream");
+            String headerKey = "Content-Disposition";
+            String headerValue = "attachment; filename=" + ticketDocument.getName();
+
+            response.setHeader(headerKey, headerValue);
+
+            ServletOutputStream outputStream = response.getOutputStream();
+
+            outputStream.write(ticketDocument.getContent());
+            outputStream.close();
+
+
+        } catch (TicketNotFoundException e) {
+            listAllTickets(model, principal);
+            e.printStackTrace();
+
+        } catch (TicketDocumentNotFoundException e) {
+            showTicketDetailsPage(ticketId, model);
+            e.printStackTrace();
+        }
+    }
 }

@@ -22,13 +22,13 @@ public class Project {
     @Column(name = "date_created")
     private LocalDate dateCreated;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<UsersProjects> usersProjects;
 
     @OneToMany(
             mappedBy = "project",
-            fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY
     )
     private List<Ticket> tickets;
 
@@ -39,14 +39,13 @@ public class Project {
     @JoinColumn(name = "creator_id")
     private GeneralManager creator;
 
-    public Project(String title, String description) {
+    public Project(String title, String description, LocalDate localDate) {
         this.title = title;
         this.description = description;
-        this.dateCreated = LocalDate.now();
+        this.dateCreated = localDate;
     }
 
     public Project() {
-        this.dateCreated = LocalDate.now();
     }
 
     public Long getId() {

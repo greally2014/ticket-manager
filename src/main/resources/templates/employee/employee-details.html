@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+                xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+          integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+          crossorigin="anonymous">
+
+
+    <title>Employee Details</title>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h3>Employee Profile</h3>
+    <hr>
+
+    <form action="#" class="form-inline">
+
+        <!-- Add a button -->
+        <a th:href="@{/employees/delete(id=${employee.id})}"
+           sec:authorize="hasRole('PROJECT_MANGAGER')"
+           class="btn btn-primary btn-sm mb-3">
+            Delete
+        </a>
+
+    </form>
+
+    <form action="#" th:object="${employee}" readonly>
+
+        <input type="text" name="username" th:field="*{username}" class="form-control mb-4 col-4" readonly>
+
+        <input type="text" name="firstName" th:field="*{firstName}" class="form-control mb-4 col-4" readonly>
+
+        <input type="text" name="lastName" th:field="*{lastName}" class="form-control mb-4 col-4" readonly>
+
+        <span th:switch="${employee.gender}">
+            <input th:case="'m'" type="text" name="gender-male" th:value="'Male'" class="form-control mb-4 col-4" readonly>
+            <input th:case="'f'" type="text" name="gender-female" th:value="'Female'" class="form-control mb-4 col-4" readonly>
+            <input th:case="'o'" type="text" name="gender-other" th:value="'Other'" class="form-control mb-4 col-4" readonly>
+        </span>
+
+        <input type="text" name="role" th:value="*{getRoleName()}" class="form-control mb-4 col-4" readonly>
+
+        <input type="text" name="email" th:field="*{email}" class="form-control mb-4 col-4" readonly>
+
+        <input type="text" name="phoneNumber" th:field="*{phoneNumber}" class="form-control mb-4 col-4" readonly>
+
+        <input type="text" name="line1" th:field="*{address.line1}" class="form-control mb-4 col-4" readonly>
+
+        <input type="text" name="line2" th:field="*{address.line2}" class="form-control mb-4 col-4" readonly>
+
+        <input type="text" name="city" th:field="*{address.city}" class="form-control mb-4 col-4" readonly>
+
+        <input type="text" name="county" th:field="*{address.county}" class="form-control mb-4 col-4" readonly>
+
+
+    </form>
+
+    <hr>
+    <a th:href="@{/employees/listAll}">Back to Employee List</a>
+
+</div>
+
+</body>
+
+</html>

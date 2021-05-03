@@ -7,15 +7,8 @@ import java.util.List;
 @DiscriminatorValue(value = "PROJECT_MANAGER")
 public class ProjectManager extends User {
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<UsersProjects> usersProjects;
-
-    public ProjectManager(String username, String password,
-                          String firstName, String lastName,
-                          String gender,
-                          String email, String phoneNumber) {
-        super(username, password, firstName, lastName, gender, email, phoneNumber);
-    }
 
     public ProjectManager() {
     }

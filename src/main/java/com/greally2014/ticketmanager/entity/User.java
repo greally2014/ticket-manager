@@ -156,6 +156,18 @@ public class User {
         this.enabled = enabled;
     }
 
+    public String getRoleName() {
+        if (this instanceof Developer) {
+            return "Developer";
+        } else if (this instanceof Submitter) {
+            return "Submitter";
+        } else if (this instanceof ProjectManager) {
+            return "Project Manager";
+        } else {
+            return "General Manager";
+        }
+    }
+
     public Set<Role> getRoles() {
         return roles;
     }

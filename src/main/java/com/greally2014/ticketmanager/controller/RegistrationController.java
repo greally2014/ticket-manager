@@ -43,17 +43,24 @@ public class RegistrationController {
 
     @PostMapping("/process")
     public String processRegistration(@Valid @ModelAttribute("registrationDto") RegistrationDto registrationDto,
-                                      BindingResult bindingResult, Model model) throws IOException {
+                                      BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("roles", roles);
 
             return "register";
 
         } else {
-            // check again if username exists / throw error / handle error
-            customUserDetailsService.register(registrationDto);
+            try {
+                customUserDetailsService.register(registrationDto);
 
-            return "registration-confirmation";
+                return "registration-confirmation";
+
+            } catch (IOException e) {
+                model.addAttribute("registrationDto", registrationDto);
+                model.addAttribute("roles", roles);
+
+                return "register";
+            }
         }
     }
 

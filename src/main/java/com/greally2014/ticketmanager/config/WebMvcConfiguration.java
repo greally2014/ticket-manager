@@ -17,7 +17,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        exposeDirectory("user-profile-picture", registry);
+        exposeDirectory("src/main/resources/profile-pictures", registry);
     }
 
     private void exposeDirectory(String dirName, ResourceHandlerRegistry registry) {

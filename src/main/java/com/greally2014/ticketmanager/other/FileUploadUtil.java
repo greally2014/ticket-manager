@@ -1,23 +1,20 @@
 package com.greally2014.ticketmanager.other;
 
-import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
 
 public class FileUploadUtil {
 
-    public static void saveFile(String uploadDir, String fileName, MultipartFile multipartFile) throws IOException {
+    public static void saveFile(String uploadDir, String fileName, MultipartFile file) throws IOException {
         Path uploadPath = Paths.get(uploadDir);
 
-        if (!Files.exists(uploadPath)) {
-            Files.createDirectories(uploadPath);
-        }
+        deleteDirectory(uploadPath);
 
-        try (InputStream inputStream = multipartFile.getInputStream()) {
+        Files.createDirectories(uploadPath);
+
+        try (InputStream inputStream = file.getInputStream()) {
             Path filePath = uploadPath.resolve(fileName);
             Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
@@ -26,33 +23,9 @@ public class FileUploadUtil {
         }
     }
 
-    public static void deleteDirectoryJava(Path path)
-            throws IOException {
-
-        Files.walkFileTree(path,
-                new SimpleFileVisitor<>() {
-
-                    // delete directories or folders
-                    @Override
-                    public FileVisitResult postVisitDirectory(Path dir,
-                                                              IOException exc)
-                            throws IOException {
-                        Files.delete(dir);
-                        System.out.printf("Directory is deleted : %s%n", dir);
-                        return FileVisitResult.CONTINUE;
-                    }
-
-                    // delete files
-                    @Override
-                    public FileVisitResult visitFile(Path file,
-                                                     BasicFileAttributes attrs)
-                            throws IOException {
-                        Files.delete(file);
-                        System.out.printf("File is deleted : %s%n", file);
-                        return FileVisitResult.CONTINUE;
-                    }
-                }
-        );
-
+    public static void deleteDirectory(Path path) throws IOException {
+        if (Files.exists(path)) {
+            Files.walk(path).map(Path::toFile).forEach(File::delete);
+        }
     }
 }

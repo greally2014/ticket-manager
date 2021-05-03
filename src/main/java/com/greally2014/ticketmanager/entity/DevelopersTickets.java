@@ -23,22 +23,14 @@ public class DevelopersTickets {
     @Column(name = "date_assigned")
     private LocalDate dateAssigned;
 
-    public DevelopersTickets(Developer developer, Ticket ticket, LocalDate dateAssigned) {
+    public DevelopersTickets(Developer developer, Ticket ticket, LocalDate localDate) {
         this.id = new DevelopersTicketsKey();
         this.developer = developer;
         this.ticket = ticket;
-        this.dateAssigned = dateAssigned;
-    }
-
-    public DevelopersTickets(Developer developer, Ticket ticket) {
-        this.id = new DevelopersTicketsKey();
-        this.developer = developer;
-        this.ticket = ticket;
-        this.dateAssigned = LocalDate.now();
+        this.dateAssigned = localDate;
     }
 
     public DevelopersTickets() {
-        this.dateAssigned = LocalDate.now();
     }
 
     public DevelopersTicketsKey getId() {

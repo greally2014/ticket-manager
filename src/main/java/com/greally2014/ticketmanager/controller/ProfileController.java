@@ -3,8 +3,6 @@ package com.greally2014.ticketmanager.controller;
 import com.greally2014.ticketmanager.dto.user.UserProfileDto;
 import com.greally2014.ticketmanager.service.CustomUserDetailsService;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -32,29 +30,19 @@ public class ProfileController {
     }
 
     @GetMapping("/showFormForUpdate")
-    public String showUpdateProfileForm(Model model) throws IOException {
-        // check if username exists and handle exception / have denied access redirect / error handler
-        Principal principal = SecurityContextHolder.getContext().getAuthentication();
-        try {
-            model.addAttribute(
-                    "userProfileDto",
-                    customUserDetailsService.findProfileDto(principal.getName())
-            );
-
-        } catch (UsernameNotFoundException e) {
-            e.printStackTrace();
-            // logout or something
-        }
+    public String showUpdateProfileForm(Model model, Principal principal) {
+        model.addAttribute(
+                "userProfileDto",
+                customUserDetailsService.findProfileDto(principal.getName())
+        );
 
         return "profile";
     }
 
     @PostMapping("/update")
     public String updateProfile(@Valid @ModelAttribute("userProfileDto") UserProfileDto userProfileDto,
-                                BindingResult bindingResult, Model model, Principal principal) throws IOException {
-
+                                BindingResult bindingResult, Principal principal) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("userProfileDto", userProfileDto);
 
             return "profile";
         }
@@ -62,11 +50,12 @@ public class ProfileController {
         try {
             customUserDetailsService.updateProfile(userProfileDto, principal.getName());
 
-        } catch (UsernameNotFoundException e) {
-            e.printStackTrace();
-            // log the user out or something
-        }
+            return "index";
 
-        return "index";
+        } catch (IOException e) {
+
+            return "profile";
+
+        }
     }
 }

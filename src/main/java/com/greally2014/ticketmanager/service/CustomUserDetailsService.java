@@ -12,6 +12,7 @@ import com.greally2014.ticketmanager.exception.UserNotFoundException;
 import com.greally2014.ticketmanager.other.FileUploadUtil;
 import com.greally2014.ticketmanager.userDetails.CustomUserDetails;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -20,6 +21,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.*;
@@ -27,6 +30,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
+
+    private static final String DEFAULT_PROFILE_PICTURE = "default-picture.jpg";
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -91,28 +96,45 @@ public class CustomUserDetailsService implements UserDetailsService {
                         roleRepository.findByNameIn(Arrays.asList("ROLE_EMPLOYEE", registrationDto.getFormRole()))
                 )
         );
-
         user.setAddress(createUserAddress(registrationDto));
-
         user.setEnabled(true);
+        String fileName = setPhoto(registrationDto, user);
 
-        saveFile(user, registrationDto.getPhoto());
+        User registeredUser = userRepository.save(user);
+
+        saveProfilePicture(registeredUser, fileName, registrationDto.getPhoto());
     }
 
     @Transactional
-    public void updateProfile(UserProfileDto userProfileDto, String principalUsername) throws UsernameNotFoundException,
-        IOException {
-        User user = loadUserByUsername(principalUsername).getUser();
+    public void updateProfile(UserProfileDto userProfileDto, String username) throws IOException {
+        User user = loadUserByUsername(username).getUser();
 
         user.setFirstName(userProfileDto.getFirstName());
         user.setLastName(userProfileDto.getLastName());
         user.setGender(userProfileDto.getGender());
         user.setEmail(userProfileDto.getEmail());
         user.setPhoneNumber(userProfileDto.getPhoneNumber());
-
         user.setAddress(createUserAddress(userProfileDto));
 
-        saveFile(user, userProfileDto.getPhoto());
+        if (!(userProfileDto.getPhoto() == null || userProfileDto.getPhoto().isEmpty())) {
+            String fileName = setPhoto(userProfileDto, user);
+            saveProfilePicture(user, fileName, userProfileDto.getPhoto());
+        }
+
+        userRepository.save(user);
+    }
+
+    private String setPhoto(UserDto userDto, User user) {
+        String fileName;
+        if (userDto.getPhoto() == null || userDto.getPhoto().isEmpty()) {
+            fileName = DEFAULT_PROFILE_PICTURE;
+
+        } else {
+            fileName = StringUtils.cleanPath(Objects.requireNonNull(userDto.getPhoto().getOriginalFilename()));
+        }
+
+        user.setPhoto(fileName);
+        return fileName;
     }
 
     public Address createUserAddress(UserDto userDto) {
@@ -126,17 +148,16 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Transactional
-    public UserProfileDto findProfileDto(String username) throws UsernameNotFoundException {
+    public UserProfileDto findProfileDto(String username) {
         return new UserProfileDto(loadUserByUsername(username).getUser());
     }
 
     @Transactional
-    public Set<User> findAllEmployeesOrderByUsername(Principal principal) throws UsernameNotFoundException {
+    public Set<User> findAllEmployees(Principal principal) {
         List<User> users;
-
         User user = loadUserByUsername(principal.getName()).getUser();
 
-        if (user.getRoles().stream().anyMatch(o -> o.getName().equals("ROLE_PROJECT_MANAGER"))) {
+        if (hasRole(user,"ROLE_PROJECT_MANAGER")) {
             users = projectManagerService.findAllEmployees(principal.getName());
         } else {
             users = new ArrayList<>(userRepository.findAll());
@@ -144,7 +165,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         return users.stream()
                 .filter(o -> !o.getUsername().equals(principal.getName()))
-                .filter(o -> o.getRoles().stream().noneMatch(r -> r.getName().equals("ROLE_GENERAL_MANAGER")))
+                .filter(o -> !hasRole(o, "ROLE_GENERAL_MANAGER"))
                 .sorted(Comparator.comparing(User::getUsername))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
@@ -161,16 +182,22 @@ public class CustomUserDetailsService implements UserDetailsService {
         userRepository.deleteById(id);
     }
 
-    public void saveFile(User user, MultipartFile file) throws IOException {
-        if (file != null) {
-            String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
-            user.setPhoto(fileName);
+    public void saveProfilePicture(User user, String fileName, MultipartFile file) throws IOException {
+        String uploadDir = "src/main/resources/profile-pictures/" + user.getId();
 
-            User registeredUser = userRepository.save(user);
-
-            String uploadDir = "user-profile-picture/" + registeredUser.getId();
-
-            FileUploadUtil.saveFile(uploadDir, fileName, file);
+        if (file == null || file.isEmpty()) {
+            file = defaultProfilePicture();
         }
+
+        FileUploadUtil.saveFile(uploadDir, fileName, file);
+    }
+
+    public MultipartFile defaultProfilePicture() throws IOException {
+        return new MockMultipartFile("default-picture", new FileInputStream(
+                new File("src/main/resources/profile-pictures/default/" + DEFAULT_PROFILE_PICTURE)));
+    }
+
+    public boolean hasRole(User user, String role) {
+        return user.getRoles().stream().anyMatch(o -> o.getName().equals(role));
     }
 }
