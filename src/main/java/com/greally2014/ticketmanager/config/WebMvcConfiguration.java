@@ -16,6 +16,11 @@ import java.nio.file.Paths;
 public class WebMvcConfiguration implements WebMvcConfigurer {
 
     @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addViewController("/access-denied").setViewName("security/access-denied");
+    }
+
+    @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         exposeDirectory("src/main/resources/profile-pictures", registry);
     }
@@ -27,12 +32,5 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
         if (dirName.startsWith("../")) dirName = dirName.replace("../", "");
 
         registry.addResourceHandler("/" + dirName + "/**").addResourceLocations("file:/" + uploadPath + "/");
-    }
-
-    @Override
-    public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/").setViewName("index");
-        registry.addViewController("/login").setViewName("login");
-        registry.addViewController("/access-denied").setViewName("access-denied");
     }
 }

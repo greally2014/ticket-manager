@@ -18,6 +18,7 @@ public class UsersProjectsService {
         this.usersProjectsRepository = usersProjectsRepository;
     }
 
+    @Transactional
     public UsersProjects findOne(Long userId, Long projectId) {
         return usersProjectsRepository.findByUserIdAndProjectId(userId, projectId);
     }

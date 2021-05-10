@@ -1,5 +1,6 @@
 <!DOCTYPE HTML>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
     <!-- Required meta tags -->
@@ -7,54 +8,94 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
-          integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0"
           crossorigin="anonymous">
 
-    <title>Ticket Form</title>
+    <title>Ticket Update Fields Form</title>
 </head>
 
 <body>
 
-<div class="container">
+<nav class="navbar navbar-expand-sm navbar-light mb-5" style="background-color: lightskyblue;">
+    <a th:href="@{/}" class="navbar-brand ms-3 me-5">Ticket Manager</a>
+    <button class="navbar-toggler" data-toggle="collapse" data-target="#navbarMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse px-3" id="navbarMenu">
+        <ul class="navbar-nav me-auto">
+            <li class="nav-item me-3" sec:authorize="hasAnyRole('GENERAL_MANAGER', 'PROJECT_MANAGER')">
+                <a th:href="@{/projects/listAll}"
+                   class="nav-link">Projects</a>
+            </li>
+            <li class="nav-item me-3">
+                <a th:href="@{/tickets/listAll}" class="nav-link">Tickets</a>
+            </li>
+            <li class="nav-item me-3" sec:authorize="hasAnyRole('GENERAL_MANAGER', 'PROJECT_MANAGER')">
+                <a th:href="@{/employees/listAll}"
+                   class="nav-link">Employees</a>
+            </li>
+            <li class="nav-item me-4">
+                <a th:href="@{/profile/showFormForUpdate}" class="nav-link">Profile</a>
+            </li>
+        </ul>
+        <ul class="navbar-nav ms-auto">
+            <li class="nav-item me-5">
+                <form name="logoutForm" th:action="@{/processLogout}" method="post">
+                    <input type="submit" value="Logout" />
+                </form>
+            </li>
+        </ul>
+    </div>
+</nav>
 
-    <h3>Ticket Directory</h3>
+<div class="container">
+    <h3 style="margin-bottom: 20px;">Update Ticket</h3>
     <hr>
 
-    <p class="h4 mb-4">Save Ticket</p>
-
     <form action="#" th:action="@{/tickets/updateFields}"
-          th:object="${ticketDto}" method="POST">
+          th:object="${ticketDto}" method="POST" style="margin-top: 20px;" class="form-horizontal"`>
 
         <!-- Add hidden form field to handle update -->
         <input type="hidden" th:field="*{id}" />
         <input type="hidden" th:field="*{dateCreated}" />
 
-        <div class="form-inline">
-            <input type="text" th:field="*{title}"
-                   maxlength="50" class="form-control mb-4 col-4" placeholder="Title">
-
+        <div class="form-group" style="max-width: 400px; margin-right: 50px;">
+            <label for="title">Title: </label>
+            <br>
+            <input type="text" th:field="*{title}" id="title"
+                   class="form-control mb-4 col-4" placeholder="Title">
             <!-- Add error message (if present) -->
-            <span th:if="${#fields.hasErrors('title')}"
-                  th:errors="*{title}"
-                  class="badge badge-danger ml-2 mb-4"></span>
+            <div th:if="${#fields.hasErrors('title')}"
+                 class="text-danger">
+                <ul>
+                    <li th:each="err : ${#fields.errors('title')}" th:text="${err}" />
+                </ul>
+            </div>
+
         </div>
 
-        <div class="form-inline">
+        <div class="form-group" style="max-width: 500px; margin-right: 50px;">
+            <label for="description">Description: </label>
+            <br>
             <textarea rows="4" cols="50" th:field="*{description}"
-                      maxlength="200" class="form-control mb-4 col-4" placeholder="Description"></textarea>
+                      maxlength="50" id="description"
+                      class="form-control mb-4" placeholder="Description" style="resize: none"></textarea>
 
             <!-- Add error message (if present) -->
-            <span th:if="${#fields.hasErrors('description')}"
-                  th:errors="*{description}"
-                  class="badge badge-danger ml-2 mb-4"></span>
+            <div th:if="${#fields.hasErrors('description')}"
+                 class="text-danger">
+                <ul>
+                    <li th:each="err : ${#fields.errors('description')}" th:text="${err}" />
+                </ul>
+            </div>
         </div>
 
-        <select th:field="*{type}" class="form-control mb-4 col-4">
+        <select th:field="*{type}" class="form-control mb-4 col-4" style="max-width: 300px; margin-right: 50px;">
             <option value="">Select Type</option>
-            <option value="type1">Type One</option>
-            <option value="type2">Type Two</option>
-            <option value="type3">Type Three</option>
+            <option value="bug">Bug</option>
+            <option value="ui">User Interface</option>
+            <option value="feature">Feature Request</option>
         </select>
 
         <div th:if="${#fields.hasErrors('type')}"
@@ -93,11 +134,13 @@
         </fieldset>
 
         <button type="submit" class="btn btn-info col-2">Save</button>
-
+        <hr>
+        <br>
+        <a th:href="@{/tickets/listAll}">Back to Ticket List</a>
+        <br>
+        <br>
     </form>
 
-    <hr>
-    <a th:href="@{/tickets/listAll}">Back to Ticket List</a>
 
 </div>
 </body>

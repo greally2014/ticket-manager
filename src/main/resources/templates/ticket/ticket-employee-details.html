@@ -1,15 +1,15 @@
 <!DOCTYPE HTML>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
-                xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
-          integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0"
           crossorigin="anonymous">
 
 
@@ -18,42 +18,52 @@
 
 <body>
 
-<div class="container">
-
-    <h3>Employee Profile</h3>
+<div class="container" style="justify-content: center; padding-top: 40px;">
+    <h3 style="margin-bottom: 20px; text-align: center">Employee Profile</h3>
     <hr>
 
-    <form action="#" th:object="${employee}" readonly>
+    <div class="row" >
+        <div class="col-md-6">
+            <form action="#" th:object="${employee}" style="width: 80%; padding-left: 10%;">
 
-        <input type="text" name="username" th:field="*{username}" class="form-control mb-4 col-4" readonly>
+                <input type="text" name="username" th:field="*{username}" class="form-control mb-4" readonly>
 
-        <input type="text" name="firstName" th:field="*{firstName}" class="form-control mb-4 col-4" readonly>
+                <input type="text" name="firstName" th:field="*{firstName}" class="form-control mb-4" readonly>
 
-        <input type="text" name="lastName" th:field="*{lastName}" class="form-control mb-4 col-4" readonly>
+                <input type="text" name="lastName" th:field="*{lastName}" class="form-control mb-4" readonly>
 
-        <span th:switch="${employee.gender}">
-            <input th:case="'m'" type="text" name="gender-male" th:value="'Male'" readonly>
-            <input th:case="'f'" type="text" name="gender-female" th:value="'Female'" readonly>
-            <input th:case="'o'" type="text" name="gender-other" th:value="'Other'" readonly>
-        </span>
+                <span th:switch="${employee.gender}">
+                <input th:case="'m'" type="text" name="gender-male" th:value="'Male'" class="form-control mb-4" readonly>
+                <input th:case="'f'" type="text" name="gender-female" th:value="'Female'" class="form-control mb-4" readonly>
+                <input th:case="'o'" type="text" name="gender-other" th:value="'Other'" class="form-control mb-4" readonly>
+                </span>
 
-        <input type="text" name="email" th:field="*{email}" class="form-control mb-4 col-4" readonly>
+                <input type="text" name="role" th:value="*{getRoleName()}" class="form-control mb-4" readonly>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <form th:object="${employee}" style="width: 80%; padding-left: 10%;" readonly>
 
-        <input type="text" name="phoneNumber" th:field="*{phoneNumber}" class="form-control mb-4 col-4" readonly>
+                <input type="text" name="email" th:field="*{email}" class="form-control mb-4" readonly>
 
-        <input type="text" name="line1" th:field="*{address.line1}" class="form-control mb-4 col-4" readonly>
+                <input type="text" name="phoneNumber" th:field="*{phoneNumber}" class="form-control mb-4" readonly>
 
-        <input type="text" name="line2" th:field="*{address.line2}" class="form-control mb-4 col-4" readonly>
+                <input type="text" name="line1" th:field="*{address.line1}" class="form-control mb-4" readonly>
 
-        <input type="text" name="city" th:field="*{address.city}" class="form-control mb-4 col-4" readonly>
+                <input type="text" name="line2" th:field="*{address.line2}" class="form-control mb-4" readonly>
 
-        <input type="text" name="county" th:field="*{address.county}" class="form-control mb-4 col-4" readonly>
+                <input type="text" name="city" th:field="*{address.city}" class="form-control mb-4" readonly>
+
+                <input type="text" name="county" th:field="*{address.county}" class="form-control mb-4" readonly>
 
 
-    </form>
+            </form>
+        </div>
+    </div>
 
     <hr>
     <a th:href="@{/tickets/showDetailsPage(id=${ticketId})}">Back to Ticket Details</a>
+
 
 </div>
 

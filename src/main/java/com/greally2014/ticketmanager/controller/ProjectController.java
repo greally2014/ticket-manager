@@ -65,9 +65,10 @@ public class ProjectController {
     @PostMapping("/add")
     @PreAuthorize("hasRole('GENERAL_MANAGER')")
     public String addProject(@ModelAttribute("projectCreationDto") @Valid ProjectCreationDto projectCreationDto,
-                             BindingResult bindingResult, Principal principal) {
+                             BindingResult bindingResult, Principal principal, Model model) {
         if (bindingResult.hasErrors()) {
             projectCreationDto.setProjectManagerDtoList(projectManagerService.findProfileDtoList());
+            model.addAttribute("projectCreationDto", projectCreationDto);
 
             return "project/project-add";
 

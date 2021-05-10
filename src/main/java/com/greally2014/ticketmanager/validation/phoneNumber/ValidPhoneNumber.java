@@ -1,4 +1,4 @@
-package com.greally2014.ticketmanager.validation.phoneNumber.validNumber;
+package com.greally2014.ticketmanager.validation.phoneNumber;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;

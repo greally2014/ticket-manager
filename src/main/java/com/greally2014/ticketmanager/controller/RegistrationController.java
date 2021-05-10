@@ -3,6 +3,7 @@ package com.greally2014.ticketmanager.controller;
 import com.greally2014.ticketmanager.dto.user.RegistrationDto;
 import com.greally2014.ticketmanager.service.CustomUserDetailsService;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -10,6 +11,8 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
+import javax.mail.MessagingException;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -38,30 +41,48 @@ public class RegistrationController {
         model.addAttribute("registrationDto", new RegistrationDto());
         model.addAttribute("roles", roles);
 
-        return "register";
+        return "register/register";
     }
 
     @PostMapping("/process")
     public String processRegistration(@Valid @ModelAttribute("registrationDto") RegistrationDto registrationDto,
-                                      BindingResult bindingResult, Model model) {
+                                      BindingResult bindingResult, Model model,
+                                      HttpServletRequest request) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("roles", roles);
 
-            return "register";
+            return "register/register";
 
         } else {
             try {
-                customUserDetailsService.register(registrationDto);
+                customUserDetailsService.register(registrationDto, getSiteUrl(request));
 
-                return "registration-confirmation";
+                return "register/registration-confirmation";
 
-            } catch (IOException e) {
-                model.addAttribute("registrationDto", registrationDto);
-                model.addAttribute("roles", roles);
+            } catch (IOException | MessagingException e) {
+                e.printStackTrace();
+                customUserDetailsService.deleteByUsername(registrationDto);
 
-                return "register";
+                return "register/verify-fail";
+
             }
+
+
         }
+    }
+
+    @GetMapping("/verify")
+    public String verifyUser(@Param("code") String code) {
+        if (customUserDetailsService.verify(code)) {
+            return "register/verify-success";
+        } else {
+            return "register/verify-fail";
+        }
+    }
+
+    private String getSiteUrl(HttpServletRequest request) {
+        String siteUrl = request.getRequestURL().toString();
+        return siteUrl.replace(request.getServletPath(), "");
     }
 
     @PostConstruct

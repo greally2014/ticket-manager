@@ -8,7 +8,6 @@ import com.greally2014.ticketmanager.exception.ProjectNotFoundException;
 import com.greally2014.ticketmanager.exception.TicketDocumentNotFoundException;
 import com.greally2014.ticketmanager.exception.TicketNotFoundException;
 import com.greally2014.ticketmanager.exception.UserNotFoundException;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -293,11 +292,13 @@ public class TicketService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void deleteDocument(Long ticketId, Long ticketDocumentId) throws TicketNotFoundException, TicketDocumentNotFoundException {
         Ticket ticket = findById(ticketId);
         ticketDocumentService.delete(ticketDocumentId);
     }
 
+    @Transactional
     public TicketDocument findDocument(Long ticketId, Long ticketDocumentId) throws TicketNotFoundException, TicketDocumentNotFoundException {
         Ticket ticket = findById(ticketId);
         return ticketDocumentService.findById(ticketDocumentId);

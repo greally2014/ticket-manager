@@ -1,6 +1,7 @@
 package com.greally2014.ticketmanager.entity;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -43,6 +44,23 @@ public class User {
     @Column(name = "enabled")
     private boolean enabled;
 
+    @Column(name = "account_non_locked")
+    private boolean accountNonLocked;
+
+    @Column(name = "failed_attempt")
+    private int failedAttempt;
+
+    @Column(name = "lock_time")
+    private Date lockTime;
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "verification_code_id")
+    private VerificationCode verificationCode;
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "reset_password_code_id")
+    private ResetPasswordCode resetPasswordCode;
+
     @ManyToMany(
             fetch = FetchType.EAGER,
             cascade = CascadeType.PERSIST
@@ -84,6 +102,26 @@ public class User {
         this.username = username;
     }
 
+    public String getRoleName() {
+        if (this instanceof Developer) {
+            return "Developer";
+        } else if (this instanceof Submitter) {
+            return "Submitter";
+        } else if (this instanceof ProjectManager) {
+            return "Project Manager";
+        } else {
+            return "General Manager";
+        }
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
     public String getPassword() {
         return password;
     }
@@ -106,6 +144,10 @@ public class User {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public String getFullName() {
+        return this.firstName + " " + this.lastName;
     }
 
     public String getGender() {
@@ -156,23 +198,44 @@ public class User {
         this.enabled = enabled;
     }
 
-    public String getRoleName() {
-        if (this instanceof Developer) {
-            return "Developer";
-        } else if (this instanceof Submitter) {
-            return "Submitter";
-        } else if (this instanceof ProjectManager) {
-            return "Project Manager";
-        } else {
-            return "General Manager";
-        }
+    public boolean isAccountNonLocked() {
+        return accountNonLocked;
     }
 
-    public Set<Role> getRoles() {
-        return roles;
+    public void setAccountNonLocked(boolean accountNonLocked) {
+        this.accountNonLocked = accountNonLocked;
     }
 
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
+    public int getFailedAttempt() {
+        return failedAttempt;
     }
+
+    public void setFailedAttempt(int failedAttempt) {
+        this.failedAttempt = failedAttempt;
+    }
+
+    public Date getLockTime() {
+        return lockTime;
+    }
+
+    public void setLockTime(Date lockTime) {
+        this.lockTime = lockTime;
+    }
+
+    public VerificationCode getVerificationCode() {
+        return verificationCode;
+    }
+
+    public void setVerificationCode(VerificationCode verificationCode) {
+        this.verificationCode = verificationCode;
+    }
+
+    public ResetPasswordCode getResetPasswordCode() {
+        return resetPasswordCode;
+    }
+
+    public void setResetPasswordCode(ResetPasswordCode resetPasswordCode) {
+        this.resetPasswordCode = resetPasswordCode;
+    }
+
 }

@@ -2,7 +2,7 @@ package com.greally2014.ticketmanager.dto.user;
 
 import com.greally2014.ticketmanager.validation.email.uniqueEmail.UniqueEmail;
 import com.greally2014.ticketmanager.validation.email.validEmail.ValidEmail;
-import com.greally2014.ticketmanager.validation.phoneNumber.validNumber.ValidPhoneNumber;
+import com.greally2014.ticketmanager.validation.phoneNumber.ValidPhoneNumber;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;

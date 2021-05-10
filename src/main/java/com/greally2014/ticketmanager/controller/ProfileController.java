@@ -36,26 +36,20 @@ public class ProfileController {
                 customUserDetailsService.findProfileDto(principal.getName())
         );
 
-        return "profile";
+        return "profile/profile";
     }
 
     @PostMapping("/update")
     public String updateProfile(@Valid @ModelAttribute("userProfileDto") UserProfileDto userProfileDto,
-                                BindingResult bindingResult, Principal principal) {
+                                BindingResult bindingResult, Principal principal) throws IOException {
         if (bindingResult.hasErrors()) {
 
-            return "profile";
+            return "profile/profile";
         }
 
-        try {
-            customUserDetailsService.updateProfile(userProfileDto, principal.getName());
+        customUserDetailsService.updateProfile(userProfileDto, principal.getName());
 
-            return "index";
+        return "redirect:/";
 
-        } catch (IOException e) {
-
-            return "profile";
-
-        }
     }
 }

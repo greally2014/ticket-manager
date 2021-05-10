@@ -185,6 +185,7 @@ public class ProjectService {
         return removeAlreadyAdded(alreadyAdded, userDtoList);
     }
 
+    @Transactional
     public List<UserProfileDto> removeAlreadyAdded(List<UserProfileDto> alreadyAdded,
                                                    List<UserProfileDto> userDtoList) {
         List<UserProfileDto> userDtoListCopy = new ArrayList<>();

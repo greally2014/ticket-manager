@@ -22,7 +22,9 @@ public class Project {
     @Column(name = "date_created")
     private LocalDate dateCreated;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "project",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY)
     private List<UsersProjects> usersProjects;
 
     @OneToMany(

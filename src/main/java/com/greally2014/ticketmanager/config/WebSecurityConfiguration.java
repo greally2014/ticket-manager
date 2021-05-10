@@ -1,5 +1,7 @@
 package com.greally2014.ticketmanager.config;
 
+import com.greally2014.ticketmanager.security.CustomAuthenticationFailureHandler;
+import com.greally2014.ticketmanager.security.CustomAuthenticationSuccessHandler;
 import com.greally2014.ticketmanager.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,8 +13,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 @Configuration
 @EnableWebSecurity
@@ -23,10 +23,14 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
+    private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
+
     public WebSecurityConfiguration(CustomUserDetailsService customUserDetailsService,
-                                    CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler) {
+                                    CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler,
+                                    CustomAuthenticationFailureHandler customAuthenticationFailureHandler) {
         this.customUserDetailsService = customUserDetailsService;
         this.customAuthenticationSuccessHandler = customAuthenticationSuccessHandler;
+        this.customAuthenticationFailureHandler = customAuthenticationFailureHandler;
     }
 
     @Override
@@ -37,18 +41,23 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-            .antMatchers("/projects")
-                .hasAnyRole("GENERAL_MANAGER", "PROJECT_MANAGER")
-            .antMatchers("/")
-                .hasRole("EMPLOYEE")
+                .antMatchers("/projects")
+                    .hasAnyRole("GENERAL_MANAGER", "PROJECT_MANAGER")
+                .antMatchers("/")
+                    .hasRole("EMPLOYEE")
             .and()
             .formLogin()
                 .loginPage("/login")
-                .loginProcessingUrl("/authenticateLogin")
+                .loginProcessingUrl("/processLogin")
+                .usernameParameter("username")
+                .passwordParameter("password")
                 .successHandler(customAuthenticationSuccessHandler)
+                .failureHandler(customAuthenticationFailureHandler)
                 .permitAll()
             .and()
             .logout()
+                .invalidateHttpSession(true)
+                .logoutUrl("/processLogout")
                 .permitAll()
             .and()
             .exceptionHandling()

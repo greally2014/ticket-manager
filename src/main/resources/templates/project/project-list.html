@@ -1,15 +1,16 @@
 <!DOCTYPE HTML>
-<html lang="en" xmlns:th="http://www.thymeleaf.org"
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
-          integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0"
           crossorigin="anonymous">
 
     <title>Project Directory</title>
@@ -17,66 +18,100 @@
 
 <body>
 
+<nav class="navbar navbar-expand-sm navbar-light mb-5" style="background-color: lightskyblue;">
+    <a th:href="@{/}" class="navbar-brand ms-3 me-5">Ticket Manager</a>
+    <button class="navbar-toggler" data-toggle="collapse" data-target="#navbarMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse px-3" id="navbarMenu">
+        <ul class="navbar-nav me-auto">
+            <li class="nav-item me-3" sec:authorize="hasAnyRole('GENERAL_MANAGER', 'PROJECT_MANAGER')">
+                <a th:href="@{/projects/listAll}"
+                   class="nav-link">Projects</a>
+            </li>
+            <li class="nav-item me-3">
+                <a th:href="@{/tickets/listAll}" class="nav-link">Tickets</a>
+            </li>
+            <li class="nav-item me-3" sec:authorize="hasAnyRole('GENERAL_MANAGER', 'PROJECT_MANAGER')">
+                <a th:href="@{/employees/listAll}"
+                   class="nav-link">Employees</a>
+            </li>
+            <li class="nav-item me-4">
+                <a th:href="@{/profile/showFormForUpdate}" class="nav-link">Profile</a>
+            </li>
+        </ul>
+        <ul class="navbar-nav ms-auto">
+            <li class="nav-item me-5">
+                <form name="logoutForm" th:action="@{/processLogout}" method="post">
+                    <input type="submit" value="Logout" />
+                </form>
+            </li>
+        </ul>
+    </div>
+</nav>
+
 <div class="container">
+        <h3 style="margin-bottom: 20px;">Project Directory</h3>
+        <hr>
 
-    <h3>Project Directory</h3>
-    <hr>
-
-    <form action="#"
-          method="GET" class="form-inline">
-
+    <form action="#" method="GET" class="form-inline" style="margin-top: 20px;">
         <!-- Add a button -->
-        <a th:href="@{/projects/showAddForm}"
-           sec:authorize="hasRole('GENERAL_MANAGER')"
-           class="btn btn-primary btn-sm mb-3">
+        <a th:href="@{/projects/showAddForm}" sec:authorize="hasRole('GENERAL_MANAGER')"
+           class="btn btn-primary btn-sm mb-3 me-5" style="vertical-align: middle">
             Add Project
         </a>
-        <input type="text"
-               id="search-input"
-               name="search"
-               placeholder="Search Title"
-               onkeyup="myFunction()"
-               class="form-control-sm ml-5 mr-2 mb-3" />
+
+        <input type="text" id="search-input" name="search" placeholder="Search title" onkeyup="searchTable()"
+           class="form-control-sm me-2 mb-3" style="vertical-align: middle" />
     </form>
 
-    <table class="table table-bordered table-striped" id="project-table">
-        <thead class="thead-dark">
-            <tr>
-                <th onclick="sortTable(0)">Title</th>
-                <th onclick="sortTable(1)">Description</th>
-                <th>Date Created</th>
-                <th onclick="sortTable(3)">Creator</th>
-                <th>Action</th>
-            </tr>
-        </thead>
+    <div style="overflow: auto; max-height: 600px;">
+        <table class="table table-bordered table-striped" id="project-table">
+            <thead class="thead-dark" style="position: sticky; top: 0;">
+                <tr>
+                    <th onclick="sortTable(0)">Title</th>
+                    <th onclick="sortTable(1)">Description</th>
+                    <th>Date Created</th>
+                    <th onclick="sortTable(3)">Creator</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
 
-        <tbody>
-            <tr th:each="tempProject : ${projects}">
+            <tbody>
+                <tr th:each="tempProject : ${projects}">
 
-                <td th:text="${tempProject.title}"></td>
-                <td th:text="${tempProject.description}"></td>
-                <td th:text="${tempProject.dateCreated}"></td>
-                <td th:text="${tempProject.creator != null} ? ${tempProject.creator.username} : 'N/A'"></td>
-                <td>
+                    <td th:text="${tempProject.title}"></td>
+                    <td th:text="${tempProject.description}"></td>
+                    <td th:text="${tempProject.dateCreated}"></td>
+                    <td th:text="${tempProject.creator != null} ? ${tempProject.creator.username} : 'N/A'"></td>
+                    <td>
 
-                    <!-- Add "details" button/link -->
-                    <a th:href="@{/projects/showDetailsPage(id=${tempProject.id})}"
-                       class="btn btn-info btn-sm">
-                        Details
-                    </a>
+                        <!-- Add "details" button/link -->
+                        <a th:href="@{/projects/showDetailsPage(id=${tempProject.id})}"
+                           class="btn btn-info btn-sm">
+                            Details
+                        </a>
 
-                </td>
+                    </td>
 
-            </tr>
-        </tbody>
-    </table>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
 </div>
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
 
 <script>
     function sortTable(n) {
         var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-        table = ticketDocument.getElementById("project-table");
+        table = document.getElementById("project-table");
         switching = true;
         // Set the sorting direction to ascending:
         dir = "asc";
@@ -130,12 +165,12 @@
     }
 </script>
 <script>
-    function myFunction() {
+    function searchTable() {
         // Declare variables
         var input, filter, table, tr, td, i, txtValue;
-        input = ticketDocument.getElementById("search-input");
+        input = document.getElementById("search-input");
         filter = input.value.toUpperCase();
-        table = ticketDocument.getElementById("project-table");
+        table = document.getElementById("project-table");
         tr = table.getElementsByTagName("tr");
 
         // Loop through all table rows, and hide those who don't match the search query
