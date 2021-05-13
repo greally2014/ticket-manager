@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<!-- Reference Bootstrap files -->
+	<link rel="stylesheet"
+		 href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <title>Register New User Form</title>
+
+</head>
+
+<body>
+
+	<div>
+
+		<div id="loginbox" style="margin-top: 50px;"
+			class="mainbox col-md-3 col-md-offset-2 col-sm-6 col-sm-offset-2">
+			
+			<div class="panel panel-primary">
+
+				<div class="panel-heading">
+					<div class="panel-title">Register New User</div>
+				</div>
+
+				<div style="padding-top: 30px" class="panel-body">
+
+					<!-- Registration Form -->
+					<!--/*@thymesVar id="user" type=""*/-->
+					<form th:action="@{/registration/process}"
+                          th:object="${registrationDto}" method="POST"
+                          enctype="multipart/form-data"
+                          class="form-horizontal">
+
+						<!-- User name -->
+						<div style="margin-bottom: 25px" class="input-group">
+							<span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span> 
+							<input type="text" th:field="*{username}" maxlength="50"
+                                   placeholder="username (*)" class="form-control"/>
+						</div>
+						<div th:if="${#fields.hasErrors('username')}"
+							style="margin-bottom: 25px" class="text-danger">
+							<ul>
+							  <li th:each="err : ${#fields.errors('username')}" th:text="${err}"/>
+							</ul>						
+						</div>
+
+						<!-- Password -->
+						<div style="margin-bottom: 25px" class="input-group">
+							<span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span> 
+							<input type="password" th:field="*{password}" maxlength="80" placeholder="password (*)"
+                                   class="form-control" th:errorclass="fieldError"/>
+						</div>
+						
+						<!-- Confirm Password -->
+						<div style="margin-bottom: 25px" class="input-group">
+							<span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span> 
+							<input type="password" th:field="*{matchingPassword}" maxlength="80"
+                                   placeholder="confirm password (*)" class="form-control" th:errorclass="fieldError"/>
+						</div>
+                        <div th:if="${#fields.hasErrors('password')}"
+                             style="margin-bottom: 25px" class="text-danger">
+                            <ul>
+                                <li th:each="err : ${#fields.errors('password')}" th:text="${err}"/>
+                            </ul>
+                        </div>
+
+
+                        <!-- Roles -->
+                        <div style="margin-bottom: 25px" class="input-group" th:object="${roles}">
+                            <select class="form-control" th:field="${registrationDto.formRole}">
+                                <option value="">Select Role</option>
+                                <option th:each="role : ${roles}"
+                                        th:value="${role.getKey()}"
+                                        th:text="${role.getValue()}">
+
+                                </option>
+                            </select>
+                        </div>
+                        <div th:if="${#fields.hasErrors('formRole')}"
+                             style="margin-bottom: 25px" class="text-danger">
+                            <ul>
+                                <li th:each="err : ${#fields.errors('formRole')}" th:text="${err}"/>
+                            </ul>
+                        </div>
+					
+						
+						<!-- First name -->
+						<div style="margin-bottom: 25px" class="input-group">
+							<span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span> 
+							<input type="text" th:field="*{firstName}" maxlength="50" placeholder="first name (*)"
+                                   class="form-control" th:errorclass="fieldError"/>
+						</div>
+						<div th:if="${#fields.hasErrors('firstName')}"
+							style="margin-bottom: 25px" class="text-danger">
+							<ul>
+							  <li th:each="err : ${#fields.errors('firstName')}" th:text="${err}"/>
+							</ul>						
+						</div>
+						
+						<!-- Last name -->
+						<div style="margin-bottom: 25px" class="input-group">
+							<span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span> 
+							<input type="text" th:field="*{lastName}" maxlength="50" placeholder="last name (*)"
+                                   class="form-control" th:errorclass="fieldError"/>
+						</div>
+						<div th:if="${#fields.hasErrors('lastName')}"
+							style="margin-bottom: 25px" class="text-danger">
+							<ul>
+							  <li th:each="err : ${#fields.errors('lastName')}" th:text="${err}" />
+							</ul>						
+						</div>
+
+                        <fieldset>
+                            <legend>What's your gender?</legend>
+                            <ul>
+                                <li>
+                                    <input id="gender-male" type="radio" name="gender" th:field="*{gender}" value="m">
+                                    <label for="gender-male">Male</label>
+                                </li>
+                                <li>
+                                    <input id="gender-female" type="radio" name="gender" th:field="*{gender}" value="f">
+                                    <label for="gender-female">Female</label>
+                                </li>
+                                <li>
+                                    <input id="gender-other" type="radio" name="gender" th:field="*{gender}" value="o">
+                                    <label for="gender-other">Other</label>
+                                </li>
+                            </ul>
+                            <div th:if="${#fields.hasErrors('gender')}"
+                                 style="margin-bottom: 25px" class="text-danger">
+                                <ul>
+                                    <li th:each="err : ${#fields.errors('gender')}" th:text="${err}" />
+                                </ul>
+                            </div>
+                        </fieldset>
+						
+						<!-- Email -->
+						<div style="margin-bottom: 25px" class="input-group">
+							<span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span> 
+							<input type="text" th:field="*{email}" maxlength="50" placeholder="email (*)" class="form-control" th:errorclass="fieldError"/>
+						</div>
+						<div th:if="${#fields.hasErrors('email')}"
+							style="margin-bottom: 25px" class="text-danger">
+							<ul>
+							  <li th:each="err : ${#fields.errors('email')}" th:text="${err}" />
+							</ul>						
+						</div>
+
+                        <!-- Line 1 -->
+                        <div style="margin-bottom: 25px" class="input-group">
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                            <input type="text" th:field="*{address.line1}" maxlength="50"
+                                   class="form-control mb-4 col-4" placeholder="Address Line 1">
+                        </div>
+                        <div th:if="${#fields.hasErrors('address.line1')}"
+                             style="margin-bottom: 25px; color: red">
+                            <ul>
+                                <li th:each="err : ${#fields.errors('address.line1')}" th:text="${err}" ></li>
+                            </ul>
+                        </div>
+
+                        <!-- Line 2 -->
+                        <div style="margin-bottom: 25px" class="input-group">
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                            <input type="text" th:field="*{address.line2}" maxlength="50"
+                                   class="form-control mb-4 col-4" placeholder="Address Line 2">
+                        </div>
+                        <div th:if="${#fields.hasErrors('address.line2')}"
+                             style="margin-bottom: 25px; color: red">
+                            <ul>
+                                <li th:each="err : ${#fields.errors('address.line2')}" th:text="${err}" ></li>
+                            </ul>
+                        </div>
+
+                        <!-- City -->
+                        <div style="margin-bottom: 25px" class="input-group">
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                            <input type="text" th:field="*{address.city}" maxlength="50"
+                                   class="form-control mb-4 col-4" placeholder="City">
+                        </div>
+                        <div th:if="${#fields.hasErrors('address.city')}"
+                             style="margin-bottom: 25px; color: red">
+                            <ul>
+                                <li th:each="err : ${#fields.errors('address.city')}" th:text="${err}" ></li>
+                            </ul>
+                        </div>
+
+                        <select th:field="*{address.county}" class="form-control mb-4 col-4">
+                            <option value="">County</option>
+                            <option value="Antrim">Antrim</option>
+                            <option value="Armagh">Armagh</option>
+                            <option value="Carlow">Carlow</option>
+                            <option value="Cavan">Cavan</option>
+                            <option value="Clare">Clare</option>
+                            <option value="Cork">Cork></option>
+                            <option value="Derry">Derry</option>
+                            <option value="Donegal">Donegal</option>
+                            <option value="Down">Down</option>
+                            <option value="Dublin">Dublin</option>
+                            <option value="Fermanagh">Fermanagh</option>
+                            <option value="Galway">Galway</option>
+                            <option value="Kerry">Kerry</option>
+                            <option value="Kildare">Kildare</option>
+                            <option value="Kilkenny">Kilkenny</option>
+                            <option value="Laois">Laois</option>
+                            <option value="Leitrim">Leitrim</option>
+                            <option value="Limerick">Limerick</option>
+                            <option value="Longford">Longford</option>
+                            <option value="Louth">Louth</option>
+                            <option value="Mayo">Mayo</option>
+                            <option value="Meath">Meath</option>
+                            <option value="Monaghan">Monaghan</option>
+                            <option value="Offaly">Offaly</option>
+                            <option value="Roscomon">Roscomon</option>
+                            <option value="Tyrone">Tyrone</option>
+                            <option value="Waterford">Waterford</option>
+                            <option value="Sligo">Sligo</option>
+                            <option value="Tipperary">Tipperary</option>
+                            <option value="Westmeath">Westmeath</option>
+                            <option value="Wexford">Wexford</option>
+                            <option value="Wicklow">Wicklow</option>
+                        </select>
+
+
+                        <div th:if="${#fields.hasErrors('address.county')}"
+                             style="margin-bottom: 25px; color: #ff0000">
+                            <ul>
+                                <li th:each="err : ${#fields.errors('address.county')}" th:text="${err}" ></li>
+                            </ul>
+                        </div>
+                        <br>
+                        <!-- Phone Number -->
+                        <div style="margin-bottom: 25px" class="input-group">
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                            <input type="text" th:field="*{phoneNumber}" maxlength="20"
+                                   class="form-control mb-4 col-4" placeholder="Phone Number">
+                        </div>
+                        <div th:if="${#fields.hasErrors('phoneNumber')}"
+                             style="margin-bottom: 25px; color: red">
+                            <ul>
+                                <li th:each="err : ${#fields.errors('phoneNumber')}" th:text="${err}" ></li>
+                            </ul>
+                        </div>
+
+                        <!-- Profile Picture -->
+                        <div style="margin-bottom: 25px" class="input-group">
+                            <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                            <label for="profile-picture">Profile picture: </label>
+                            <input id="profile-picture" name="image" type="file" accept="image/png, image/jpeg" th:field="*{photo}"
+                                   class="form-control mb-4 col-4">
+                        </div>
+
+                        <!-- Register Button -->
+						<div style="margin-top: 10px" class="form-group">						
+							<div class="col-sm-6 controls">
+								<button type="submit" class="btn btn-primary">Register</button>
+							</div>
+						</div>
+						
+					</form>
+
+				</div>
+
+			</div>
+
+		</div>
+
+	</div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+
+    <script	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</body>
+</html>

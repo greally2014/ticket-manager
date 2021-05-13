@@ -1,0 +1,200 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0"
+          crossorigin="anonymous">
+
+    <title>Employee Directory</title>
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-sm navbar-light mb-5" style="background-color: lightskyblue;">
+    <a th:href="@{/}" class="navbar-brand ms-3 me-5">Ticket Manager</a>
+    <button class="navbar-toggler" data-toggle="collapse" data-target="#navbarMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse px-3" id="navbarMenu">
+        <ul class="navbar-nav me-auto">
+            <li class="nav-item me-3" sec:authorize="hasAnyRole('GENERAL_MANAGER', 'PROJECT_MANAGER')">
+                <a th:href="@{/projects/listAll}"
+                   class="nav-link">Projects</a>
+            </li>
+            <li class="nav-item me-3">
+                <a th:href="@{/tickets/listAll}" class="nav-link">Tickets</a>
+            </li>
+            <li class="nav-item me-3" sec:authorize="hasAnyRole('GENERAL_MANAGER', 'PROJECT_MANAGER')">
+                <a th:href="@{/employees/listAll}"
+                   class="nav-link">Employees</a>
+            </li>
+            <li class="nav-item me-4">
+                <a th:href="@{/profile/showFormForUpdate}" class="nav-link">Profile</a>
+            </li>
+        </ul>
+        <ul class="navbar-nav ms-auto">
+            <li class="nav-item me-5">
+                <form name="logoutForm" th:action="@{/processLogout}" method="post">
+                    <input type="submit" value="Logout" />
+                </form>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container">
+        <h3 style="margin-bottom: 20px;">Employee Directory</h3>
+        <hr>
+
+    <form action="#" method="GET" class="form-inline" style="margin-top: 20px;">
+        <input type="text" id="search-input" name="search" placeholder="Search username" onkeyup="searchTable()"
+               class="form-control-sm me-2 mb-3" style="vertical-align: middle" />
+    </form>
+
+    <div style="overflow: auto; max-height: 600px;">
+        <table class="table table-bordered table-striped" id="employee-table">
+            <thead class="thead-dark">
+            <tr>
+                <th onclick="sortTable(0)">Username</th>
+                <th onclick="sortTable(1)">First Name</th>
+                <th onclick="sortTable(2)">Last Name</th>
+                <th onclick="sortTable(3)">Role</th>
+                <th onclick="sortTable(4)">Email</th>
+                <th>Mobile Number</th>
+
+                <th>Action</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="tempEmployee : ${employees}">
+
+                <td th:text="${tempEmployee.username}"></td>
+                <td th:text="${tempEmployee.firstName}"></td>
+                <td th:text="${tempEmployee.lastName}"></td>
+                <td th:text="${tempEmployee.getRoleName()}"></td>
+                <td th:text="${tempEmployee.email}"></td>
+                <td th:text="${tempEmployee.phoneNumber}"></td>
+                <td>
+                    <!-- Add "details" button/link -->
+                    <a th:href="@{/employees/showDetailsPage(id=${tempEmployee.id})}"
+                       class="btn btn-info btn-sm">
+                        Details
+                    </a>
+
+                    <!-- Add "delete" button/link -->
+                    <a th:href="@{/employees/delete(id=${tempEmployee.id})}"
+                       sec:authorize="hasRole('GENERAL_MANAGER')"
+                       class="btn btn-danger btn-sm"
+                       onclick="if (!(confirm('Are you sure you want to delete this employee?'))) return false">
+                        Delete
+                    </a>
+
+                </td>
+
+
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+
+<script>
+    function sortTable(n) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("project-table");
+        switching = true;
+        // Set the sorting direction to ascending:
+        dir = "asc";
+        /* Make a loop that will continue until
+        no switching has been done: */
+        while (switching) {
+            // Start by saying: no switching is done:
+            switching = false;
+            rows = table.rows;
+            /* Loop through all table rows (except the
+            first, which contains table headers): */
+            for (i = 1; i < (rows.length - 1); i++) {
+                // Start by saying there should be no switching:
+                shouldSwitch = false;
+                /* Get the two elements you want to compare,
+                one from current row and one from the next: */
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                /* Check if the two rows should switch place,
+                based on the direction, asc or desc: */
+                if (dir == "asc") {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        // If so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else if (dir == "desc") {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        // If so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                /* If a switch has been marked, make the switch
+                and mark that a switch has been done: */
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                // Each time a switch is done, increase this count by 1:
+                switchcount ++;
+            } else {
+                /* If no switching has been done AND the direction is "asc",
+                set the direction to "desc" and run the while loop again. */
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+</script>
+<script>
+    function searchTable() {
+        // Declare variables
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("search-input");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("employee-table");
+        tr = table.getElementsByTagName("tr");
+
+        // Loop through all table rows, and hide those who don't match the search query
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[0];
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
+
+
+
