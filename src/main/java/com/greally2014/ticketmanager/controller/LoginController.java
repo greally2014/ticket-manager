@@ -30,6 +30,10 @@ import java.io.UnsupportedEncodingException;
 @Controller
 public class LoginController {
 
+    /**
+     * strips whitespace from form entries, converting them to null entries if pure whitespace.
+     * pure whitespace entries are then flagged by the @NotNull annotation
+     */
     @InitBinder
     public void initBinder(WebDataBinder webDataBinder) {
         StringTrimmerEditor stringTrimmerEditor = new StringTrimmerEditor(true);
@@ -47,16 +51,15 @@ public class LoginController {
 
     @GetMapping("/")
     public String showRoleHomePage(Authentication authentication) {
-        return "redirect:" + Util.determineTargetUrl(authentication);
+        return "redirect:" + Util.determineTargetUrl(authentication); // redirects to url based on user role
     }
 
     @GetMapping("/login")
     public String showLoginForm(Authentication authentication) {
         if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
-            return "login/login";
+            return "login/login"; // if user is not authenticated, show login form
         }
-
-        return "redirect:/";
+        return "redirect:/"; // if user is already logged in, redirect to default url page
     }
 
     @GetMapping("/forgotPassword")
@@ -67,11 +70,11 @@ public class LoginController {
     @PostMapping("/forgotPassword")
     public String processForgotPassword(HttpServletRequest request, Model model) {
         String email = request.getParameter("email");
-        String code = RandomString.make(64);
+        String code = RandomString.make(64); // unique email verification code
 
         try {
-            customUserDetailsService.updateResetPasswordCode(code, email);
-            String resetPasswordLink = Util.getSiteURL(request) + "/resetPassword?code=" + code;
+            customUserDetailsService.updateResetPasswordCode(code, email); // updates reset password code if email exists
+            String resetPasswordLink = getSiteURL(request) + "/resetPassword?code=" + code;
             sendEmail(email, resetPasswordLink);
             model.addAttribute("message", "We have sent a reset password link to your email. Please check.");
 
@@ -87,7 +90,7 @@ public class LoginController {
     @GetMapping("/resetPassword")
     public String showResetPasswordForm(@Param(value = "code") String code, Model model) {
         User user = customUserDetailsService.getUserByResetPasswordCode(code);
-        ResetPasswordDto passwordDto = new ResetPasswordDto(code);
+        ResetPasswordDto passwordDto = new ResetPasswordDto(code); // contains password and matching password fields
         model.addAttribute("resetPasswordDto", passwordDto);
 
         if (user == null) {
@@ -110,25 +113,21 @@ public class LoginController {
         String password = passwordDto.getPassword();
 
         User user = customUserDetailsService.getUserByResetPasswordCode(code);
-        model.addAttribute("title", "Reset your password");
 
         if (user == null) {
             model.addAttribute("message", "Invalid code. Please re-enter your email and try again.");
             return "login/forgot-password";
         } else {
             customUserDetailsService.updatePassword(user, password);
-
-            model.addAttribute("message", "You have successfully changed your password.");
+            return "login/reset-password-success";
         }
-
-        return "login/reset-password-success";
     }
 
     public void sendEmail(String recipientEmail, String link) throws MessagingException, UnsupportedEncodingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
 
-        helper.setFrom("greally2014@gmail.com", "Ticket Manager Company");
+        helper.setFrom("greally2014@gmail.com", "Ticket Manager Company"); //host email address
         helper.setTo(recipientEmail);
 
         String subject = "Reset your password using this link";
@@ -136,7 +135,7 @@ public class LoginController {
         String content = "<p>Hello,</p>"
                 + "<p>You have requested to reset your password.</p>"
                 + "<p>Click the link below to reset your password:</p>"
-                + "<p><a href=\"" + link + "\">Reset password</a></p>"
+                + "<p><a href=\"" + link + "\">Reset password</a></p>" // contains user unique reset password code appended to context url
                 + "<br>"
                 + "<p>Ignore this email if do not want to reset your password, "
                 + "or you do not remember making this request.</p>";
@@ -146,5 +145,10 @@ public class LoginController {
         helper.setText(content, true);
 
         mailSender.send(message);
+    }
+
+    public static String getSiteURL(HttpServletRequest request) {
+        String siteURL = request.getRequestURL().toString();
+        return siteURL.replace(request.getServletPath(), "");
     }
 }

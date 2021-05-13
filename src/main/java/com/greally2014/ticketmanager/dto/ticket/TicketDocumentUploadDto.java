@@ -5,7 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-@Valid
+@Valid // allows class fields to be validated
 public class TicketDocumentUploadDto {
 
     @NotNull(message = "File is required")

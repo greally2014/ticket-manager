@@ -6,13 +6,14 @@ import java.util.regex.Pattern;
 
 public class ValidEmailValidator implements ConstraintValidator<ValidEmail, String> {
 
+    // regular expression for valid email format
     private static final String EMAIL_PATTERN = "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*" +
                                         "@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
 
     @Override
     public boolean isValid(String email, ConstraintValidatorContext context) {
         if (email == null || email.length() < 1 || email.length() > 50) {
-            return true;
+            return true; // other annotations detect these conditions
         }
         return Pattern.matches(EMAIL_PATTERN, email);
     }

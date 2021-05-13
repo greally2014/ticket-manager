@@ -10,12 +10,12 @@ public class SelectedValidator implements ConstraintValidator<Selected, List<Use
     @Override
     public boolean isValid(List<UserProfileDto> userProfileDtos, ConstraintValidatorContext context) {
         if (userProfileDtos == null) {
-            return true;
+            return true; // @NotNull checks for null
         }
 
         for (UserProfileDto userProfileDto : userProfileDtos) {
             if (userProfileDto.getFlag()) {
-                return true;
+                return true; // returns true if any user was selected
             }
         }
         return false;

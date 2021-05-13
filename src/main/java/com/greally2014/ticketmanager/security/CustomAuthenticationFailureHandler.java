@@ -30,22 +30,22 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
         String username = request.getParameter("username");
         try {
             User user = customUserDetailsService.loadUserByUsername(username).getUser();
-            if (user.isEnabled() && user.isAccountNonLocked()) {
-                if (user.getFailedAttempt() < CustomUserDetailsService.MAX_FAILED_ATTEMPTS - 1) {
+            if (user.isEnabled() && user.isAccountNonLocked()) { //user is eligible for login
+                if (user.getFailedAttempt() < CustomUserDetailsService.MAX_FAILED_ATTEMPTS - 1) { // user is not on last attempt
                     customUserDetailsService.increaseFailedAttempts(user);
                     exception = new BadCredentialsException("Invalid username and password.");
                 } else {
-                    customUserDetailsService.lock(user);
+                    customUserDetailsService.lock(user); // user used last attempt
                     exception = new LockedException("You have used all 3 attempts. " +
                             "Your account has been locked for 24 hours.");
                 }
-            } else if (!user.isAccountNonLocked()) {
+            } else if (!user.isAccountNonLocked()) { // user's account is locked
                 if (customUserDetailsService.unlockWhenTimeExpired(user)) {
                     exception = new LockedException("Your account has been unlocked. Please try to login again");
                 } else {
                     exception = new LockedException("Your account is currently locked.");
                 }
-            } else if (!user.isEnabled()) {
+            } else if (!user.isEnabled()) { // user has not activated account
                 exception = new DisabledException("Your account is currently disabled.");
             }
 

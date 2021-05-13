@@ -19,7 +19,6 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final Logger logger = Logger.getLogger(getClass().getName());
 
     private final CustomUserDetailsService customUserDetailsService;
-    private HttpServletRequest request;
 
     public CustomAuthenticationSuccessHandler(CustomUserDetailsService customUserDetailsService) {
         this.customUserDetailsService = customUserDetailsService;
@@ -32,9 +31,9 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(authentication.getName());
 
         User user = customUserDetails.getUser();
-        resetFailedAttempts(user);
+        resetFailedAttempts(user); // resets failed attempts to 0
 
-        handle(request, response, authentication);
+        handle(request, response, authentication); // redirects users after login based on their role
         clearAuthenticationAttributes(request);
 
         super.onAuthenticationSuccess(request, response, authentication);
@@ -50,7 +49,7 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     @Override
     protected void handle(HttpServletRequest request, HttpServletResponse response,
                           Authentication authentication) throws IOException {
-        String targetUrl = Util.determineTargetUrl(authentication);
+        String targetUrl = Util.determineTargetUrl(authentication); // determines the redirect page based on user role
 
         if (response.isCommitted()) {
             logger.info("Response already committed. Unable to redirect to " + targetUrl);
@@ -59,6 +58,5 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
-
 
 }

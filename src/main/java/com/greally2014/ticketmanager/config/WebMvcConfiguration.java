@@ -31,6 +31,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 
         if (dirName.startsWith("../")) dirName = dirName.replace("../", "");
 
+        // allows Spring to detect and use resources stored in the directory location
         registry.addResourceHandler("/" + dirName + "/**").addResourceLocations("file:/" + uploadPath + "/");
     }
 }

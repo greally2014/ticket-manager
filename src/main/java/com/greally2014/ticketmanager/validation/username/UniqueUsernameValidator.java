@@ -17,10 +17,10 @@ public class UniqueUsernameValidator implements ConstraintValidator<UniqueUserna
 
     public boolean isValid(String username, ConstraintValidatorContext context) {
         if (username == null || username.length() < 1 || username.length() > 50) {
-            return true;
+            return true; // other annotations detect these conditions
         }
         try {
-            CustomUserDetails customUserDetails = customUserDetailsService.loadUserByUsername(username);
+            customUserDetailsService.loadUserByUsername(username); // username already exists
             return false;
 
         } catch (UsernameNotFoundException e) {

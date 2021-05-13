@@ -93,9 +93,9 @@
 
         <select th:field="*{type}" class="form-control mb-4 col-4" style="max-width: 300px; margin-right: 50px;">
             <option value="">Select Type</option>
-            <option value="bug">Bug</option>
-            <option value="ui">User Interface</option>
-            <option value="feature">Feature Request</option>
+            <option value="Bug">Bug</option>
+            <option value="User Interface">User Interface</option>
+            <option value="User Experience">User Experience</option>
         </select>
 
         <div th:if="${#fields.hasErrors('type')}"

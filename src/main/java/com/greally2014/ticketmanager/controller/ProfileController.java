@@ -17,6 +17,10 @@ import java.security.Principal;
 @RequestMapping("/profile")
 public class ProfileController {
 
+    /**
+     * strips whitespace from form entries, converting them to null entries if pure whitespace.
+     * pure whitespace entries are then flagged by the @NotNull annotation
+     */
     @InitBinder
     public void initBinder(WebDataBinder webDataBinder) {
         StringTrimmerEditor stringTrimmerEditor = new StringTrimmerEditor(true);
@@ -35,7 +39,6 @@ public class ProfileController {
                 "userProfileDto",
                 customUserDetailsService.findProfileDto(principal.getName())
         );
-
         return "profile/profile";
     }
 
@@ -43,13 +46,10 @@ public class ProfileController {
     public String updateProfile(@Valid @ModelAttribute("userProfileDto") UserProfileDto userProfileDto,
                                 BindingResult bindingResult, Principal principal) throws IOException {
         if (bindingResult.hasErrors()) {
-
             return "profile/profile";
         }
-
         customUserDetailsService.updateProfile(userProfileDto, principal.getName());
-
-        return "redirect:/";
+        return "redirect:/"; // redirects to homepage based on the user role
 
     }
 }

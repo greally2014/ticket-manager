@@ -30,6 +30,7 @@ public class ProjectManagerService {
                 .collect(Collectors.toList());
     }
 
+    // finds all projects relevant to the provided project manager
     @Transactional
     public List<Project> findProjects(String username) {
         return projectManagerRepository.findByUsername(username).getUsersProjects().stream()

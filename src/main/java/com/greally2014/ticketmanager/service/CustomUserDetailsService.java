@@ -76,6 +76,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         this.mailSender = mailSender;
     }
 
+    // used by Spring to authenticate the user and to fetch user details
     @Override
     @Transactional
     public CustomUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -100,6 +101,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Transactional
     public void register(RegistrationDto registrationDto, String siteUrl) throws IOException, MessagingException {
+        // selects entity object by selected role on form
         User user = switch (registrationDto.getFormRole()) {
             case "ROLE_GENERAL_MANAGER" -> new GeneralManager();
             case "ROLE_PROJECT_MANAGER" -> new ProjectManager();
@@ -109,7 +111,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         user.setUsername(registrationDto.getUsername());
 
-        String encodedPassword = bCryptPasswordEncoder.encode(registrationDto.getPassword());
+        String encodedPassword = bCryptPasswordEncoder.encode(registrationDto.getPassword()); // uses bcrypt hashing
         user.setPassword(encodedPassword);
 
         user.setFirstName(registrationDto.getFirstName());
@@ -122,17 +124,17 @@ public class CustomUserDetailsService implements UserDetailsService {
                         roleRepository.findByNameIn(Arrays.asList("ROLE_EMPLOYEE", registrationDto.getFormRole()))
                 )
         );
-        user.setAddress(createUserAddress(registrationDto));
-        user.setAccountNonLocked(true);
+        user.setAddress(createUserAddress(registrationDto)); // creates address embeddable
+        user.setAccountNonLocked(true); // account unlocked by default
 
         String fileName = setPhoto(registrationDto, user);
-        String randomCode = RandomString.make(64);
+        String randomCode = RandomString.make(64); // verification code for verification email
         VerificationCode verificationCode = new VerificationCode(randomCode);
         user.setVerificationCode(verificationCode);
 
         User registeredUser = userRepository.save(user);
 
-        sendVerificationEmail(registeredUser, siteUrl);
+        sendVerificationEmail(registeredUser, siteUrl); // siteUrl is context url of application
 
         saveProfilePicture(registeredUser, fileName, registrationDto.getPhoto());
     }
@@ -152,7 +154,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
 
-        helper.setFrom(fromAddress, senderName);
+        helper.setFrom(fromAddress, senderName); // from header in email
         helper.setTo(toAddress);
         helper.setSubject(subject);
 
@@ -160,7 +162,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         String verifyUrl = siteUrl + "/registration/verify?code=" + user.getVerificationCode().getCode();
         content = content.replace("[[URL]]", verifyUrl);
 
-        helper.setText(content, true);
+        helper.setText(content, true); // message content
 
         mailSender.send(message);
     }
@@ -171,25 +173,23 @@ public class CustomUserDetailsService implements UserDetailsService {
         Calendar calendar = Calendar.getInstance();
 
         if (user == null || user.isEnabled()) {
-            return false;
+            return false; // user does not exist or is already enabled
 
         } else if ((user.getVerificationCode().getExpiryDate().getTime() - calendar.getTime().getTime()) <= 0) {
             try {
-                delete(user.getId());
+                delete(user.getId()); // delete if verification code has expired
             } catch (UserNotFoundException e) {
                 //nothing
             }
             return false;
 
         } else {
-
-            verificationCodeRepository.delete(user.getVerificationCode());
+            verificationCodeRepository.delete(user.getVerificationCode()); // delete used code
             user.setVerificationCode(null);
-
-            user.setEnabled(true);
+            user.setEnabled(true); // set user enabled
             userRepository.save(user);
 
-            return true;
+            return true; // user is verified
         }
     }
 
@@ -198,7 +198,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isPresent()) {
             ResetPasswordCode resetPasswordCode = new ResetPasswordCode(code);
-            user.get().setResetPasswordCode(resetPasswordCode);
+            user.get().setResetPasswordCode(resetPasswordCode); // assigns user a reset password code
             userRepository.save(user.get());
         } else {
             throw new UserNotFoundException("Could not find user with email: " + email);
@@ -215,7 +215,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         String encodedPassword = bCryptPasswordEncoder.encode(newPassword);
         user.setPassword(encodedPassword);
 
-        resetPasswordCodeRepository.delete(user.getResetPasswordCode());
+        resetPasswordCodeRepository.delete(user.getResetPasswordCode()); // deletes used reset password code
         user.setResetPasswordCode(null);
         userRepository.save(user);
     }
@@ -234,11 +234,11 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Transactional
     public void lock(User user) {
         user.setAccountNonLocked(false);
-        user.setLockTime(new Date());
-
+        user.setLockTime(new Date()); // current time
         userRepository.save(user);
     }
 
+    // triggered on login attempt
     @Transactional
     public boolean unlockWhenTimeExpired(User user) {
         long lockTimeInMillis = user.getLockTime().getTime();
@@ -247,11 +247,10 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (lockTimeInMillis + LOCK_TIME_DURATION < currentTimeInMillis) {
             user.setAccountNonLocked(true);
             user.setLockTime(null);
-            user.setFailedAttempt(0);
+            user.setFailedAttempt(0); // reset failed attempts on successful login
 
             userRepository.save(user);
         }
-
         return false;
     }
 
@@ -266,27 +265,31 @@ public class CustomUserDetailsService implements UserDetailsService {
         user.setPhoneNumber(userProfileDto.getPhoneNumber());
         user.setAddress(createUserAddress(userProfileDto));
 
+        // if user added a profile picture
         if (!(userProfileDto.getPhoto() == null || userProfileDto.getPhoto().isEmpty())) {
             String fileName = setPhoto(userProfileDto, user);
             saveProfilePicture(user, fileName, userProfileDto.getPhoto());
         }
-
         userRepository.save(user);
     }
 
     private String setPhoto(UserDto userDto, User user) {
         String fileName;
+        // if no photo is selected, provide default picture
         if (userDto.getPhoto() == null || userDto.getPhoto().isEmpty()) {
             fileName = DEFAULT_PROFILE_PICTURE;
 
         } else {
-            fileName = StringUtils.cleanPath(Objects.requireNonNull(userDto.getPhoto().getOriginalFilename()));
+            // get photo file name if not null
+            fileName = StringUtils.cleanPath(
+                    Objects.requireNonNull(userDto.getPhoto().getOriginalFilename())
+            );
         }
-
         user.setPhoto(fileName);
         return fileName;
     }
 
+    // create address embeddable
     @Transactional
     public Address createUserAddress(UserDto userDto) {
         AddressDto addressDto = userDto.getAddress();
@@ -303,17 +306,20 @@ public class CustomUserDetailsService implements UserDetailsService {
         return new UserProfileDto(loadUserByUsername(username).getUser());
     }
 
+    /**
+     *
+     * @param principal logged in user
+     * @return all employees if general manager, all employees on assigned projects if project manager
+     */
     @Transactional
     public Set<User> findAllEmployees(Principal principal) {
         List<User> users;
         User user = loadUserByUsername(principal.getName()).getUser();
-
         if (hasRole(user,"ROLE_PROJECT_MANAGER")) {
             users = projectManagerService.findAllEmployees(principal.getName());
         } else {
             users = new ArrayList<>(userRepository.findAll());
         }
-
         return users.stream()
                 .filter(o -> !o.getUsername().equals(principal.getName()))
                 .filter(o -> !hasRole(o, "ROLE_GENERAL_MANAGER"))
@@ -325,11 +331,15 @@ public class CustomUserDetailsService implements UserDetailsService {
     public User delete(Long id) throws UserNotFoundException {
         User user = findById(id);
 
+        // submitters are the only user set as a foreign key for the Ticket enity
+        // as a result, they must be set to null on all of their tickets
+        // or else they cannot be deleted
+        // if they still exist as foreign keys on tickets after they are deleted
+        // they will be cascade saved
         if (user.getRoles().stream().anyMatch(o -> o.getName().equals("ROLE_SUBMITTER"))) {
             Submitter submitter = (Submitter) user;
             submitter.getTickets().forEach(o -> o.setSubmitter(null));
         }
-
         userRepository.deleteById(id);
         return user;
     }

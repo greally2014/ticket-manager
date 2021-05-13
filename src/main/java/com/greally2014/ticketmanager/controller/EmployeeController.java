@@ -1,11 +1,8 @@
 package com.greally2014.ticketmanager.controller;
 
-import com.greally2014.ticketmanager.entity.User;
 import com.greally2014.ticketmanager.exception.UserNotFoundException;
 import com.greally2014.ticketmanager.service.CustomUserDetailsService;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.session.SessionInformation;
-import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
-import java.util.List;
 
 @Controller
 @RequestMapping("/employees")
@@ -32,33 +28,18 @@ public class EmployeeController {
                 "employees",
                 customUserDetailsService.findAllEmployees(principal)
         );
-
-        return "employee/employee-list";
+        return "employee/employee-list"; // table of employee entries
     }
 
     @GetMapping("/delete")
     @PreAuthorize("hasRole('GENERAL_MANAGER')")
-    public String deleteEmployee(@RequestParam("id") Long id, SessionRegistry sessionRegistry) {
+    public String deleteEmployee(@RequestParam("id") Long id) {
         try {
-            User user = customUserDetailsService.delete(id);
-
-            Object deletedPrincipal = null;
-            for (Object principalObject : sessionRegistry.getAllPrincipals()) {
-                Principal principal = (Principal) principalObject;
-                if (principal.getName().equals(user.getUsername())) {
-                    deletedPrincipal = principalObject;
-                }
-            }
-            List<SessionInformation> activeSessions = sessionRegistry.getAllSessions(deletedPrincipal, true);
-            for (SessionInformation session : activeSessions) {
-                session.expireNow();;
-                sessionRegistry.removeSessionInformation((session.getSessionId()));
-            }
+            customUserDetailsService.delete(id);
 
         } catch (UserNotFoundException e) {
-            // nothing
+            // assume project has been deleted
         }
-
         return "redirect:/employees/listAll";
     }
 
@@ -66,12 +47,9 @@ public class EmployeeController {
     public String showEmployeeDetailsPage(@RequestParam("id") Long id, Model model) {
         try {
             model.addAttribute("employee", customUserDetailsService.findById(id));
-
             return "employee/employee-details";
-
         } catch (UserNotFoundException e) {
-
-            return "redirect:/employees/listAll";
+            return "redirect:/employees/listAll"; // return to employee table if employee not found
         }
     }
 

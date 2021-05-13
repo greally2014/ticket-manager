@@ -87,9 +87,9 @@
         <select th:field="*{ticketDto.type}" class="form-control form-select mb-4"
                 style="max-width: 400px; margin-right: 50px; margin-top: 40px;">
             <option value="">Select Ticket Category</option>
-            <option value="bug">Bug</option>
-            <option value="ui">User Interface</option>
-            <option value="general">General</option>
+            <option value="Bug">Bug</option>
+            <option value="User Interface">User Interface</option>
+            <option value="User Experience">User Experience</option>
         </select>
 
         <div th:if="${#fields.hasErrors('ticketDto.type')}" style="margin-bottom: 25px; color: #ff0000">

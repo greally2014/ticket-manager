@@ -3,13 +3,12 @@ package com.greally2014.ticketmanager.dto.user;
 import com.greally2014.ticketmanager.validation.fieldMatch.FieldMatch;
 import com.greally2014.ticketmanager.validation.password.ValidPassword;
 import com.greally2014.ticketmanager.validation.username.UniqueUsername;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @FieldMatch.List(
-        @FieldMatch(first = "password", second = "matchingPassword")
+        @FieldMatch(first = "password", second = "matchingPassword") // password fields must match
 )
 public class RegistrationDto extends UserDto {
 

@@ -42,25 +42,29 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .antMatchers("/projects")
+                // only users with these roles can access /projects
                     .hasAnyRole("GENERAL_MANAGER", "PROJECT_MANAGER")
                 .antMatchers("/")
+                // user must have role EMPLOYEE to access the application
                     .hasRole("EMPLOYEE")
             .and()
             .formLogin()
-                .loginPage("/login")
-                .loginProcessingUrl("/processLogin")
+                .loginPage("/login") // login page returned by controller with mapping /login
+                .loginProcessingUrl("/processLogin") // method with mapping /processLogin responsible for processing login attempt
                 .usernameParameter("username")
                 .passwordParameter("password")
+                // our newly defined authentication handlers are passed into spring security to use
                 .successHandler(customAuthenticationSuccessHandler)
                 .failureHandler(customAuthenticationFailureHandler)
                 .permitAll()
             .and()
             .logout()
                 .invalidateHttpSession(true)
-                .logoutUrl("/processLogout")
+                .logoutUrl("/processLogout") // url required to logout
                 .permitAll()
             .and()
             .exceptionHandling()
+                // page displayed when a user attempts to call functionality they should not be allowed to use
                 .accessDeniedPage("/access-denied");
     }
 

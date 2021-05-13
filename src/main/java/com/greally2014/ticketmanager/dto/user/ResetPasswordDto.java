@@ -11,7 +11,7 @@ public class ResetPasswordDto {
 
     @NotNull(message = "Password is required")
     @Size(min = 8, max = 50, message = "Password must contain at least 8 characters")
-    @ValidPassword
+    @ValidPassword // must contain a capital letter and special character
     private String password;
     private String matchingPassword;
 

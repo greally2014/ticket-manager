@@ -31,6 +31,10 @@ import java.util.List;
 @RequestMapping("/tickets")
 public class TicketController {
 
+    /**
+     * strips whitespace from form entries, converting them to null entries if pure whitespace.
+     * pure whitespace entries are then flagged by the @NotNull annotation
+     */
     @InitBinder
     public void initBinder(WebDataBinder webDataBinder) {
         StringTrimmerEditor stringTrimmerEditor = new StringTrimmerEditor(true);
@@ -56,15 +60,13 @@ public class TicketController {
         model.addAttribute("tickets",
                 ticketService.findAllByRole(principal.getName())
         );
-
-        return "ticket/ticket-list";
+        return "ticket/ticket-list"; // table of ticket entries
     }
 
     @GetMapping("/showAddForm")
     @PreAuthorize("hasRole('SUBMITTER')")
     public String showAddTicketForm(Model model) {
         model.addAttribute("ticketCreationDto", ticketService.getCreationDto());
-
         return "ticket/ticket-add";
     }
 
@@ -73,19 +75,17 @@ public class TicketController {
     public String addTicket(@ModelAttribute("ticketCreationDto") @Valid TicketCreationDto ticketCreationDto,
                             BindingResult bindingResult, Principal principal) {
         if (bindingResult.hasErrors()) {
+            // resets list of projects in case the submitter was added to a new project/removed from an existing project
             ticketCreationDto.setProjectList(submitterService.findProjects(principal.getName()));
-
             return "ticket/ticket-add";
 
         } else {
             try {
                 ticketService.add(ticketCreationDto);
-
                 return "redirect:/tickets/listAll";
 
             } catch (ProjectNotFoundException e) {
-
-                return "redirect:/tickets/showAddForm";
+                return "redirect:/tickets/showAddForm";// in the event a selected project does not exist, return the updated creation form
             }
         }
     }
@@ -94,14 +94,12 @@ public class TicketController {
     public String showTicketDetailsPage(@RequestParam("id") Long id, Model model) {
         try {
             model.addAttribute("ticketDetailsDto", ticketService.getDetailsDto(id));
-            model.addAttribute("ticketCommentsCreationDto", new TicketCommentsCreationDto(id));
-            model.addAttribute("ticketDocumentUploadDto", new TicketDocumentUploadDto(id));
-
+            model.addAttribute("ticketCommentsCreationDto", new TicketCommentsCreationDto(id)); // dto for comment data
+            model.addAttribute("ticketDocumentUploadDto", new TicketDocumentUploadDto(id)); // dto for file data
             return "ticket/ticket-details";
 
         } catch (TicketNotFoundException e) {
-
-            return "redirect:/tickets/listAll";
+            return "redirect:/tickets/listAll"; // return the ticket table if the selected ticket does not exist
         }
     }
 
@@ -110,12 +108,10 @@ public class TicketController {
     public String showUpdateTicketFieldsForm(@RequestParam("id") Long id, Model model) {
         try {
             model.addAttribute("ticketDto", ticketService.getDto(id));
-
             return "ticket/ticket-update-fields";
 
         } catch (TicketNotFoundException e) {
-
-            return "redirect:/tickets/listAll";
+            return "redirect:/tickets/listAll"; // return the ticket table if the selected ticket does not exist
         }
     }
 
@@ -124,18 +120,15 @@ public class TicketController {
     public String updateTicketFields(@ModelAttribute("ticketDto") @Valid TicketDto ticketDto,
                                      BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
-
             return "ticket/ticket-update-fields";
 
         } else {
             try {
                 ticketService.updateFields(ticketDto);
-
                 return showTicketDetailsPage(ticketDto.getId(), model);
 
             } catch (TicketNotFoundException e) {
-
-                return "redirect:/tickets/listAll";
+                return "redirect:/tickets/listAll"; // return the ticket table if the selected ticket does not exist
             }
         }
     }
@@ -147,10 +140,9 @@ public class TicketController {
             ticketService.delete(id);
 
         } catch (TicketNotFoundException e) {
-            //nothing
+            // assume the ticket has already been closed
         }
-
-        return "redirect:/tickets/listAll";
+        return "redirect:/tickets/listAll"; // return the ticket table if the selected ticket does not exist/has been closed
     }
 
     @GetMapping("/showAddDeveloperForm")
@@ -158,17 +150,16 @@ public class TicketController {
     public String showAddTicketDeveloperForm(@RequestParam("id") Long id, Model model) {
         try {
             TicketDto ticketDto = ticketService.getDto(id);
-            List<UserProfileDto> userDtoList =
-                    ticketService.findAllDeveloperDtoNotAdded(id);
+
+            // returns all developers assigned to the ticket's project that are not already assigned to the ticket
+            List<UserProfileDto> userDtoList = ticketService.findAllDeveloperDtoNotAdded(id);
             TicketAddDeveloperDto ticketAddDeveloperDto = new TicketAddDeveloperDto(ticketDto, userDtoList);
 
             model.addAttribute("ticketAddDeveloperDto", ticketAddDeveloperDto);
-
             return "ticket/ticket-add-developer";
 
         } catch (TicketNotFoundException e) {
-
-            return "redirect:/tickets/listAll";
+            return "redirect:/tickets/listAll"; // return the ticket table if the selected ticket does not exist
         }
     }
 
@@ -180,12 +171,11 @@ public class TicketController {
 
         if (bindingResult.hasErrors()) {
             try {
+                // re-fetches developers not already assigned in case new developers were created/existing developers were deleted
                 ticketAddDeveloperDto.setDeveloperDtoList(ticketService.findAllDeveloperDtoNotAdded(ticketId));
-
                 return "ticket/ticket-add-developer";
 
             } catch (TicketNotFoundException e) {
-
                 return "redirect:/tickets/listAll";
             }
 
@@ -193,16 +183,14 @@ public class TicketController {
             try {
                 ticketService.addDevelopers(ticketAddDeveloperDto);
                 ticketService.setStatus(ticketId);
-
-                return showTicketDetailsPage(ticketId, model);
+                return showTicketDetailsPage(ticketId, model); // if successfully assigned, return details page
 
             } catch (UserNotFoundException e) {
-
+                // if any selected developer is not found, return the form with an updated developer list
                 return showAddTicketDeveloperForm(ticketId, model);
 
             } catch (TicketNotFoundException e) {
-
-                return "redirect:/tickets/listAll";
+                return "redirect:/tickets/listAll"; // return the ticket table if the selected ticket does not exist
             }
 
         }
@@ -218,30 +206,26 @@ public class TicketController {
             ticketService.setStatus(ticketId);
 
         } catch (UserNotFoundException e) {
-            // nothing
+            // assume the developer has already been kicked
 
         } catch (TicketNotFoundException e) {
-
-            return "redirect:/tickets/listAll";
+            return "redirect:/tickets/listAll"; // return the ticket table if the selected ticket does not exist
         }
-
-        return showTicketDetailsPage(ticketId, model);
+        return showTicketDetailsPage(ticketId, model); // return the details page if the developer is not found/is kicked
     }
 
     @GetMapping("/showDeveloperDetails")
     @PreAuthorize("hasAnyRole('GENERAL_MANAGER', 'PROJECT_MANAGER')")
     public String showDeveloperDetailsPage(@RequestParam("developerId") Long developerId,
-                                           @RequestParam("ticketId") Long ticketId,
+                                           @RequestParam("ticketId") Long ticketId, // used for a link back to the details page
                                            Model model) {
         try {
             model.addAttribute("employee", customUserDetailsService.findById(developerId));
             model.addAttribute("ticketId", ticketId);
-
             return "ticket/ticket-employee-details";
 
         } catch (UserNotFoundException e) {
-
-            return showTicketDetailsPage(ticketId, model);
+            return showTicketDetailsPage(ticketId, model); // return the details page if the developer is not found
         }
     }
 
@@ -256,26 +240,21 @@ public class TicketController {
                 model.addAttribute("ticketDetailsDto", ticketService.getDetailsDto(ticketId));
                 model.addAttribute("ticketCommentsCreationDto", ticketCommentsCreationDto);
                 model.addAttribute("ticketDocumentUploadDto", new TicketDocumentUploadDto(ticketId));
-
                 return "ticket/ticket-details";
 
             } catch (TicketNotFoundException e) {
-
-                return "redirect:/tickets/listAll";
+                return "redirect:/tickets/listAll"; // return the ticket table if the selected ticket does not exist
             }
 
         } else {
             User user = customUserDetailsService.loadUserByUsername(principal.getName()).getUser();
             String comment = ticketCommentsCreationDto.getComment();
-
             try {
                 ticketService.addComment(user, ticketId, comment);
-
                 return showTicketDetailsPage(ticketId, model);
 
             } catch (TicketNotFoundException e) {
-
-                return "redirect:/tickets/listAll";
+                return "redirect:/tickets/listAll"; // return the ticket table if the selected ticket does not exist
             }
         }
     }
@@ -285,12 +264,10 @@ public class TicketController {
     public String deleteTicketComments(@RequestParam("ticketId") Long ticketId, Model model) {
         try {
             ticketService.deleteComments(ticketId);
-
             return showTicketDetailsPage(ticketId, model);
 
         } catch (TicketNotFoundException e) {
-
-            return "redirect:/tickets/listAll";
+            return "redirect:/tickets/listAll"; // return the ticket table if the selected ticket does not exist
         }
     }
 
@@ -305,24 +282,20 @@ public class TicketController {
                 model.addAttribute("ticketDetailsDto", ticketService.getDetailsDto(ticketId));
                 model.addAttribute("ticketCommentsCreationDto", new TicketCommentsCreationDto(ticketId));
                 model.addAttribute("ticketDocumentUploadDto", ticketDocumentUploadDto);
-
                 return "ticket/ticket-details";
 
             } catch (TicketNotFoundException e) {
-
-                return "redirect:/tickets/listAll";
+                return "redirect:/tickets/listAll"; // return the ticket table if the selected ticket does not exist
             }
 
         } else {
             try {
                 MultipartFile document = ticketDocumentUploadDto.getDocument();
                 ticketService.addDocument(ticketId, document);
-
                 return showTicketDetailsPage(ticketId, model);
 
             } catch (TicketNotFoundException e) {
-
-                return "redirect:/tickets/listAll";
+                return "redirect:/tickets/listAll"; // return the ticket table if the selected ticket does not exist
             }
         }
     }
@@ -336,13 +309,11 @@ public class TicketController {
             ticketService.deleteDocument(ticketId, ticketDocumentId);
 
         } catch (TicketNotFoundException e) {
-
-            return "redirect:/tickets/listAll";
+            return "redirect:/tickets/listAll"; // return the ticket table if the selected ticket does not exist
 
         } catch (TicketDocumentNotFoundException e) {
-            //nothing
+            // assume the file has already been deleted
         }
-
         return showTicketDetailsPage(ticketId, model);
 
     }
@@ -357,10 +328,9 @@ public class TicketController {
         try {
             TicketDocument ticketDocument = ticketService.findDocument(ticketId, ticketDocumentId);
 
-            response.setContentType("application/octet-stream");
-            String headerKey = "Content-Disposition";
+            response.setContentType("application/octet-stream"); // binary file MIME attachment (8-bit stream)
+            String headerKey = "Content-Disposition"; // indicates the attachment is to be downloaded and saved locally
             String headerValue = "attachment; filename=" + ticketDocument.getName();
-
             response.setHeader(headerKey, headerValue);
 
             ServletOutputStream outputStream = response.getOutputStream();
@@ -370,7 +340,7 @@ public class TicketController {
 
 
         } catch (TicketNotFoundException e) {
-            listAllTickets(model, principal);
+            listAllTickets(model, principal); // return the ticket table if the selected ticket does not exist
             e.printStackTrace();
 
         } catch (TicketDocumentNotFoundException e) {

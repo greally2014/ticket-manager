@@ -22,13 +22,17 @@ import java.util.Map;
 @RequestMapping("/registration")
 public class RegistrationController {
 
+    /**
+     * strips whitespace from form entries, converting them to null entries if pure whitespace.
+     * pure whitespace entries are then flagged by the @NotNull annotation
+     */
     @InitBinder
     public void initBinder(WebDataBinder webDataBinder) {
         StringTrimmerEditor stringTrimmerEditor = new StringTrimmerEditor(true);
         webDataBinder.registerCustomEditor(String.class, stringTrimmerEditor);
     }
 
-    private Map<String, String> roles;
+    private Map<String, String> roles; // map containing all possible roles. initialised at build time
 
     private final CustomUserDetailsService customUserDetailsService;
 
@@ -40,7 +44,6 @@ public class RegistrationController {
     public String showRegistrationForm(Model model) {
         model.addAttribute("registrationDto", new RegistrationDto());
         model.addAttribute("roles", roles);
-
         return "register/register";
     }
 
@@ -50,24 +53,19 @@ public class RegistrationController {
                                       HttpServletRequest request) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("roles", roles);
-
             return "register/register";
 
         } else {
             try {
                 customUserDetailsService.register(registrationDto, getSiteUrl(request));
-
                 return "register/registration-confirmation";
 
             } catch (IOException | MessagingException e) {
                 e.printStackTrace();
-                customUserDetailsService.deleteByUsername(registrationDto);
-
+                customUserDetailsService.deleteByUsername(registrationDto); // delete registered user in the event their email is not valid
                 return "register/verify-fail";
 
             }
-
-
         }
     }
 

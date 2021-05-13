@@ -57,13 +57,14 @@ public class ProjectService {
         User user = customUserDetailsService.loadUserByUsername(username).getUser();
         List<Project> projects;
 
+        // if user is a project manager, fetch all projects from the project manager service
         if (user.getRoles().stream().anyMatch(o -> o.getName().equals("ROLE_PROJECT_MANAGER"))) {
             projects = projectManagerService.findProjects(username);
-        } else {
+        } else { // if the user is a general manager, fetch everything
             projects = projectRepository.findAll();
         }
 
-        projects.sort(Comparator.comparing(Project::getTitle));
+        projects.sort(Comparator.comparing(Project::getTitle)); // sorts project objects based on title
 
         return projects;
     }
@@ -75,31 +76,31 @@ public class ProjectService {
                 projectCreationDto.getProjectDto().getDescription(),
                 LocalDate.now()
         );
-
+        // only general managers can create projects
         GeneralManager creator = (GeneralManager) customUserDetailsService.loadUserByUsername(username).getUser();
         project.setCreator(creator);
 
+        // collects the ids of all selected project managers
         List<Long> selectedProjectManagerIds = projectCreationDto.getProjectManagerDtoList().stream()
                 .filter(UserProfileDto::getFlag)
                 .map(UserProfileDto::getId)
                 .collect(Collectors.toList());
 
+        // throws UserNotFoundException if a selected user is not in the database
         for (Long id : selectedProjectManagerIds) {
             customUserDetailsService.findById(id);
         }
 
         List<UsersProjects> usersProjects = projectManagerService.findAll(selectedProjectManagerIds).stream()
-                .map(o -> (new UsersProjects(o, project, LocalDate.now())))
+                .map(o -> (new UsersProjects(o, project, LocalDate.now()))) // date created
                 .collect(Collectors.toList());
 
         project.setUsersProjects(usersProjects);
-
         projectRepository.save(project);
     }
 
     @Transactional
     public ProjectCreationDto getCreationDto() {
-
         return new ProjectCreationDto(new ProjectDto(), projectManagerService.findProfileDtoList());
     }
 
@@ -112,18 +113,24 @@ public class ProjectService {
 
     @Transactional
     public void delete(Long id) throws ProjectNotFoundException {
-        findById(id);
+        findById(id); // throws ProjectNotFoundException if empty
         projectRepository.deleteById(id);
     }
 
     @Transactional
     public ProjectDto getDto(Long id) throws ProjectNotFoundException {
-
         return new ProjectDto(findById(id));
     }
 
+    /**
+     *
+     * @param id project id
+     * @param role project manager, developer, or submitter
+     * @return a list of all users of the supplied role that are working on the project with the supplied id
+     * @throws ProjectNotFoundException
+     */
     @Transactional
-    public List<UserProfileDto> findAllUserDto(Long id, String role) throws ProjectNotFoundException {
+    public List<UserProfileDto> findAllUserDtoByRole(Long id, String role) throws ProjectNotFoundException {
         List<UserProfileDto> userProfileDtoList = findById(id).getUsersProjects().stream()
                 .map(UsersProjects::getUser)
                 .filter(o -> o.getRoles().stream()
@@ -148,9 +155,9 @@ public class ProjectService {
     public ProjectDetailsDto getDetailsDto(Long id) throws ProjectNotFoundException {
         return new ProjectDetailsDto(
                 getDto(id),
-                findAllUserDto(id, "ROLE_PROJECT_MANAGER"),
-                findAllUserDto(id, "ROLE_DEVELOPER"),
-                findAllUserDto(id, "ROLE_SUBMITTER"),
+                findAllUserDtoByRole(id, "ROLE_PROJECT_MANAGER"),
+                findAllUserDtoByRole(id, "ROLE_DEVELOPER"),
+                findAllUserDtoByRole(id, "ROLE_SUBMITTER"),
                 findAllTickets(id)
         );
     }
@@ -162,29 +169,41 @@ public class ProjectService {
         usersProjectsService.delete(userId, projectId);
     }
 
+    /**
+     * Returns a list of all users of the supplied role
+     * that are not assigned to project of the supplied id
+     *
+     * This method is used to provide all users of a particular role
+     * eligible to be added by checkbox to the project
+     */
     @Transactional
     public List<UserProfileDto> findAllUserDtoNotAdded(Long id, Long roleIdentifier) throws ProjectNotFoundException {
 
-        List<UserProfileDto> alreadyAdded;
-        List<UserProfileDto> userDtoList;
+        List<UserProfileDto> alreadyAdded; // list of users of a role already assigned
+        List<UserProfileDto> userDtoList; // list of all application users of a role
         ProjectDetailsDto projectDetailsDto = getDetailsDto(id);
 
+        // project managers
         if (roleIdentifier == 1) {
             alreadyAdded = projectDetailsDto.getProjectManagerDtoList();
             userDtoList = projectManagerService.findProfileDtoList();
 
+            // developers
         } else if (roleIdentifier == 2) {
             alreadyAdded = projectDetailsDto.getDeveloperDtoList();
             userDtoList = developerService.findProfileDtoList();
 
+            // submitters
         } else {
             alreadyAdded = projectDetailsDto.getSubmitterDtoList();
             userDtoList = submitterService.findProfileDtoList();
         }
 
+        // removes users already assigned from the list of all users
         return removeAlreadyAdded(alreadyAdded, userDtoList);
     }
 
+    //
     @Transactional
     public List<UserProfileDto> removeAlreadyAdded(List<UserProfileDto> alreadyAdded,
                                                    List<UserProfileDto> userDtoList) {
@@ -211,7 +230,7 @@ public class ProjectService {
         Project project = findById(projectAddUserDto.getProjectDto().getId());
 
         for (UserProfileDto userProfileDto : projectAddUserDto.getUserDtoList()) {
-            if (userProfileDto.getFlag()) {
+            if (userProfileDto.getFlag()) { // if selected
                 User user = customUserDetailsService.findById(userProfileDto.getId());
                 usersProjectsService.add(user, project);
             }

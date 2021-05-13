@@ -12,8 +12,8 @@ public class FieldMatchValidator implements ConstraintValidator<FieldMatch, Obje
     private String message;
 
     public void initialize(FieldMatch constraint) {
-        firstFieldName = constraint.first();
-        secondFieldName = constraint.second();
+        firstFieldName = constraint.first(); // first password field
+        secondFieldName = constraint.second(); // second password field
         message = constraint.message();
     }
 
@@ -23,8 +23,11 @@ public class FieldMatchValidator implements ConstraintValidator<FieldMatch, Obje
             Object firstObject = new BeanWrapperImpl(value).getPropertyValue(firstFieldName);
             Object secondObject = new BeanWrapperImpl(value).getPropertyValue(secondFieldName);
 
+                    // @NotNull detects null
             valid = firstObject == null && secondObject == null ||
+                    // @Size detects length
                     firstObject.toString().length() < 8 ||
+                    // true if match
                     firstObject.equals(secondObject);
 
         } catch (Exception placeholder) {
@@ -37,7 +40,6 @@ public class FieldMatchValidator implements ConstraintValidator<FieldMatch, Obje
                     .addConstraintViolation()
                     .disableDefaultConstraintViolation();
         }
-
         return valid;
     }
 }

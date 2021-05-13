@@ -86,7 +86,7 @@
                     <a th:href="@{/tickets/close(id=${ticketDetailsDto.ticketDto.id})}"
                        sec:authorize="hasRole('DEVELOPER')"
                        class="btn btn-danger btn-sm"
-                       onclick="if (!(confirm('Are you sure you want to close this project?'))) return false">
+                       onclick="if (!(confirm('Are you sure you want to close this ticket?'))) return false">
                         Close
                     </a>
                 </div>

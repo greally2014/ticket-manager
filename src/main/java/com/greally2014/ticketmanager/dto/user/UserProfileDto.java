@@ -3,7 +3,6 @@ package com.greally2014.ticketmanager.dto.user;
 import com.greally2014.ticketmanager.entity.DevelopersTickets;
 import com.greally2014.ticketmanager.entity.User;
 import com.greally2014.ticketmanager.entity.UsersProjects;
-import org.springframework.web.multipart.MultipartFile;
 
 public class UserProfileDto extends UserDto {
 
@@ -17,7 +16,7 @@ public class UserProfileDto extends UserDto {
 
     private DevelopersTickets developersTickets;
 
-    private boolean flag;
+    private boolean flag; // used for selection by checkbox, false by default
 
     public UserProfileDto(User user) {
         super(user.getFirstName(), user.getLastName(), user.getGender(), user.getEmail(),
@@ -56,7 +55,7 @@ public class UserProfileDto extends UserDto {
 
     public String getPhotoImagePath() {
         if (photoName == null || id == null) return null;
-        return "/src/main/resources/profile-pictures/" + id + "/" + photoName;
+        return "/src/main/resources/profile-pictures/" + id + "/" + photoName; // path to profile picture
     }
 
     public UsersProjects getUsersProjects() {

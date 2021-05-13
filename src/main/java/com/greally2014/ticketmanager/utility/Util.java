@@ -4,7 +4,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.nio.file.*;
 import java.util.Collection;
@@ -13,12 +12,18 @@ import java.util.Map;
 
 public class Util {
 
+    /**
+     *
+     * @param uploadDir directory to user's profile picture folder
+     * @param fileName profile picture file name
+     * @param file profile picture file data
+     */
     public static void saveFile(String uploadDir, String fileName, MultipartFile file) throws IOException {
         Path uploadPath = Paths.get(uploadDir);
 
-        deleteDirectory(uploadPath);
+        deleteDirectory(uploadPath); // delete directory and recreate on each picture update
 
-        Files.createDirectories(uploadPath);
+        Files.createDirectories(uploadPath); // create directory
 
         try (InputStream inputStream = file.getInputStream()) {
             Path filePath = uploadPath.resolve(fileName);
@@ -33,11 +38,6 @@ public class Util {
         if (Files.exists(path)) {
             Files.walk(path).map(Path::toFile).forEach(File::delete);
         }
-    }
-
-    public static String getSiteURL(HttpServletRequest request) {
-        String siteURL = request.getRequestURL().toString();
-        return siteURL.replace(request.getServletPath(), "");
     }
 
     public static String determineTargetUrl(Authentication authentication) {
